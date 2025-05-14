@@ -1,0 +1,37 @@
+{
+  "name": "circuits",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p build && circom src/email_content.circom -l ./node_modules --wasm --r1cs --sym -o ./build",
+    "test": "NODE_OPTIONS=--max_old_space_size=16384 jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@zk-email/circuits": "6.3.3-nightly-20250214",
+    "@zk-email/helpers": "^6.4.2",
+    "@zk-email/jwt-tx-builder-circuits": "^0.1.0",
+    "@zk-email/zk-regex-circom": "^2.3.2",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7"
+  },
+  "devDependencies": {
+    "@types/circomlibjs": "^0.1.6",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3",
+    "@babel/preset-env": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@types/pako": "^2.0.3",
+    "babel-preset-jest": "^29.6.3",
+    "chai": "^4.3.7",
+    "ffjavascript": "^0.2.59",
+    "jest": "^29.7.0",
+    "mocha": "^10.2.0",
+    "pako": "^2.1.0",
+    "circom_tester": "^0.0.22"
+  }
+}
