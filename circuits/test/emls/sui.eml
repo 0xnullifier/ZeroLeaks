@@ -1,0 +1,826 @@
+Delivered-To: utkarsh382004@gmail.com
+Received: by 2002:a05:6200:41cd:b0:596:65f5:af37 with SMTP id h13csp2558202qne;
+        Fri, 23 May 2025 09:12:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGHQ5r+GEVMVH2phITlevDO4I5yhPn8YP80YJLQXsTSSnRLpfY9hBQRjTi/z/BEzE9uMpRB
+X-Received: by 2002:a05:620a:3722:b0:7c5:405e:e88f with SMTP id af79cd13be357-7cd47f13121mr4681302285a.21.1748016776095;
+        Fri, 23 May 2025 09:12:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748016776; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PnYYL7cGMuKH3D7lVfeFqG6q0a03zANtnwlqSiHp3PCdF2E3//gVmyMFWV0lhXfJhN
+         AL5qcQYj0BVoy89SHLiU28+5RkEy/zi9YS2E4nycM5FzllQk88KpMnuRlwbNEAXbGWKH
+         PtumjnLiVFCMiZubJCCoJSMWfN09riQ4HRjVWjXWs56qsAao9ROwj+wAn75j6vtVeAla
+         7DQIf1/VXmftN2Cunv4wF67AhfC5dZBAXiK3CgIMbSJD91ERbXCAptwgD3eVPxdnJ2Ki
+         VBrNhTPdGrAABmJa2fwhvLvZ/uZGZQkUxqAGziP07fTRXVAZdEloGYbUpIAJmxqL2VxF
+         0AgA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:list-unsubscribe-post:precedence:mime-version:subject
+         :message-id:to:reply-to:from:date:list-unsubscribe:dkim-signature
+         :dkim-signature;
+        bh=ARkHnl0poa1v0NhXtUJgKYjkig83bWJZGMVAk1Z7mrs=;
+        fh=qdNBHtYJUOjyR/iDNms1O57UXRkJtte97WaltAPIKtA=;
+        b=Wg82U6vqzQIGWTZBtjq2pYfalLRn9WeBGr2OUIJq8QMnrlSeaP1khWRsA+nAppasRw
+         Z9ZPQgOk1X7c6+0AZt3L6GupammFAQ29H/zBIE5BZTeQvrOd00x2PjQcWanqmsxzdC16
+         kMbHbM6yzZT1vhNj7GnYoq0PpaSUK0AukVN455WcUjnZCFzh8rDsIHewGlMqMpLejNoH
+         +Msl8DZOIYtiah3Edm4aq9FjA+B/TAJ7mROFUsLY9cz0UhW+KPRQrZA9PlrThOPqNSkn
+         KBRj3zlvdXzE4Rovmz8RizQjivHxwlMSJQKA0RiK4ipgYYCNdiyJr02EQQzh54R1P8Mq
+         vnvQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@23860326m.sui.io header.s=hs2 header.b=N+HXDoJG;
+       dkim=pass header.i=@sui.io header.s=hs2-23860326 header.b=jr5LKejc;
+       spf=pass (google.com: domain of 1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io designates 158.247.21.141 as permitted sender) smtp.mailfrom="1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=sui.io
+Return-Path: <1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io>
+Received: from bid4697.23860326m.sui.io (bid4697.23860326m.sui.io. [158.247.21.141])
+        by mx.google.com with ESMTPS id af79cd13be357-7cd4688c506si1806791585a.303.2025.05.23.09.12.55
+        for <utkarsh382004@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 23 May 2025 09:12:56 -0700 (PDT)
+Received-SPF: pass (google.com: domain of 1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io designates 158.247.21.141 as permitted sender) client-ip=158.247.21.141;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@23860326m.sui.io header.s=hs2 header.b=N+HXDoJG;
+       dkim=pass header.i=@sui.io header.s=hs2-23860326 header.b=jr5LKejc;
+       spf=pass (google.com: domain of 1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io designates 158.247.21.141 as permitted sender) smtp.mailfrom="1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=sui.io
+Received: by 172.16.185.17 with SMTP id a0cgfhxxtp4xci0vbo1bs02ezj76hsmpfbvvdthiymg;
+        Fri, 23 May 2025 16:12:55 GMT
+DKIM-Signature: v=1; s=hs2; d=23860326m.sui.io; 
+        i=@23860326m.sui.io; 
+        h=sender:from:from:reply-to:to:to:cc:cc:subject:subject:list-unsubscribe:form-sub:feedback-id:list-unsubscribe-post; 
+        a=rsa-sha256; c=relaxed/relaxed; 
+        bh=ARkHnl0poa1v0NhXtUJgKYjkig83bWJZGMVAk1Z7mrs=; 
+        b=N+HXDoJGgq0YPpsjI0Nmh+UJbCJAQEauBL0mkSFQIDYpiZDkMJrFp5CqJpZnSo
+         NtoiBJAk+KX6xYAYNlyTXyct56nh4161PoLnRtg1MzgzgVxceJafIZYmO/Ofsk9
+         1tqbwOaUfed+2j79I5DRgfet+MEMwwltyt5mkRVyyeXFOjghkGPk9BE0iE8TFSp
+         CYR0y2WpPtuMI2M7n9hGLMT8P+vpC37F/IBmMZ92LZ/Z6hXYwW8WNx8Rbj/i8C4
+         p/7fD7sSAwg3m0WlTdmJ9saVVyX+0RHYsqrlaEsPzhdKGsJtzMTJABiNdihHMlT
+         Quy9/z9xqxji6WTHnB2pAXKlg0ew==; q=dns/txt; t=1748016775; 
+        x=1748279575;
+DKIM-Signature: v=1; s=hs2-23860326; d=sui.io; i=@sui.io; 
+        h=sender:from:from:reply-to:to:to:cc:cc:subject:subject:list-unsubscribe:form-sub:feedback-id:list-unsubscribe-post; 
+        a=rsa-sha256; c=relaxed/relaxed; 
+        bh=ARkHnl0poa1v0NhXtUJgKYjkig83bWJZGMVAk1Z7mrs=; 
+        b=jr5LKejcxOrHgSOdp/qmfxfiAYncXnlYva0kqepTrpEyS2kWIE0yNyKF5U/dlG
+         Zr9JB4/yRrlBFXK9RFujsp/oz0/6SDyxNBf3EbnvoW9XP43YE7HNUfMOp5YBCy/
+         rxfDkld0gQOW+FYT7IOvwcPPe8eM3uNcD3cUfDdYNJQwVEf60zPBGl2TfTK0Quo
+         kzH8AEYaEMTFJQ04ekTVK2ZYPguW+ZFON3JT3UDK0grp2gilH1TZukrbcDHp5GO
+         VbOuKo5+WoI2WgMwKbcyWbOo2Lrs0UAb+wjugYDL/m5HtuqFuIdgCIw6aXzIEAT
+         uZ3ua+upmSKmOPH86OwP4zV5Gi8w==; q=dns/txt; t=1748016775; 
+        x=1748279575;
+Return-Path: <1axcjs3sj8mk65akfurzcxgaw9a2dpq5wxwsno-utkarsh382004=gmail.com@23860326m.sui.io>
+X-HS-Cid: 1axfr3ldxwyfxz1h4agko11djiy08toyhlm3e8
+List-Unsubscribe: <mailto:1axdjsa2grc1wd12sperucykzl8jstgj634sno-utkarsh382004=gmail.com@23860326m.sui.io?subject=unsubscribe>, <https://hi.sui.io/hs/subscription-preferences/v2/unsubscribe-all?data=W2nXS-N30h-RtW3Nzghp3bs6xmW24RWGN3jgmj5W1BL6J-3bjGXGW4kvqTJ3P2BzgW3d1Xbr3gdxLGW2PFf3W1BqS_jW3z7-cg233vfGW3T2xbK2-LZJpW3ZPC8330FfrdW4kD3G12KPF-HW4pHV3s3DLwPYW2p1L4832y648W3g2tcK2FGVCGW49rrZ_2WqmQtW49JcvL2nXrHwW3QxWDV4kGXRZW3C1xWw2PmN0FW4hy6ND2v_VGVW1S3z4S1BKdf9W4t4pNK2WvBxKW4kmgvP4r8kK1W4hczQR3C9LP_W368dFW41rXtSW3Y0XJx1BDdsbW4p9JKr3_VPD2W2Klwg94fG6cMW1XnYMX1VdTgcW1BCpq82HJsd6W32s4Lw4ktzkXW4t8zV22KSsXPW2vYXhv3BPzzBW4pbzgc3g9_ZKW2YGYkB1Z9yz_W1LgzRm1NjnPKW4mnr4647mwygW3NDbSn3LWs9kW3j64mh4cP1qHW1N5CcZ1T_ylFW4r8NcV3jf-fhW2p4B8Q3_J10DW3g2xR84kfXGCW3T0rsL43XvZJW3DSMM14mrdlGW3_-M1M38bdDQW2Wfcmc3651gkf2MCPBc04>
+Date: Fri, 23 May 2025 09:12:55 -0700
+From: Sui <devrel@sui.io>
+Reply-To: devrel@sui.io
+To: utkarsh382004@gmail.com
+Message-ID: <1748016773120.f552cd0c-5b7c-481b-84f3-e5dc90d92816@23860326m.sui.io>
+Subject: =?utf-8?Q?=F0=9F=9A=A8_Last_day_to_submit_your_project?=
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_605861_1191035958.1748016775793"
+Precedence: bulk
+X-Report-Abuse-To: abuse@hubspot.com (see
+ https://policy.hubspot.com/abuse-complaints)
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Feedback-ID: aeoho04:aigad371:aidf:HubSpot
+
+------=_Part_605861_1191035958.1748016775793
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Sui Overflow 2025: Final hours! Checklist, video tips, and judging info ins=
+ide.
+
+Sui Overflow 2025 (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j=
+4Gm83bv8WVQq1455wXFfbKqQ43prCCW69sMD-6lZ3lFW938q-_3d9lLPW5100Tk245CYqW6zHJZ=
+q5CkfhkW41lxcp2NbmSgW6Rp1f-74bZGSW1Tbt4x91WVRCVTfWDx617yfhW2nYF9t61SD0VW5DM=
+V-S2Db3-pW52Py673FZ0QhVMc3db3NWv41W3q6-Ty3wWskXVkGRXc3X_wd_W25p0jJ7qZsY9W9d=
+gg4x4zDcBmW7G2TS318ZTXTW84Sl3Q4zM3fsM14nM78CZYSW4KM4ps5DsRqTW4D1HFY3s4vWsf1=
+2yJz004 )
+
+Hey builder =F0=9F=91=8B
+
+It=E2=80=99s the final stretch! Submissions for Sui Overflow 2025 (https://=
+hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WVQq1455wXFfbKqQ43p=
+rCCW69sMD-6lZ3pXW2DcmDp75dk1tW93-qFx2TQdz-W1nnTvF1825QcV1H7_k8lFzjgW6ZdM5S2=
+tpfY2VX-MC67QBCq_W2hscFD78M0fNW95kp7V9b1_K2N1jnPfmH95YdW25QXLb3bq7vQVQJBrk5=
+Z2BnqW49vXrn28ygVGW21tCV35yNPqpW1Gp3mG4mv9bgN62fxmHzK-krW4ljTWT75P76_W2pLKv=
+r72sFGMN8dv0xndwrFPW61WtM44lQH_1W56kGG333MQqkf6DPlw604 ) close tonight, Fri=
+day, May 23 at 11:59 PM PT. We strongly recommend submitting well before th=
+e deadline to avoid any last-minute issues.
+
+Make sure to double check these details
+
+=E2=9C=85 GitHub Repo: Is it public or accessible?
+
+Judges will need to review your code. Public repos are preferred, but if yo=
+u're submitting a private one, please ensure access permissions are in plac=
+e or expect a follow-up email requesting access.
+
+=F0=9F=8E=A5 Demo Video: Show, don=E2=80=99t just tell
+
+Your video should clearly walk through your project in action, even if it=
+=E2=80=99s a work-in-progress. A prototype or test demo is totally fine! Ke=
+ep it short, clear, and focused on what matters.
+
+=F0=9F=96=BC=EF=B8=8F Logo & Project Description: First impressions count
+
+Make sure you=E2=80=99ve uploaded a high-quality image and added a descript=
+ion that clearly explains your project=E2=80=99s purpose and functionality.=
+ This helps both the judges and the community understand what you=E2=80=99v=
+e built.
+
+=F0=9F=91=A5 Team Info: Is it accurate and complete?
+
+If your team has changed since registration, now=E2=80=99s the time to upda=
+te those details.  (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10=
+j4Gm83bv8WVQq1455wXFfbKqQ43prCCW69sMD-6lZ3lhW4_z5W54l2vRfW5dRzVl9gNxpWW86tQ=
+Ty8qx0rLW4-FT8f7HT6P8W7_NMDc9861GzMGvKNnlfnFMW4gXPLR2MvXdwW7wzKjT3DWPSTN1DN=
+_6YR0gg_W2XQR1M5GQ2bNW7rlPqL7Qr1VHW5jHdBM14pYwSVj9qVf2FtDmwN8X9kl9Gpn9FW7Rn=
+Ssm4S37NzW6DnNNL2tY4khW1tkzvb4ypQ_fW5fzDhv2_B09vN75ssrdfGj3wW7kDXSK2kkpG_f5=
+wVJdd04 )
+
+=F0=9F=A7=AD Track Selection: You only get one!
+
+You must choose one of the 9 tracks that best fits your project scope. This=
+ can=E2=80=99t be changed after the deadline, so make sure you=E2=80=99re s=
+ubmitting under the right category.
+
+=F0=9F=9B=A0=EF=B8=8F Still polishing? You=E2=80=99ve got time
+
+You=E2=80=99ll still be able to edit your project information all the way u=
+p until Demo Day. However, please note that you won=E2=80=99t be able to ch=
+ange your track selection or create a new project after the deadline of Fri=
+day, May 23.
+
+Project must be deployed
+
+Your project must be deployed on testnet or mainnet to qualify. It doesn=E2=
+=80=99t need to be perfect. You can continue building for Demo Day and futu=
+re events, but a working version must be live.
+
+Judging and community voting
+
+Shortlisted projects will move forward to Demo Day and community voting. If=
+ your project is selected, we=E2=80=99ll notify you via the email you submi=
+tted. Please check your inbox regularly.
+
+Need help?
+
+If you're stuck or have questions, book a last-minute DevRel office hours s=
+ession (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WVQ=
+q1455wXFfbKqQ45m_5PW69t95C6lZ3kCVT7B3189RFl8N1B5zKdmS85hW5Ss0Nd3TYv33W8x_kJ=
+d6rjvVkW4h9FqD6Sw9rDW1X3mxg6Hbd3QW2RjzBs1BBTgWN1wKQ_8P8JdYW1kp3gV7dnZ8vW2df=
+bLt8mmRtsMZp6fRzmKYKW1tKCX01DxrzzW6cHPyV8THJH4W7LLZFL20x4-4W7SVyh59c-5mDW41=
+0rBf32904dVTLxCS5VkL2DV10nF51sl8rrW4Zg_2m7750CtW2-_wmN22tq-lVhV6bS76wcJqW8V=
+596L13vbq5W1pH1wM2wSWrLW3q3ZCz1llZWlN1Dk72w89sB_V8P3NY6h9vcWW3fRJC32J1XnvVQ=
+L1YT8wQ0VkN5XCcy2fJ2mTW49jlLW5kTZ15W439sJX6Mj0TrW3sL4PX7SxhjNW3LjSnb62ZmJHW=
+5MMk214tt3nrW3qn6r68M-T6qW56J59t8Dk0cVdY5vyF04 ) . Even a short call can ma=
+ke a big difference.
+
+You=E2=80=99ve put in the work. Now let=E2=80=99s make sure it gets the spo=
+tlight it deserves.
+
+=F0=9F=8F=81 Let=E2=80=99s finish strong!
+
+Twitter (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WV=
+Qq1455wXFfbKqQ43prCCW69sMD-6lZ3p8W3r9-tf99p3SJN32T9y1PwdZ-W1_9yTk6lQ-qnN18N=
+SZPBGj_pW6R1HDr5lVCfSW595cDY2n9-H_W1kRsly8GDqSPW6rkHfr7tV0f5W7nLttB6F7fMnW5=
+S-bdQ6YQ2DgW7k8q374qdCG6W6f3s6p7Fs4pyW5XYVs-7kF3g8W1hwFSb6B64XfW4PGcss63MDg=
+lW4HTc-x6Jp0hZW3MNdcj3K_BrqW6Q2Y3_7tr3jwW4nDCb36g9W9YN1LbtTPt4N77f9gnWmz04 =
+)
+
+Discord (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WV=
+Qq1455wXFfbKqQ43prCCW69sMD-6lZ3pkW3clgdz5f8pgbVVwCs85Gm4bkW1S04M52f96ZdW8DX=
+VwQ5btpfwW54vqMV6fD-GyW2BBCkX4ShyNsW7-dMm020MHNNW4PT2s46dgD-FW3VWrCp1xF62wV=
+s_wmP7_2NyKW7WvmsF4swwdwVvKT294HjB5FW8lVDfK74cCLdW2S3d911qSY39W4V86wr9d1bvQ=
+W8Bs0-N70WKKkW2-jRmQ29-QdzW8WX-dP1L6m9SW89NJ_52_TnPXW57Cw3J7Cc1BQdwnzHC04 )
+
+LinkedIn (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8W=
+VQq1455wXFfbKqQn3prCCW6N1vHY6lZ3plW3s82nC8X06NkN1609T3bmw0zW7x3lvg647VyZW63=
+3ZKF3zW-kpVB0s415YgNLRW26tmPC4-bH1kW8BqbPc186DS5W4H6TQV2XYkVQW8_jr7X7RRHTXW=
+5phxF78zKMy8N8wCmPZlwvSsW3T3Hd64sP1N_W8pCHst1x0VPNW7Qj9wr4GHBBkW2m-hYx20G5-=
+zW8ZtqLs8P1zKgW2SW-0b4hkGW_W7_BPDl9jZSZJW4Pc7nZ5hvhzSW96R0wz744FShW8bXkWj9h=
+1l_sV7qzbr947YWbf1Vg9r204 )
+
+Youtube (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WV=
+Qq1455wXFfbKqQn3prCCW6N1vHY6lZ3kFW295lmh4F345WVF-v677ScvMbW2FzBcw31-jRKW8QZ=
+vVf2FGY3gW7lH9Nt7FWf98N7xT2y_hGLFtW1RTfLw1HzTBcW54z53Z7y0SBFW2s_x6L1NRLvbW7=
+7Z_lL86Hb1yW5KSBFq3ZxdYkW27DM5c4vZQb8W4h0Gyt4JnzSgN4VP7-nxwCMXW6GD7Jd8MRVxr=
+MBC-dzH1RKNVZzWbd3TTm__W30Bfd37D9-WbW16CBN85VlXM_W1m3VQF29zCDkW5f3bds98H3qg=
+W3Dp6m88Qg5Rsf2xpj1l04 )
+
+Threads (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WV=
+Qq1455wXFfbKqQ-3prCCW7Y8-PT6lZ3nvW775-W220-sDSV72Qqp6X06JpW8B7Dj080p-FsW94M=
+G942htphnW3BT83t1qG1VVW8Jspq_7gw8MrV6F5kC2CgT2vW6bShJ-1gX-YDW6L6K5Z2JmKM2W1=
+3gb3T6RpbqpW2T2-mP61kgqXN1Qz1M2nFCR-W2HF7nq7PswZ8W7L9lYQ5QcvsLW60QJlg7Xp9F_=
+W1BT2GW8mYHb_W4xBKqF576P0gW1YbNjm11CkjcW5gz-MY35ypTRW319YnK30mrGDW51PT365bd=
+82yW2V131h24Y8bXW7RfNJp5FtSM7W7rkzLJ22SXvlW2d9kgy4zq3h4W74H9KS54VjQdd9Kc7v0=
+4 )
+
+View in browser (https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4G=
+m83bv8WVQq1455wXFfbKqPP5m_5PW5BWr2F6lZ3njW4VxNCt8bkMq2W68nwfC31_SWKW80y7KC6=
+_b1kfW4-PtnN8ZZzf-W62Bmgd2_9cnTW2Xt4892fjshzW8HLm3M3bQ36nW3lDYfD2npBDrVzYQV=
+h10C_VDW4j8FcZ91wntsW3Yty-W736z4XVJv6ZV4DRsxJW1NdyWB5_kMcCW8VS70h4Fr8k8N1gB=
+992nr233W8DsLbL1jyQpvW8dBgwK1sYt0qW6pJBmp2gc-XNW6DX33J7Kzk77W2mHnX55sFPpyW1=
+QfK9M55TfbzW4XGCHc86J_2KN960hv_r4zW7Vj554c6282yLW5Sz_bF7tTLsHW5msdwj8_RFqNV=
+jZ_dK2Y0Q-SW5V6CN_9j0zz7W4j9FRW6Y2bnMW2zxXpn5ClBD4N7T05cNgywzkW6JzKk82ryYzb=
+W7PRfqy5XYWDvVVJLPT6wF8VQf8Hp6Gg04 )
+
+Sui Foundation, 2261 Market Street, #5238, San Francisco, CA 94114
+
+Manage preferences (https://hi.sui.io/hs/preferences-center/en/page?data=3D=
+W2nXS-N30h-R-W41VyDT4kt5MKW45vPdJ1ZfJhkW41r1sK38tYlRW30tXTL3F5SmRW2-DLCS4hD=
+HBMW20ZtlS1N3ZFrW2HTD0l3G-x1pW3_wpbz4phbtjW36zQQK4hqTZrW2xW9w14pqFs1W4ft5kY=
+32lH6cW36pbK72qVYnhW2-bRbw365QS-W4mbQ4232xfyFW3F1Kgl3DMJDrW2CXvrc4pDVlLW2FB=
+jhl47LvHFW2WzlvZ3bzLjSW3NVNFx3V-YrvW3b51Sy2YPdqFW1Lp94j4hsx8zW21sYq54hFx36W=
+2FvL4m255V7rW2zxWc73FbSnZW4r467J3LFc1KW3_vcyT30j1nbW4ttyN03f_-FmW24SLCf21pc=
+sfW3R0H1H2qV9F_W1SfypV30vp77W3NFsK02xWDScW3d1nXv2zMzKJW3z9DcH30pRmdW1Z7YdM2=
+PFgFlW4pltVx2t7tkCW2H-PT-41K1CWW2FBm-z2zNJRjW3JRwFf2xyWjCW2nYcFy21qT30W2sCQ=
+5s2PlrLfW4mjdSv3z2YvnW3yWd5Q3SJmXHW1XpN-51TZWdnW3SSK_B1BvFn_W231tMX3JX4YTf4=
+rC36704&_hsenc=3Dp2ANqtz-8pJjijJe3KQwIrNQX1Uz3xjT9DciGbpnx5w1YwLlq32ot3OrWT=
+M7lN0BZ5tAUygBpWE60zQMO0oZBAC8Mekp0dBnhEtA&_hsmi=3D362975823 )
+------=_Part_605861_1191035958.1748016775793
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www=
+.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3=
+.org/1999/xhtml" xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:=
+v=3D"urn:schemas-microsoft-com:vml" lang=3D"en"><head>
+    <title>=F0=9F=9A=A8 Last day to submit your project</title>
+    <meta property=3D"og:title" content=3D"=F0=9F=9A=A8 Last day to submit =
+your project">
+    <meta name=3D"twitter:title" content=3D"=F0=9F=9A=A8 Last day to submit=
+ your project">
+   =20
+   =20
+   =20
+<meta name=3D"x-apple-disable-message-reformatting">
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+    <!--[if gte mso 9]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings><w:WordDocument xmlns:w=3D"urn:schemas-micro=
+soft-com:office:word">
+      <w:DontUseAdvancedTypographyReadingMail/>
+    </w:WordDocument></xml>
+ =20
+  <style>
+    ul > li {
+      text-indent: -1em;
+    }
+  </style>
+<![endif]-->
+<!--[if mso]>
+<style type=3D"text/css">
+ body, td {font-family: Arial, Helvetica, sans-serif;}
+ .hse-body-wrapper-table {background-color: #FFFFFF;}
+</style>
+<![endif]--><!--[if mso | IE]>
+  <style type=3D"text/css">
+    .hse-column-container { border: none !important; padding: 0 !important;=
+ }
+  </style>
+<![endif]-->
+   =20
+     =20
+ =20
+ =20
+   =20
+  <meta name=3D"generator" content=3D"HubSpot"><meta property=3D"og:url" co=
+ntent=3D"https://hi.sui.io/last-day-to-submit-your-project"><meta name=3D"r=
+obots" content=3D"noindex,follow"><!--[if !((mso)|(IE))]><!-- --><style typ=
+e=3D"text/css">@media only screen and (max-width:639px){img.stretch-on-mobi=
+le,.hs_rss_email_entries_table img,.hs-stretch-cta .hs-cta-img{height:auto =
+!important;width:100% !important}
+.display_block_on_small_screens{display:block}.hs_padded{padding-left:20px =
+!important;padding-right:20px !important}
+.hs-hm,table.hs-hm{display:none}.hs-hd{display:block !important}table.hs-hd=
+{display:table !important}
+}@media only screen and (max-width:639px){.hse-border-m{border-left:1px sol=
+id #eaf0f6 !important;border-right:1px solid #eaf0f6 !important;box-sizing:=
+border-box}
+.hse-border-bottom-m{border-bottom:1px solid #eaf0f6 !important}.hse-border=
+-top-m{border-top:1px solid #eaf0f6 !important}
+.hse-border-top-hm{border-top:none !important}.hse-border-bottom-hm{border-=
+bottom:none !important}
+}.moz-text-html .hse-column-container{max-width:600px !important;width:600p=
+x !important}
+.moz-text-html .hse-column{display:table-cell;vertical-align:top}.moz-text-=
+html .hse-section .hse-size-12{max-width:600px !important;width:600px !impo=
+rtant}
+@media only screen and (min-width:640px){.hse-column-container{max-width:60=
+0px !important;width:600px !important}
+.hse-column{display:table-cell;vertical-align:top}.hse-section .hse-size-12=
+{max-width:600px !important;width:600px !important}
+}@media only screen and (max-width:639px){.hse-body-wrapper-td{padding-top:=
+20px !important}
+#section_1691558104919 .hse-column-container{background-color:#fff !importa=
+nt} }@media screen and (max-width:639px){.social-network-cell{display:inlin=
+e-block}
+}@media only screen and (max-width:639px){.hse-body-wrapper-td{padding-bott=
+om:20px !important}
+#section_1691559225033 .hse-column-container{background-color:#fff !importa=
+nt} }</style><!--<![endif]--><style type=3D"text/css">#hs_body #hs_cos_wrap=
+per_main a[x-apple-data-detectors]{color:inherit !important;text-decoration=
+:none !important;font-size:inherit !important;font-family:inherit !importan=
+t;font-weight:inherit !important;line-height:inherit !important}
+a{text-decoration:underline}p{margin:0}body{-ms-text-size-adjust:100%;-webk=
+it-text-size-adjust:100%;-webkit-font-smoothing:antialiased;moz-osx-font-sm=
+oothing:grayscale}
+table{border-spacing:0;mso-table-lspace:0;mso-table-rspace:0}table,td{borde=
+r-collapse:collapse}
+img{-ms-interpolation-mode:bicubic}p,a,li,td,blockquote{mso-line-height-rul=
+e:exactly}</style></head>
+  <body id=3D"hs_body" bgcolor=3D"#FFFFFF" style=3D"margin:0 !important; pa=
+dding:0 !important; font-family:Arial, sans-serif; font-size:15px; color:#2=
+3496d; word-break:break-word">
+    <div id=3D"preview_text" style=3D"display:none;font-size:1px;color:#FFF=
+FFF;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;=
+" lang=3D"en">Sui Overflow 2025: Final hours! Checklist, video tips, and ju=
+dging info inside.</div>
+   =20
+<!--[if gte mso 9]>
+<v:background xmlns:v=3D"urn:schemas-microsoft-com:vml" fill=3D"t">
+    <v:fill type=3D"tile" size=3D"100%,100%" color=3D"#ffffff"/>
+</v:background>
+<![endif]-->
+    <div class=3D"hse-body-background" lang=3D"en" style=3D"background-colo=
+r:#ffffff" bgcolor=3D"#ffffff">
+      <table role=3D"presentation" class=3D"hse-body-wrapper-table" cellpad=
+ding=3D"0" cellspacing=3D"0" style=3D"margin:0; padding:0; width:100% !impo=
+rtant; min-width:320px !important; height:100% !important" width=3D"100%" h=
+eight=3D"100%">
+        <tbody><tr>
+          <td class=3D"hse-body-wrapper-td" valign=3D"top" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding-top:20px; padding-bottom:20px">
+            <div id=3D"hs_cos_wrapper_main" class=3D"hs_cos_wrapper hs_cos_=
+wrapper_widget hs_cos_wrapper_type_dnd_area" style=3D"color: inherit; font-=
+size: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widget" d=
+ata-hs-cos-type=3D"dnd_area">  <div id=3D"section_1691558104919" class=3D"h=
+se-section hse-section-first" style=3D"padding-left:10px; padding-right:10p=
+x">
+   =20
+   =20
+   =20
+      <div class=3D"hse-column-container" style=3D"min-width:280px; max-wid=
+th:600px; Margin-left:auto; Margin-right:auto; background-color:#FFFFFF" bg=
+color=3D"#FFFFFF">
+   =20
+   =20
+    <!--[if (mso)|(IE)]>
+     =20
+      <table align=3D"center" style=3D"width:600px;" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation" width=3D"600" bgcolor=3D"#FFFFFF">
+      <tr style=3D"background-color:#FFFFFF;">
+    <![endif]-->
+    <!--[if (mso)|(IE)]>
+  <td valign=3D"top" style=3D"width:600px;">
+<![endif]-->
+<!--[if gte mso 9]>
+  <table role=3D"presentation" width=3D"600" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:600px">
+<![endif]-->
+<div id=3D"column_1691558104919_0" class=3D"hse-column hse-size-12">
+  <div id=3D"hs_cos_wrapper_module_16915581880681" class=3D"hs_cos_wrapper =
+hs_cos_wrapper_widget hs_cos_wrapper_type_module" style=3D"color: inherit; =
+font-size: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widg=
+et" data-hs-cos-type=3D"module"><table class=3D"hse-image-wrapper" role=3D"=
+presentation" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0">
+  <tbody>
+    <tr>
+      <td align=3D"center" valign=3D"top" style=3D"font-family:Arial, sans-=
+serif; color:#23496d; word-break:break-word; text-align:center; padding:0px=
+; font-size:0px">
+        <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j=
+4Gm83bv8WVQq1455wXFfbKqQ43qgyTW69sMD-6lZ3l-W4qNgcc5TQWFRW768b2p6htkR7W6jy55=
+73XCK50W5jNhKD4-PD7JW1tCvCV7pMCJMW3t_TwX2kgYQDW6pkhf71KCL0gW3Ktmmr6-j-PVW2d=
+8dZy4nP_nyDD5fZbWXFWW6JcTB66qrdl3W6G3wsw5ygvTRW5dpLvh5P5YtpW70FT-37mffLLW7V=
+9sbQ47hc-RW90NVDd6VLb9pW8pCvht3Msc-YW5xBCNN1xx1pTW5d116R84M7J4W5zYy7c6ShWd_=
+dj8-x804" target=3D"_blank" style=3D"color:#00a4bd" data-hs-link-id=3D"0" d=
+ata-hs-link-id-v2=3D"0lyZHNiK">
+        <img alt=3D"Sui Overflow 2025" src=3D"https://hi.sui.io/hs-fs/hubfs=
+/GjoZnNqaIAAYgfK.jpeg?width=3D1200&amp;upscale=3Dtrue&amp;name=3DGjoZnNqaIA=
+AYgfK.jpeg" style=3D"outline:none; text-decoration:none; border:none; max-w=
+idth:100%; font-size:16px" width=3D"600" align=3D"middle">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<!--[if gte mso 9]></table><![endif]-->
+<!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table><![endif]-->
+    </div>
+  =20
+  </div>
+  <div id=3D"section-29" class=3D"hse-section" style=3D"padding-left:10px; =
+padding-right:10px">
+   =20
+   =20
+   =20
+      <div class=3D"hse-column-container" style=3D"min-width:280px; max-wid=
+th:600px; Margin-left:auto; Margin-right:auto; background-color:#FFFFFF" bg=
+color=3D"#FFFFFF">
+   =20
+   =20
+    <!--[if (mso)|(IE)]>
+     =20
+      <table align=3D"center" style=3D"width:600px;" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation" width=3D"600" bgcolor=3D"#FFFFFF">
+      <tr style=3D"background-color:#FFFFFF;">
+    <![endif]-->
+    <!--[if (mso)|(IE)]>
+  <td valign=3D"top" style=3D"width:600px;">
+<![endif]-->
+<!--[if gte mso 9]>
+  <table role=3D"presentation" width=3D"600" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:600px">
+<![endif]-->
+<div id=3D"column-29-0" class=3D"hse-column hse-size-12">
+    <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=
+=3D"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D=
+"font-family:Arial, sans-serif; font-size:15px; color:#23496d; word-break:b=
+reak-word; padding:40px 20px"><div id=3D"hs_cos_wrapper_module_169155828047=
+43" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_modul=
+e" style=3D"color: inherit; font-size: inherit; line-height: inherit;" data=
+-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><div id=3D"hs_c=
+os_wrapper_module_16915582804743_" class=3D"hs_cos_wrapper hs_cos_wrapper_w=
+idget hs_cos_wrapper_type_rich_text" style=3D"color: inherit; font-size: in=
+herit; line-height: inherit;" data-hs-cos-general-type=3D"widget" data-hs-c=
+os-type=3D"rich_text"><p style=3D"mso-line-height-rule:exactly; line-height=
+:115%">Hey builder =F0=9F=91=8B<br>It=E2=80=99s the final stretch! Submissi=
+ons for <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j=
+4Gm83bv8WVQq1455wXFfbKqQ43qgyTW69sMD-6lZ3nGN2H63r4ZcJhzW3qyP5Z23hRzPW4SWK6F=
+32F2GgMh2RftpRD52W4mXHnG2yfHNTW9dqND51wjptRW5PSn756zX3HCW1CkRMs1RsMmqN49gHX=
+hlMnJ7W5hGts445nktpW8BKHYg1R7LSxVqqdB61jJbz1W8HH27N3RdH2FW381RQz6TVs3LN5-hc=
+vjNDN6nW66rPKs33-CchMrL2zmDY8pwW4HTJZP1Sgh6STJB8W1Gc9nfW5m_DGP7c2kj1f5DN7R-=
+04" rel=3D"noopener" style=3D"color:#4ca2ff" data-hs-link-id=3D"0" data-hs-=
+link-id-v2=3D"M5/NH4iF" target=3D"_blank"><strong>Sui Overflow 2025</strong=
+></a> close <strong>tonight, Friday, May 23 at 11:59 PM PT</strong>. We str=
+ongly recommend submitting well before the deadline to avoid any last-minut=
+e issues.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-size:22px; line-h=
+eight:115%"><strong><span style=3D"font-size: 17px; color: #000000;">Make s=
+ure to double check these details</span></strong></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=E2=9C=85 <stro=
+ng>GitHub Repo: Is it public or accessible?</strong><strong><br></strong> J=
+udges will need to review your code. Public repos are preferred, but if you=
+'re submitting a private one, please ensure access permissions are in place=
+ or expect a follow-up email requesting access.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=8E=A5 <s=
+trong>Demo Video: Show, don=E2=80=99t just tell</strong><strong><br></stron=
+g> Your video should clearly walk through your project in action, even if i=
+t=E2=80=99s a work-in-progress. A prototype or test demo is totally fine! K=
+eep it short, clear, and focused on what matters.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=96=BC=EF=
+=B8=8F <strong>Logo &amp; Project Description: First impressions count</str=
+ong><strong><br></strong>Make sure you=E2=80=99ve uploaded a high-quality i=
+mage and added a description that clearly explains your project=E2=80=99s p=
+urpose and functionality. This helps both the judges and the community unde=
+rstand what you=E2=80=99ve built.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=91=A5 <s=
+trong>Team Info: Is it accurate and complete?</strong><strong><br></strong>=
+ If your team has changed since registration, now=E2=80=99s the time to <a =
+href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv8WVQ=
+q1455wXFfbKqQ43qgyTW69sMD-6lZ3kvN5QSnJ5cW8PjW793NZJ4LpDN9VJ39TN6QRRj1W5Z8M8=
+M6L53vSN1hZ5wJ57YdZW4L7M4t7xsBqsVPlZxd5W-fMMW3xgVbB9jL3GPN8wxt0C2ppzbW16y02=
+s8pllWTW6lLnLX1_Hb0lW5mX07z247BTrW9bXGR34fl1srN86CFpwTmGx4W3D2_L_28pNbMW3xF=
+kK84zSHdrW7YzLYB84fwrMW8VkXmz5V9fkYV-4B7T964q7XW5DlkJ26QBFf4f8NrX0H04" rel=
+=3D"noopener" style=3D"color:#4ca2ff" data-hs-link-id=3D"0" data-hs-link-id=
+-v2=3D"eO1DPkOT" target=3D"_blank">update those details.&nbsp;</a></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=A7=AD <s=
+trong>Track Selection: You only get one!</strong><strong><br></strong> You =
+must choose <em>one</em> of the 9 tracks that best fits your project scope.=
+ This can=E2=80=99t be changed after the deadline, so make sure you=E2=80=
+=99re submitting under the right category.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=9B=A0=EF=
+=B8=8F <strong>Still polishing? You=E2=80=99ve got time</strong></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">You=E2=80=99ll =
+still be able to edit your project information all the way up until Demo Da=
+y. <strong>However, please note that you won=E2=80=99t be able to change yo=
+ur track selection or create a new project after the deadline of Friday, Ma=
+y 23.</strong></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-size:22px; line-h=
+eight:115%"><strong><span style=3D"font-size: 17px; color: #000000;">Projec=
+t must be deployed</span></strong></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">Your project mu=
+st be deployed on <strong>testnet or mainnet</strong> to qualify. It doesn=
+=E2=80=99t need to be perfect. You can continue building for Demo Day and f=
+uture events, but a working version must be live.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-size:22px; line-h=
+eight:115%"><strong><span style=3D"font-size: 17px; color: #000000;">Judgin=
+g and community voting</span></strong></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">Shortlisted pro=
+jects will move forward to <strong>Demo Day</strong> and <strong>community =
+voting</strong>. If your project is selected, we=E2=80=99ll notify you via =
+the email you submitted. Please check your inbox regularly.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-size:22px; line-h=
+eight:115%"><strong><span style=3D"font-size: 17px; color: #000000;">Need h=
+elp?</span></strong></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">If you're stuck=
+ or have questions, <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXf=
+cFfsnF7KW10j4Gm83bv8WVQq1455wXFfbKqQ45nR32W69t95C6lZ3l5W1q-v-S5yZcdnW7vbpSF=
+80_B8WN8SxHPGXKvjcW84Wb4b8DPG_QW76R4bw64tfF-W8VTD7t8dCJKzW8rJymx99S51NW1zZ-=
+5M5YVZXFW5H9kSJ8YYVnzW2RVHD63PHGxNVxHhNt7xR0GYN1J1cKwnlQHRW44Ff7535MX0dW56w=
+K0q6pC2sWW7BXMgv11Vnj4W3gN_j15C6bB4W36dCzk8jq7RXN4vcc-d3jKYvW7Chkb88Qq166W8=
+N32dB7FFrLPW8dQ3hC4lk9n6VHmfst6l9yKKW7D15dL5dGPMzW4fWtVv87rQZfW7tnHC_7f4MQB=
+W7d8t4Z115H3gW4fD5ns6fntp8VhdKtY8j3q_NW6ykj5j20vzV-N1q5CXtLXlq-N4hkvSKs7nrc=
+W6fHWnx68NF5ZW2QM_nt4QFF72W7VC6VP1g2zjCW5CPYM73hSRrkW3DP-vZ2wqPG9f6jj14404"=
+ style=3D"color:#4ca2ff" data-hs-link-id=3D"0" data-hs-link-id-v2=3D"pLcw+f=
+MT" target=3D"_blank">book a last-minute DevRel office hours session</a>. E=
+ven a short call can make a big difference.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">You=E2=80=99ve =
+put in the work. Now let=E2=80=99s make sure it gets the spotlight it deser=
+ves.</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:115%">=F0=9F=8F=81 Le=
+t=E2=80=99s finish strong!</p></div></div></td></tr></tbody></table>
+</div>
+<!--[if gte mso 9]></table><![endif]-->
+<!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table><![endif]-->
+    </div>
+  =20
+  </div>
+  <div id=3D"section_1691559225033" class=3D"hse-section hse-section-last" =
+style=3D"padding-left:10px; padding-right:10px">
+   =20
+   =20
+   =20
+      <div class=3D"hse-column-container" style=3D"min-width:280px; max-wid=
+th:600px; Margin-left:auto; Margin-right:auto; background-color:#FFFFFF" bg=
+color=3D"#FFFFFF">
+   =20
+   =20
+    <!--[if (mso)|(IE)]>
+     =20
+      <table align=3D"center" style=3D"width:600px;" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation" width=3D"600" bgcolor=3D"#FFFFFF">
+      <tr style=3D"background-color:#FFFFFF;">
+    <![endif]-->
+    <!--[if (mso)|(IE)]>
+  <td valign=3D"top" style=3D"width:600px;">
+<![endif]-->
+<!--[if gte mso 9]>
+  <table role=3D"presentation" width=3D"600" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:600px">
+<![endif]-->
+<div id=3D"column_1691559225033_0" class=3D"hse-column hse-size-12">
+    <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=
+=3D"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D=
+"font-family:Arial, sans-serif; font-size:15px; color:#23496d; word-break:b=
+reak-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_module_168567469141=
+21" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_modul=
+e" style=3D"color: inherit; font-size: inherit; line-height: inherit;" data=
+-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><table role=3D"=
+presentation" align=3D"center" style=3D"width: auto; text-align: center;" c=
+lass=3D"hs_cos_wrapper_type_social_module">
+  <tbody>
+    <tr align=3D"center">
+      <td class=3D"social-network-cell" style=3D"font-family:Arial, sans-se=
+rif; font-size:15px; color:#23496d; word-break:break-word">
+        <table role=3D"presentation" align=3D"center" style=3D"width: auto;=
+ text-align: center;" class=3D"hs_cos_wrapper_type_social_module_single">
+          <tbody>
+            <tr align=3D"center">
+              <td class=3D"display_block_on_small_screens" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding:8px 5px; line-height:1; vertical-align:middle" valign=3D"middle"=
+>
+                <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfs=
+nF7KW10j4Gm83bv8WVQq1455wXFfbKqQ43qgyTW69sMD-6lZ3lHVbqk4P6kDFB9W16GGt85fBVM=
+8N4nQLjMQgLr1VFxpg07ZkZ2YN4GdyYtbBGy-W13SlMf2vgLGBW94QgCK5qk_7HW1SKvpw8q2Bl=
+JW7DkqFN15xv6TW69XhNb7RXT6JW84g3RZ4K9NG7W58Ccr-9j68qgW2Pc-hB60QVYHW2LbvSz7P=
+PpLLW99hBGt89Qp4wW2kYrpR5C1l-yW7ft_zp3ZW7DrW8_g16P8MdW9TN4LklthswwKJN2c4bwc=
+Fg8gHf2ZLPDb04" style=3D"color:#00a4bd; text-decoration:none !important" da=
+ta-hs-link-id=3D"0" data-hs-link-id-v2=3D"3VgDNlZL" target=3D"_blank"><img =
+src=3D"https://hi.sui.io/hs-fs/hubfs/twitter.png?height=3D50&amp;upscale=3D=
+true&amp;name=3Dtwitter.png" alt=3D"Twitter" height=3D"25" style=3D"outline=
+:none; text-decoration:none; border:none; width:auto!important; height:25px=
+!important; vertical-align:middle" valign=3D"middle" width=3D"auto">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td><td class=3D"social-network-cell" style=3D"font-family:Arial, sa=
+ns-serif; font-size:15px; color:#23496d; word-break:break-word">
+        <table role=3D"presentation" align=3D"center" style=3D"width: auto;=
+ text-align: center;" class=3D"hs_cos_wrapper_type_social_module_single">
+          <tbody>
+            <tr align=3D"center">
+              <td class=3D"display_block_on_small_screens" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding:8px 5px; line-height:1; vertical-align:middle" valign=3D"middle"=
+>
+                <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfs=
+nF7KW10j4Gm83bv8WVQq1455wXFfbKqQ43qgyTW69sMD-6lZ3nlW8f-kSS8KFd3zW1b0-pL3gX2=
+K3W3Tb_Dh13CdB1W9m5hdC3m9q08W135K3K6bdM8PW46p80_86Wr9CW2LmhNl1KwRMpW655-JR8=
+V296GW5SSr6c2yKH4DW3czYnz4-H4JtW8kbh7k5k1sJBW12rxg27QkhFRM7bhs9_WZTyW7LBxld=
+3B6d4VW5Yrv-7695WRrVzXJYV5lGf-hN3v9gvj8sdclN58wDCszdxTQW4_y0443cDqQJN5QVGgD=
+byd8Bf8SCxWC04" style=3D"color:#00a4bd; text-decoration:none !important" da=
+ta-hs-link-id=3D"0" data-hs-link-id-v2=3D"TwXokdL8" target=3D"_blank"><img =
+src=3D"https://hi.sui.io/hs-fs/hubfs/discord.png?height=3D50&amp;upscale=3D=
+true&amp;name=3Ddiscord.png" alt=3D"Discord" height=3D"25" style=3D"outline=
+:none; text-decoration:none; border:none; width:auto!important; height:25px=
+!important; vertical-align:middle" valign=3D"middle" width=3D"auto">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td><td class=3D"social-network-cell" style=3D"font-family:Arial, sa=
+ns-serif; font-size:15px; color:#23496d; word-break:break-word">
+        <table role=3D"presentation" align=3D"center" style=3D"width: auto;=
+ text-align: center;" class=3D"hs_cos_wrapper_type_social_module_single">
+          <tbody>
+            <tr align=3D"center">
+              <td class=3D"display_block_on_small_screens" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding:8px 5px; line-height:1; vertical-align:middle" valign=3D"middle"=
+>
+                <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfs=
+nF7KW10j4Gm83bv8WVQq1455wXFfbKqQn3qgyTW6N1vHY6lZ3lLW40kX5-176xBNW3P2JF966TX=
+lyW6Bmq5s8yMpZ_W5G5c4F78r4qjVRV8Rw2t_JyjW6Q5Y5j5Yqs0_W4JDpQ76T41VcW95gzFL6V=
+DmGdW79gdjF398p6RW7fNwYm3g1bz8N5DmD56d1lxMW2w6G0p5KBNhYW2RvbR97fc9rjW6Gxlhf=
+4K4XmQN17gqWJPz79yW4lNMS06r-D_rW7hnf7k59q7_DW7LcDNJ4zNJTQW9bXCVN15z9hkW5w74=
+C47ZvJw9W89NDWp1k1JxkN1Gp298g7P3xf2QCz4004" style=3D"color:#00a4bd; text-de=
+coration:none !important" data-hs-link-id=3D"0" data-hs-link-id-v2=3D"/Quki=
+jmP" target=3D"_blank"><img src=3D"https://hi.sui.io/hs-fs/hubfs/linkedin.p=
+ng?height=3D50&amp;upscale=3Dtrue&amp;name=3Dlinkedin.png" alt=3D"LinkedIn"=
+ height=3D"25" style=3D"outline:none; text-decoration:none; border:none; wi=
+dth:auto!important; height:25px!important; vertical-align:middle" valign=3D=
+"middle" width=3D"auto">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td><td class=3D"social-network-cell" style=3D"font-family:Arial, sa=
+ns-serif; font-size:15px; color:#23496d; word-break:break-word">
+        <table role=3D"presentation" align=3D"center" style=3D"width: auto;=
+ text-align: center;" class=3D"hs_cos_wrapper_type_social_module_single">
+          <tbody>
+            <tr align=3D"center">
+              <td class=3D"display_block_on_small_screens" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding:8px 5px; line-height:1; vertical-align:middle" valign=3D"middle"=
+>
+                <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfs=
+nF7KW10j4Gm83bv8WVQq1455wXFfbKqQn3qgyTW6N1vHY6lZ3njN1B5Xjz6TfPrW7PvZ6j2mFfK=
+8V9sdqT1r2vWlN6q-w3rPm-yMW5HHRRW8q7WKTW3CJbhz7WJKNqW2cTt5d4KRSnHW3y3bwD7nqt=
+XWW7vnzs32jW5pgVdhcnP52xJGdW5R42F61SlCdVW7nz1rJ2kkXG1W3_vjBN98_RKgW7XQkR521=
+cgvHVcW2TB3CXctHN51451Cpmg_xW3x3kyZ8HMltcW97wzkR4zDrX5W7MSwVj8h3LKjW2Y5BQf3=
+4Cd0pW5CFCXh66xzvdN1-59Mcz1_WKf18Qs8804" style=3D"color:#00a4bd; text-decor=
+ation:none !important" data-hs-link-id=3D"0" data-hs-link-id-v2=3D"EjnWBd/r=
+" target=3D"_blank"><img src=3D"https://hi.sui.io/hs-fs/hubfs/youtube.png?h=
+eight=3D50&amp;upscale=3Dtrue&amp;name=3Dyoutube.png" alt=3D"Youtube" heigh=
+t=3D"25" style=3D"outline:none; text-decoration:none; border:none; width:au=
+to!important; height:25px!important; vertical-align:middle" valign=3D"middl=
+e" width=3D"auto">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td><td class=3D"social-network-cell" style=3D"font-family:Arial, sa=
+ns-serif; font-size:15px; color:#23496d; word-break:break-word">
+        <table role=3D"presentation" align=3D"center" style=3D"width: auto;=
+ text-align: center;" class=3D"hs_cos_wrapper_type_social_module_single">
+          <tbody>
+            <tr align=3D"center">
+              <td class=3D"display_block_on_small_screens" style=3D"font-fa=
+mily:Arial, sans-serif; font-size:15px; color:#23496d; word-break:break-wor=
+d; padding:8px 5px; line-height:1; vertical-align:middle" valign=3D"middle"=
+>
+                <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfs=
+nF7KW10j4Gm83bv8WVQq1455wXFfbKqQ-3qgyTW7Y8-PT6lZ3mXW1Y8PKv2SXP2WW5bbZmH98ym=
+rnW8nv7BG5Mwn0vW5g0GyQ9hbph_W3L36x42P5Q8ZW1z1BxK5T757cVrcQp95sS5j3W4BJxG78H=
+s4pzW3QwL621pxXLXW8t8rWX1d9xZ1W16ZJnN56JQFqVFzMc-6BlrR6W3tVLrX2GcBySW4LM-Qk=
+1CYK2BW2DLwYN3pSqrWN5VhxL3cgwn5W2RW13F57gQGpW8jkGCd1PvWlsW2Wxzty720LP1W1k-6=
+hS7fcFZXW5FKzcq8CNyx0W12g5-F2CG4zjW68J5LK4B11r3VVkWBj3D-ThzW4LRhNd1SByMwW95=
+b4115H-1xyf1QMy4404" style=3D"color:#00a4bd; text-decoration:none !importan=
+t" data-hs-link-id=3D"0" data-hs-link-id-v2=3D"y9aXOKGQ" target=3D"_blank">=
+<img src=3D"https://hi.sui.io/hs-fs/hubfs/threads-logo-blue.png?height=3D50=
+&amp;upscale=3Dtrue&amp;name=3Dthreads-logo-blue.png" alt=3D"Threads" heigh=
+t=3D"25" style=3D"outline:none; text-decoration:none; border:none; width:au=
+to!important; height:25px!important; vertical-align:middle" valign=3D"middl=
+e" width=3D"auto">
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div></td></tr></tbody></table>
+<div id=3D"hs_cos_wrapper_module_16922182901582" class=3D"hs_cos_wrapper hs=
+_cos_wrapper_widget hs_cos_wrapper_type_module" style=3D"color: inherit; fo=
+nt-size: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widget=
+" data-hs-cos-type=3D"module"><div style=3D"overflow:hidden">
+  <table role=3D"presentation" class=3D"hse-pre-header hse-secondary" width=
+=3D"100%" cellpadding=3D"0" cellspacing=3D"0" style=3D"text-align:right; fo=
+nt-family:Arial, sans-serif; font-size:12px; line-height:135%; color:#23496=
+d; margin-bottom:0; padding:0" align=3D"right">
+    <tbody>
+      <tr>
+        <td align=3D"center" valign=3D"top" style=3D"color:#23496d; word-br=
+eak:break-word; text-align:center; font-family:Arial, sans-serif; font-size=
+:12px; padding:10px 0; margin-bottom:0; line-height:135%">
+          <a href=3D"https://hi.sui.io/e3t/Ctc/X+113/d2QxyW04/MXfcFfsnF7KW1=
+0j4Gm83bv8WVQq1455wXFfbKqPP5nR32W5BWr2F6lZ3mvW1DNtJ795jtHnVx9CYl7760HfW3PXj=
+Pr95fHQ4N2mB0kQQbnfrW30kY2r7dy3ZGW42XDM45d9KbJW2hDB4z82nq85W8ZqsTw1Kfv9YW23=
+xdh52pGkWTW8ppXfN2v2v7xW3PV9R95nqdK_W39TdTh8vLPf5W6n_9ld1QGG0xW2znh9h3JSpdM=
+Vf9hRZ15dwH2W8wTVNw9kd_WGW3LZnth8S2zS0V20y6X8B5T6lV1bkmC2x-CNgW5QQ-gj5ymXXS=
+W3pkH2M7Jvll4W5wV51X93y76vVJq20c7cXJdVW6C7ZcL6MsbsXN98nCPnL0LVPV4MGm68WNmhJ=
+W1cjd6F4ct2tBW4qgHCH3Ym_L-W406V5v320sL2W5_wGZV7DWWv9W5gv-4R5cd81wW3307_67bn=
+G0JW2jn2cS8_MJjgW8vt5P47_LW72f3jmVkK04" style=3D"color:#000000; font-weight=
+:normal; text-decoration:none; font-style:normal" data-hs-link-id=3D"0" dat=
+a-hs-link-id-v2=3D"npf79EPP" target=3D"_blank">View in browser</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div></div>
+<div id=3D"hs_cos_wrapper_module-30-0-0" class=3D"hs_cos_wrapper hs_cos_wra=
+pper_widget hs_cos_wrapper_type_module" style=3D"color: inherit; font-size:=
+ inherit; line-height: inherit;" data-hs-cos-general-type=3D"widget" data-h=
+s-cos-type=3D"module"><table role=3D"presentation" class=3D"hse-footer hse-=
+secondary" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" style=3D"font=
+-family:Arial, sans-serif; font-size:12px; line-height:135%; color:#23496d;=
+ margin-bottom:0; padding:0">
+  <tbody>
+    <tr>
+      <td align=3D"center" valign=3D"top" style=3D"font-family:Arial, sans-=
+serif; font-size:15px; color:#23496d; word-break:break-word; text-align:cen=
+ter; margin-bottom:0; line-height:135%; padding:10px 20px">
+        <p style=3D"font-family:Arial, sans-serif;font-size:12px;font-weigh=
+t:normal;text-decoration:none;font-style:normal;color:#000000">
+          Sui Foundation, 2261 Market Street, #5238, San Francisco, CA 9411=
+4
+        </p>
+        <p>
+          <a data-unsubscribe=3D"true" href=3D"https://hi.sui.io/hs/prefere=
+nces-center/en/page?data=3DW2nXS-N30h-R-W41VyDT4kt5MKW45vPdJ1ZfJhkW41r1sK38=
+tYlRW30tXTL3F5SmRW2-DLCS4hDHBMW20ZtlS1N3ZFrW2HTD0l3G-x1pW3_wpbz4phbtjW36zQQ=
+K4hqTZrW2xW9w14pqFs1W4ft5kY32lH6cW36pbK72qVYnhW2-bRbw365QS-W4mbQ4232xfyFW3F=
+1Kgl3DMJDrW2CXvrc4pDVlLW2FBjhl47LvHFW2WzlvZ3bzLjSW3NVNFx3V-YrvW3b51Sy2YPdqF=
+W1Lp94j4hsx8zW21sYq54hFx36W2FvL4m255V7rW2zxWc73FbSnZW4r467J3LFc1KW3_vcyT30j=
+1nbW4ttyN03f_-FmW24SLCf21pcsfW3R0H1H2qV9F_W1SfypV30vp77W3NFsK02xWDScW3d1nXv=
+2zMzKJW3z9DcH30pRmdW1Z7YdM2PFgFlW4pltVx2t7tkCW2H-PT-41K1CWW2FBm-z2zNJRjW3JR=
+wFf2xyWjCW2nYcFy21qT30W2sCQ5s2PlrLfW4mjdSv3z2YvnW3yWd5Q3SJmXHW1XpN-51TZWdnW=
+3SSK_B1BvFn_W231tMX3JX4YTf4rC36704&amp;utm_campaign=3DSui%20Overflow&amp;ut=
+m_source=3Dhs_email&amp;utm_medium=3Demail&amp;utm_content=3D362975823&amp;=
+_hsenc=3Dp2ANqtz--ZJO1UDnNuqoHkJOd207TUw49x4OB110gYUaXGCWWjOawVZ2G1hcA2DMwM=
+MtRqgZKXVi_fnIkFloRu_hJSsAJptPRaOQ&amp;_hsmi=3D362975823" style=3D"font-fam=
+ily:Helvetica,Arial,sans-serif; font-size:12px; color:#000000; font-weight:=
+normal; text-decoration:underline; font-style:normal" data-hs-link-id=3D"0"=
+ data-hs-link-id-v2=3D"qjPJqCop" target=3D"_blank">Manage preferences</a>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<!--[if gte mso 9]></table><![endif]-->
+<!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table><![endif]-->
+    </div>
+  =20
+  </div></div>
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+ =20
+<img src=3D"https://hi.sui.io/e3t/Cto/X+113/d2QxyW04/MXfcFfsnF7KW10j4Gm83bv=
+8WVQq1455wXFfbSqzt3D7yjH1c2" alt=3D"" width=3D"1" height=3D"1" border=3D"0"=
+ style=3D"display:none!important;min-height:1px!important;width:1px!importa=
+nt;border-width:0!important;margin-top:0!important;margin-bottom:0!importan=
+t;margin-right:0!important;margin-left:0!important;padding-top:0!important;=
+padding-bottom:0!important;padding-right:0!important;padding-left:0!importa=
+nt"></body></html>
+------=_Part_605861_1191035958.1748016775793--
+

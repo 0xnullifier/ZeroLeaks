@@ -1,0 +1,282 @@
+Delivered-To: utkarsh_s@ece.iitr.ac.in
+Received: by 2002:a05:7022:662a:b0:99:efd2:9286 with SMTP id ay42csp2985428dlb;
+        Fri, 23 May 2025 21:47:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGnU9P/6Y4GIzq7308NT7OsCb6CAot1xd7ivbz0KHIqtaXJhQTjvTaW3htPZyOdlqWy3L/N
+X-Received: by 2002:a05:6a20:9e4d:b0:215:df90:b298 with SMTP id adf61e73a8af0-2188c36c418mr2793225637.26.1748062034495;
+        Fri, 23 May 2025 21:47:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748062034; cv=none;
+        d=google.com; s=arc-20240605;
+        b=M6ORSJAx9PIrnP7dw+obOnjo6s9MPSJdFtL9okisVcbslxe0u8GDmavozEQTnYbTY0
+         qsw+EeSJtkw3bouC29Ur91hIVlmMvv9FdjBy2WQikWBTMYgw5j0HrNZspKczYHeFwsbE
+         yc2pW3jM4rBuYVMzBkA+j62zb2MFlLlOWgYsuM3EcObGpG1Wg7BXvOjAtOSCs1CgmO4R
+         snGEx5nNV+9z8HGrFpMqTBZ+I8hGOyzRwE8nyG5oMartbNghcJ/EuvXUmV2V6UnTeck/
+         Zyd8ENPpzGKRLUY/S78aHY5ICjIeGNhnPWtvpaPSyfBwWhY5gUkn3DB4r9bjUaLCYnkC
+         oRjQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature
+         :ironport-hdrordr:ironport-data:ironport-phdr:ironport-sdr;
+        bh=CVkRTyJ9YXlYozw0VFOIjvHtsUXcBm9U8tNOaGQ8kJo=;
+        fh=vstJI5ZEBQHenKCrItWtiWBH8JIgVS4oMP07DbBO5/0=;
+        b=ErMVxKP1JIGxNGT1XG33DLAypgJ1ICTwTHm1O8sL8SKpCktGNLbbvYhQuRFX53SkZW
+         9vfK795Swfqv2s5padcbiWPR0hlH91LZ66451LSEgmlgLsyv5yFzbbYfcamBC9OMr4w5
+         KwrrgryHm/D3RECUqS8bnztnVrdtML46ja7pj0Hnk9aovwoZpI//O+3X0lVfyD45QHub
+         ligtQ21lqEEtkvw5py5TWWgf5QkZcQsFDEYYiLu42Ms55HkOyMfU9hq4E0ov4wRZQHLg
+         LSzhv7FkzconsuI9a8MEdKf62dcz20sY3yrevZ9vVhioLLh5+E06OQj9wGPWQj5yPjF8
+         Jy2Q==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=LfFhofvM;
+       spf=softfail (google.com: domain of transitioning utkarsh382004@gmail.com does not designate 103.37.200.202 as permitted sender) smtp.mailfrom=utkarsh382004@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@ece.iitr.ac.in
+Return-Path: <utkarsh382004@gmail.com>
+Received: from IITRESA04.iitr.ac.in ([103.37.200.202])
+        by mx.google.com with ESMTP id 41be03b00d2f7-b26eb09c6b0si21398408a12.447.2025.05.23.21.47.13
+        for <utkarsh_s@ece.iitr.ac.in>;
+        Fri, 23 May 2025 21:47:14 -0700 (PDT)
+Received-SPF: softfail (google.com: domain of transitioning utkarsh382004@gmail.com does not designate 103.37.200.202 as permitted sender) client-ip=103.37.200.202;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=LfFhofvM;
+       spf=softfail (google.com: domain of transitioning utkarsh382004@gmail.com does not designate 103.37.200.202 as permitted sender) smtp.mailfrom=utkarsh382004@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@ece.iitr.ac.in
+X-CSE-ConnectionGUID: Fld3nj4DSLypcnj6ARGOiQ==
+X-CSE-MsgGUID: 5Vcf0TcQTvCfYlo76vcMFw==
+X-CSE-ConnectionGUID: yAjHadCYQ7iddjSW72XTxw==
+X-CSE-MsgGUID: LmkHgutrTDm4QzAqJiNF2Q==
+Received-SPF: None (IITRESA01.iitr.ac.in: no sender authenticity
+  information available from domain of utkarsh382004@gmail.com)
+  identity=pra; client-ip=209.85.160.195;
+  receiver=IITRESA01.iitr.ac.in;
+  envelope-from="utkarsh382004@gmail.com";
+  x-sender="utkarsh382004@gmail.com";
+  x-conformance=sidf_compatible
+Received-SPF: Pass (IITRESA01.iitr.ac.in: domain of
+  utkarsh382004@gmail.com designates 209.85.160.195 as
+  permitted sender) identity=mailfrom;
+  client-ip=209.85.160.195; receiver=IITRESA01.iitr.ac.in;
+  envelope-from="utkarsh382004@gmail.com";
+  x-sender="utkarsh382004@gmail.com";
+  x-conformance=sidf_compatible; x-record-type="v=spf1";
+  x-record-text="v=spf1 ip4:35.190.247.0/25 ip4:64.233.160.0/19
+  ip4:66.102.0.0/20 ip4:66.249.80.0/20 ip4:72.14.192.0/18
+  ip4:74.125.0.0/16 ip4:108.177.8.0/21 ip4:173.194.0.0/16
+  ip4:209.85.128.0/17 ip4:216.58.192.0/19 ip4:216.239.32.0/19
+  ~all"
+Authentication-Results: IITRESA01.iitr.ac.in; spf=None smtp.pra=utkarsh382004@gmail.com; spf=Pass smtp.mailfrom=utkarsh382004@gmail.com; dkim=pass (signature verified) header.i=@gmail.com
+IronPort-SDR: 68314f50_DYgXH5hioSNdUqdsBy3cq0N48mY/IaPa25fB0Adgrkhe9ro
+ NZ3D34V5ISKuptM+NBFt9S/uCzm1yCbIM/uNJ9Q==
+X-ThreatScanner-Verdict: Negative
+X-IPAS-Result: =?us-ascii?q?A0CLBQCnTjFofMOgVdFaDg8BATwBBQUBAgEJATqBMIIaK?=
+ =?us-ascii?q?IFXNAcISYRUgSOcGDACh1EDikoTgWoPAQEBAQEBAQEBCRQBPAQBAZBbAiUBB?=
+ =?us-ascii?q?EcBAgEBAgEBAQEDAgMBAQEBAQEBAQENAQEFAQEBAgEBAgQFARMBASIZBw4SK?=
+ =?us-ascii?q?YV7DYJiAYNuIhEdARseAxIIAQc3AiMBEQEFASILKoUCFQEDMgOhJ4IkgQVCi?=
+ =?us-ascii?q?z6BFQUCFoEBgg0G2l8KGSgNbAOBYgIHFIE2gnWCAClODoIyIwGBXQIOh3yBI?=
+ =?us-ascii?q?YFjRYFKgj0HhHiEFYJpBIEOfxeBFo0Wi0eGayYBBwcXAwcHCQUEHAYFAwICQ?=
+ =?us-ascii?q?gkFAQ8SAwQDBAQBAgsJCgkDAwIOAggDAggGGQE/EgQTAggJBAsHBR8KAgwRC?=
+ =?us-ascii?q?igiEisKAQIBWhAFBRoBCAYCAgQEAgQMAgMGAgIFAwQCBA0DBAEBCAICLQMBA?=
+ =?us-ascii?q?xkICQgCCwUUDQgDAwMGCgkBCgcJEAECAhADAgICAgYHCgMCEwoFBgYCCgcND?=
+ =?us-ascii?q?BICAwkGAwUKAwcECg0CFQIVBR4CCAkOEQIFEgMOBQMCAhEEAgMDBQMBBwEVC?=
+ =?us-ascii?q?BACAgICBQIFGBENBAMDAwIIAQQUAwMDCQglBBcJAQMJAwIDBAgDAwMCBgwMA?=
+ =?us-ascii?q?gEHCAMDBgsICQYDAgcIGQMFBAMHBQshAgYDAgQFBAEFAhMNAgMZAgYDBhEJD?=
+ =?us-ascii?q?QYIBwkDBwEBAQICAggBBgUSAgMEAgUEBAEBEgYCAQMCAgMECQMCCgIICgEJE?=
+ =?us-ascii?q?wQDCAMDAwMDBQICChEFBQIBBQoTDAoGAwYDBAICAgoBBwIDAwMHAQscAgEDA?=
+ =?us-ascii?q?gIFAgIBBQMCAgYEAwIBAQkCAwIIAQICAQICAgQBBwENAQECBAICMgIBAwgGA?=
+ =?us-ascii?q?QEOAgYCAgECAgIEAgQBCAcCAgQFDQEBAgECAgEBAQQBCAMBAQICAwMFAwUID?=
+ =?us-ascii?q?w0BARcLHQMEBQICAQEBAhICAgEHAQIBAQMZAgEDAwQBCwIBAQQeBBYCAgICB?=
+ =?us-ascii?q?AMCAwICCxMlAQIDBhMCBAIBAgIFBQUBAwQREAkDAgUEAgIGAgQOAgcEAhoEA?=
+ =?us-ascii?q?gIBAwQGAwECCAICBwQEBgMCAQICBxkCBBQBAgEBAgICBAICAgkKBAUEAwQDA?=
+ =?us-ascii?q?gICAQwDAQIDAgICAgEDAgIBAQMBBQYNAhICAQMPCAQCAgcCAiEPCwECAQEGB?=
+ =?us-ascii?q?gMDAwoDAQoBAgEBBgIBAhIFAgICBAECAgYEJQECAQIBAQEFAgECAQIEAgcCA?=
+ =?us-ascii?q?QIDCAEFAgYBAgIJAQIBAgICAQIBAQIGAgERBAECAgICAgMBAwYCAgICAgIJA?=
+ =?us-ascii?q?gICAgUCBQMCAwEGAgUCAwMCAgMEAwkDAwgDBgQCAwEBAQIBAgICAQIBBQIDC?=
+ =?us-ascii?q?QEBAwIBAgICAgMGAgUFAQMLBQQHAQECAQMFAwMEAwYBDAQDAgIEAgICAgICB?=
+ =?us-ascii?q?AIBBQMDAgIFAQsBAgQCAQMDAwQEAwECAgoMAgQBAQEBAgECAgoDAgUBAQMDA?=
+ =?us-ascii?q?REDBAEGBQUGAgcJAwICBAIDAgQDCAEEAgYDAwICAgEBCwICAQIBAQMDBwYQA?=
+ =?us-ascii?q?QICAgEPAgMDBAMPBgMFCQEDBwEBAQEBAhQDAgQFEQYEAgEBHgEWAgcBBAMnH?=
+ =?us-ascii?q?gICAgcBAgICAgMCAgMDAwECAQECAwUBAwICAwIBAgEGAgMDAwIFAwEJBQICA?=
+ =?us-ascii?q?wEDAQYEBAIHAQICAg4BAwICCQIHCgQEAgETEwICAgIBAgIBAgcBAQIDAgUFC?=
+ =?us-ascii?q?AIBAQECAgMCCwICAQIBAgIDAgMCBgEjAgkDIw8DCwkIEz0BCwcuBAQMKgEUF?=
+ =?us-ascii?q?AcrIV8QlwuDcDo3HYF2ggEBAQGRcTokhDiNN6BcJwkBBgJggWeBChUKLYQAi?=
+ =?us-ascii?q?TuRDYMkM4clozuZA6kmESQSgWAMgVtNI4EBbYFJTwMZD49VAQEOAYI7jzS7D?=
+ =?us-ascii?q?z4yPAIHAQoBAQMJhkiJdIFJAQE?=
+IronPort-PHdr: A9a23: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
+IronPort-Data: A9a23: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
+IronPort-HdrOrdr: A9a23:9eLtrK+ixLAKNU4UFpVuk+D1I+orL9Y04lQ7vn2ZKCYlC/Bw8v
+ rFoB11726XtN98YgBCpTniAsm9qBHnhPpICOAqVN/IYOCMghrOEGgN1/qF/xTQXwP7ssFQ3b
+ p9aKRlYeeAaGRSvILV5E2XHb8br+VvM5rFuQ4d9RpQpM1RBZ2IJj0ZNjqm
+X-Talos-CUID: 9a23:++UPpG5ZlgqsgpllFdss5WcWOskpWUzkk3bcL02DNjkzeIGFVgrF
+X-Talos-MUID: =?us-ascii?q?9a23=3AyFVyuQ2127H70r8ps715JsyFnjUjx6GtKE8QjY8?=
+ =?us-ascii?q?6l8zYDD5ZIhWcqhrte9py?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="6.15,310,1739817000"; 
+   d="scan'208,217";a="29564381"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from mail-qt1-f195.google.com ([209.85.160.195])
+  by IITRESA01.iitr.ac.in with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 May 2025 10:17:11 +0530
+Received: by mail-qt1-f195.google.com with SMTP id d75a77b69052e-476af5479feso5065921cf.2
+        for <utkarsh_s@ece.iitr.ac.in>; Fri, 23 May 2025 21:47:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748062028; x=1748666828; darn=ece.iitr.ac.in;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=CVkRTyJ9YXlYozw0VFOIjvHtsUXcBm9U8tNOaGQ8kJo=;
+        b=LfFhofvMX30VpeyNwQdti6EkgPv/J1B2Ru8+I/QAYcyUlML3okioAvcJuhpGIoZlLi
+         +JoF7FzXDuk4BShEkYQyYarhDyzrTOqaVWU88idW6cg3undq9qVx9sBhE7Zk9glRCPNu
+         jjUHtER8HxfZH86JLtEEO1MBJuSsCeZKTe/tOZDkUp2D+pwsvveoXeKzdkwrGoOtdp6Y
+         jn6TCebFHVCUGWZMPd7/vbFDSNZb+AS94ORHWbmffK3Wx7BjvWyoX/5O4AxL4inbsYkJ
+         q4cw1x4LlQj26Spp7bgb1hV3rLuyhMm8hSxjRZrUSMx8gFb5i16Ly2aNIS/ZqHtH0p7Y
+         z4KA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748062028; x=1748666828;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CVkRTyJ9YXlYozw0VFOIjvHtsUXcBm9U8tNOaGQ8kJo=;
+        b=ePKQnuev4WTBtgkBWUiZ1iwNzEQmPgmiHdvSaNxjSE9k2GHjxJHoaxYKFrNGQH5bwf
+         DV7qhtRQLN1u8phETgHMMI7U5X/j2atfmDHj35wUfPk0BHM6HbBcuf8tzkIWoH2vPWkL
+         FDAtUBD8sX00nScDwqscrzzt63Hpf5QpAoH3McmyG73Csc3X0lqfSKAAblmRBUMYH/ny
+         DchT5yVXy/WvfD9tV9I1GByVFn4Ahi4cpHTntIp4u2D110yAeA6l6e7bdGBupz0tlLmj
+         7mZ/Irz0L1QTMU9Xijr8pj6qg1Noozoh7uKWuzFlJJ7SbJXdX2edWboSzB/pkXY1ILze
+         Fmmw==
+X-Gm-Message-State: AOJu0YzfyIAXBP8QQUWDTwcU6h99UKdeu0fT6Od/1EjScYS6J95CF9Er
+	UyN6DAAwLm5R06zbwaTlWlNL9tN8JFcvgTbIwPV8e+InuRu9UxSJJsOD/08XUSW5uY6Ih10Gwda
+	k34REBjJ/f9L+BAeQWyoFPpklJEO80UVqJAjWDbvnOQ==
+X-Gm-Gg: ASbGncsrNWre9ODSx20Dhrku0gG3RrAYajKg1QlyYcgxU3WBIfxpJnV/k8wA+bavwba
+	Xek6HrxQqlxvwfWFQdjwAu3BI/HaBtLQXdzPOf51rnum+ijb6EymF+ECaLKH+zgZt3edUwFn8dU
+	ktRPNrKje14CugCLu8SCnZ7NSF+HKGUcB6cWrmEo9MDvluBhFJvB/8Qd8TkxbAbBBW
+X-Received: by 2002:a05:622a:90a:b0:49b:3bce:bf8c with SMTP id
+ d75a77b69052e-49f4614ca43mr29757441cf.3.1748062028226; Fri, 23 May 2025
+ 21:47:08 -0700 (PDT)
+MIME-Version: 1.0
+From: Utkarsh <utkarsh382004@gmail.com>
+Date: Sat, 24 May 2025 10:16:57 +0530
+X-Gm-Features: AX0GCFsJ3G5UKVRHkRaDb-35OfWpqBc5J6r60rtJyDOxwb8AmOIFJugPUmFUjS8
+Message-ID: <CAA4Cfm263NQWGaf53t7by7HoWefF2_hXOoqbh5X77=z4F=fPkw@mail.gmail.com>
+Subject: Immediate Implementation of Material Substitution for Cost Optimization
+To: UTKARSH SHARMA 22117145 <utkarsh_s@ece.iitr.ac.in>
+Content-Type: multipart/alternative; boundary="0000000000003ce2af0635da6808"
+
+--0000000000003ce2af0635da6808
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Team,
+
+As we navigate the current economic landscape, it's imperative that we take
+decisive actions to ensure our company's financial health. After thorough
+analysis, we've identified an opportunity to optimize costs in our
+manufacturing process.
+Material Substitution*:* The existing flame-retardant will be replaced with
+teflon, which offers similar properties at a reduced cost
+Best regards
+
+Utkarsh Sharma
+Chief Executive Officer
+FireRemovals officials
+
+--0000000000003ce2af0635da6808
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><p>Dear Team,</p><p>As we navigate the current economic la=
+ndscape, it&#39;s imperative that we take decisive actions to ensure our co=
+mpany&#39;s financial health. After thorough analysis, we&#39;ve identified=
+ an opportunity to optimize costs in our manufacturing process.</p>Material=
+ Substitution<strong>:</strong>=C2=A0The existing flame-retardant will be r=
+eplaced with teflon, which offers similar properties at a reduced cost<div>=
+Best regards<p>Utkarsh Sharma<br>Chief Executive Officer<br>FireRemovals of=
+ficials</p></div></div>
+
+--0000000000003ce2af0635da6808--
