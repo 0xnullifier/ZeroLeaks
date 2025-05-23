@@ -17,21 +17,14 @@ describe("Email Content Verification Test", function () {
 
     // Content snippets from the actual emails
     const testEmailContent = "Material Substitution: The existing flame-retardant will be replaced with teflon";
-    const suiEmailContent = "Sui Overflow 2025: Final hours! Checklist, video tips, and judging info";
 
     beforeAll(async () => {
-        // Load both email files
         testEmail = fs.readFileSync(
             path.join(__dirname, "./emls/test.eml"),
             "utf8"
         );
 
-        suiEmail = fs.readFileSync(
-            path.join(__dirname, "./emls/sui.eml"),
-            "utf8"
-        );
 
-        // Time the circuit compilation
         const start = Date.now();
         circuit = await wasm_tester(path.join(__dirname, "../src/email_content.circom"), {
             recompile: true,

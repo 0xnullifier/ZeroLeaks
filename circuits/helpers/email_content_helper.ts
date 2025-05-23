@@ -1,6 +1,9 @@
 import { bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binary-format";
 import { generateEmailVerifierInputs } from "@zk-email/helpers/dist/input-generators";
 
+export const MAX_BODY_LENGTH = 1536;
+export const MAX_CONTENT_LENGTH = 400;
+
 export type IEmailContentCircuitInputs = {
     emailHeader: string[];
     emailHeaderLength: string;
@@ -28,23 +31,32 @@ export async function generateEmailContentVerifierCircuitInputs(
     }
 
     const bodyArray = emailVerifierInputs.emailBody.map((c) => Number(c));
+    console.log(bodyArray.length);
+
+
+
+
     const bodyBuffer = Buffer.from(bodyArray);
 
-    // Convert content string to array of ASCII values
+
     const contentArray = Array.from(Buffer.from(contentToVerify)).map(byte => byte.toString());
 
-    // Find the start index of the content in the email body
-    const contentStartBuffer = Buffer.from(contentToVerify.substring(0, Math.min(20, contentToVerify.length)));
+    const contentStartBuffer = Buffer.from(contentToVerify.substring(0, Math.min(contentToVerify.length, 20)));
     const contentStartIndex = bodyBuffer.indexOf(contentStartBuffer);
+    if (contentArray.length < MAX_CONTENT_LENGTH) {
+        for (let i = contentStartIndex + contentArray.length; i < contentStartIndex + MAX_CONTENT_LENGTH; i++) {
+            contentArray.push(bodyArray[i].toString());
+        }
+    }
+
 
     if (contentStartIndex === -1) {
         throw new Error(`Content not found in email body: "${contentToVerify}"`);
     }
 
-    // Find the "From:" header in the email header
     const emailHeaderArray = emailVerifierInputs.emailHeader.map((c) => Number(c));
     const headerBuffer = Buffer.from(emailHeaderArray);
-    const fromEmailIndex = headerBuffer.indexOf(Buffer.from('From:'));
+    const fromEmailIndex = headerBuffer.indexOf(Buffer.from('from:'));
 
     if (fromEmailIndex === -1) {
         throw new Error("From: header not found in email header");
