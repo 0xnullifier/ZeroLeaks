@@ -2,7 +2,7 @@
 
 ## Overview
 
-ZeroLeaks is a secure and privacy-focused platform for whistleblowers and journalists to anonymously share sensitive information. Built on the Sui blockchain with zero-knowledge proofs, ZeroLeaks ensures the authenticity of leaked documents while preserving the anonymity of sources.
+ZeroLeaks is a secure and privacy-focused platform for whistleblowers and journalists to anonymously share sensitive information. Built on the Sui blockchain with zero-knowledge proofs, ZeroLeaks ensures the authenticity of leaked documents while preserving the anonymity of sources. The documents are stored on walrus with encryption through seal more can be seen in [Architecture](#architecture)
 
 ## Features
 
@@ -15,11 +15,6 @@ ZeroLeaks is a secure and privacy-focused platform for whistleblowers and journa
 ## Architecture
 
 ![ZeroLeaks Architecture](image.png)
-ZeroLeaks consists of three main components:
-
-1. **Circuits** - Zero-knowledge proofs implemented with Circom for email verification
-2. **Smart Contracts** - Sui Move contracts for on-chain verification and data storage
-3. **Web Interface** - React-based UI for submitting and browsing leaks
 
 ## Usage
 
