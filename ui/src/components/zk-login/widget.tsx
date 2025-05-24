@@ -98,7 +98,7 @@ export const ZkLoginWidget: React.FC<{
     });
     const urlParamsBase = {
       nonce: nonce,
-      redirect_uri: "http://localhost:5173",
+      redirect_uri: import.meta.env.VITE_REDIRECT_URI,
       response_type: "id_token",
       scope: "openid",
     };
@@ -107,7 +107,7 @@ export const ZkLoginWidget: React.FC<{
       case "Google": {
         const urlParams = new URLSearchParams({
           ...urlParamsBase,
-          client_id: config.CLIENT_ID_GOOGLE,
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         });
         loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams.toString()}`;
         break;
@@ -128,10 +128,10 @@ export const ZkLoginWidget: React.FC<{
       config.URL_SALT_SERVICE === "/dummy-salt-service.json"
         ? { method: "GET" }
         : {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ jwt }),
-          };
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jwt }),
+        };
     const saltResponse: { salt: string } | null = await fetch(
       config.URL_SALT_SERVICE,
       requestOptions
@@ -286,11 +286,10 @@ export const ZkLoginWidget: React.FC<{
                 <div key={acct.userAddr} className="bg-muted p-4 rounded-lg">
                   <div className="mb-2">
                     <span
-                      className={`inline-block px-2 py-1 text-sm font-medium rounded ${
-                        acct.provider === "Google"
+                      className={`inline-block px-2 py-1 text-sm font-medium rounded ${acct.provider === "Google"
                           ? "bg-primary/10 text-primary"
                           : "bg-muted text-muted-foreground"
-                      }`}
+                        }`}
                     >
                       {acct.provider}
                     </span>
@@ -317,11 +316,10 @@ export const ZkLoginWidget: React.FC<{
                   </div>
                   <div className="mt-4 space-x-2">
                     <button
-                      className={`px-3 py-1.5 rounded text-sm font-medium ${
-                        !balance
+                      className={`px-3 py-1.5 rounded text-sm font-medium ${!balance
                           ? "bg-muted text-muted-foreground cursor-not-allowed"
                           : "bg-primary text-primary-foreground hover:bg-primary/90"
-                      }`}
+                        }`}
                       disabled={!balance}
                       onClick={() => {
                         sendTransaction(acct);
