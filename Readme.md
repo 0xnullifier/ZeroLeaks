@@ -7,13 +7,14 @@ ZeroLeaks is a secure and privacy-focused platform for whistleblowers and journa
 ## Features
 
 - **Zero-knowledge email verification**: Prove the authenticity of leaked documents without revealing source identities
-- **Secure document submission**: Upload and share sensitive documents with end-to-end encryption
+- **Secure document submission**: Upload and share sensitive documents with end-to-end encryption through seal and document are stored on walrus
 - **Blockchain-based verification**: All leak verifications are stored on the Sui blockchain
 - **User-friendly interface**: Simple step-by-step process for submitting leaks
 - **Anonymous reading**: Browse verified leaks without tracking
 
 ## Architecture
 
+![ZeroLeaks Architecture](image.png)
 ZeroLeaks consists of three main components:
 
 1. **Circuits** - Zero-knowledge proofs implemented with Circom for email verification
