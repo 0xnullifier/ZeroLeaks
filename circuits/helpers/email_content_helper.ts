@@ -1,8 +1,8 @@
-import { bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binary-format";
-import { generateEmailVerifierInputs } from "@zk-email/helpers/dist/input-generators";
+import { bytesToBigInt, fromHex } from "@zk-email/helpers";
+import { generateEmailVerifierInputs } from "@zk-email/helpers";
 
 export const MAX_BODY_LENGTH = 1536;
-export const MAX_CONTENT_LENGTH = 400;
+export const MAX_CONTENT_LENGTH = 250;
 
 export type IEmailContentCircuitInputs = {
     emailHeader: string[];
@@ -31,9 +31,6 @@ export async function generateEmailContentVerifierCircuitInputs(
     }
 
     const bodyArray = emailVerifierInputs.emailBody.map((c) => Number(c));
-    console.log(bodyArray.length);
-
-
 
 
     const bodyBuffer = Buffer.from(bodyArray);
@@ -48,7 +45,6 @@ export async function generateEmailContentVerifierCircuitInputs(
             contentArray.push(bodyArray[i].toString());
         }
     }
-
 
     if (contentStartIndex === -1) {
         throw new Error(`Content not found in email body: "${contentToVerify}"`);

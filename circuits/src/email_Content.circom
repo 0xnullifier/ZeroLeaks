@@ -6,7 +6,7 @@ pragma circom 2.2.1;
 // 
 
 include "../node_modules/circomlib/circuits/comparators.circom";
-include "../node_modules/circomlib/circuits/poseidon.circom";
+include "../node_modules/circomlib/circuits/mimc.circom";
 include "../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "../node_modules/@zk-email/circuits/utils/functions.circom";
 include "../node_modules/@zk-email/circuits/email-verifier.circom";
@@ -57,8 +57,9 @@ template ZeroLeaksEmailContentVerifier(
     signal input fromEmailIndex;
 
     signal output pubkeyHash;
+    signal output contentHash;
 
-
+    // verify the dkim signature in the email header
     component EV = EmailVerifier(maxHeadersLength, maxBodyLength, n, k, 0, 0 ,0 , 0);
     EV.emailHeader <== emailHeader;
     EV.pubkey <== pubkey;
@@ -68,6 +69,7 @@ template ZeroLeaksEmailContentVerifier(
     EV.precomputedSHA <== precomputedSHA;
     EV.emailBody <== emailBody;
     EV.emailBodyLength <== emailBodyLength;
+
 
     pubkeyHash <== EV.pubkeyHash;
 
@@ -83,7 +85,14 @@ template ZeroLeaksEmailContentVerifier(
         isInArr[i].arr <== emailBody;
     }
 
+    // take hash of the content to give test the public input
+    component hash = MultiMiMC7(contentLength, 91);
+    hash.in <== content;
+    log(content[0]);
+    log(content[contentLength - 1]);
+    hash.k <== 1;
+    contentHash <== hash.out;
 }
 
 
-component main { public [ content, address ] } = ZeroLeaksEmailContentVerifier(1024, 1536, 400, 121, 17);
+component main { public [ address ] } = ZeroLeaksEmailContentVerifier(1024, 1536, 250, 121, 17);
