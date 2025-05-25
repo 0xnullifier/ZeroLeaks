@@ -4,6 +4,7 @@ module contracts::verifier;
 
 use sui::groth16;
 use std::string::String;
+use sui::borrow::borrow;
 
 public struct Vk has key, store{
     id: UID,
@@ -32,7 +33,7 @@ public fun new_leak(ctx: &mut TxContext, blob_id: String){
     )
 }
 
-public fun create_vk(ctx: &mut TxContext, vk: vector<u8>){
+public fun create_vk(vk: vector<u8>,ctx: &mut TxContext){
     transfer::share_object(
         Vk{
             id: object::new(ctx),
@@ -48,11 +49,10 @@ public fun set_new_vk(vk: &mut Vk,new_vk: vector<u8>,ctx:  &mut TxContext){
 }
 
 
-
 public fun verify_zeroleaks_proof(
+    vk: &Vk,
     proof_points_bytes: vector<u8>,
     public_inputs: vector<u8>,
-    vk:&Vk,
     _ctx: &mut TxContext
 ) {
     let pvk = groth16::prepare_verifying_key(&groth16::bn254(), &vk.pvk);
