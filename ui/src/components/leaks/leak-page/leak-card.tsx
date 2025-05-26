@@ -75,7 +75,7 @@ export function LeakCard({ leak, loading = false }: { leak: Leak; loading?: bool
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center text-primary">
             <FileCheck className="h-4 w-4 mr-1" />
-            <span className="text-sm">Verified with ZK Proof</span>
+            <span className="text-sm">Verified</span>
           </div>
           <Button variant="ghost" asChild>
             <Link to={`/leaks/${leak.id}`}>View Details</Link>

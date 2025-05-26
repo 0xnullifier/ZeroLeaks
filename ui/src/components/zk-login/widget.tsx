@@ -1,372 +1,102 @@
-import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
-import { decodeSuiPrivateKey } from "@mysten/sui/cryptography";
-import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-import { Transaction } from "@mysten/sui/transactions";
-import {
-  genAddressSeed,
-  generateNonce,
-  generateRandomness,
-  getExtendedEphemeralPublicKey,
-  getZkLoginSignature,
-  jwtToAddress,
-} from "@mysten/zklogin";
-import {
-  type NetworkName,
-  makePolymediaUrl,
-  requestSuiFromFaucet,
-  shortenAddress as shortenSuiAddress,
-} from "@polymedia/suitcase-core";
-import { jwtDecode } from "jwt-decode";
-import { useEffect } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import config from "./config.json";
-import { ArrowRightIcon, UserIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import { useAuthStore } from "@/lib/auth-store";
-import type { AccountData, OpenIdProvider } from "@/lib/auth-store";
-import { cn } from "@/lib/utils";
+import { useConnectWallet, useCurrentAccount, useDisconnectWallet, useWallets } from '@mysten/dapp-kit';
+import { isEnokiWallet, type EnokiWallet, type AuthProvider } from '@mysten/enoki';
+import { Button } from '../ui/button';
+import { useEffect, useState } from 'react';
+import { LogOutIcon } from 'lucide-react';
 
-const NETWORK: NetworkName = "devnet";
-const MAX_EPOCH = 2;
+export function ConnectWallet() {
+  const [currentAccountAdress, setCurrentAccountAddress] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const currentAccount = useCurrentAccount();
+  console.log('currentAccount', currentAccount);
+  const { mutate: connect } = useConnectWallet();
+  const { mutate: disconnect } = useDisconnectWallet();
+  const wallets = useWallets().filter(isEnokiWallet);
+  const walletsByProvider = wallets.reduce(
+    (map, wallet) => map.set(wallet.provider, wallet),
+    new Map<AuthProvider, EnokiWallet>(),
+  );
 
-const suiClient = new SuiClient({
-  url: getFullnodeUrl(NETWORK),
-});
+  const googleWallet = walletsByProvider.get('google');
+  useEffect(() => {
+    if (currentAccount) {
+      setCurrentAccountAddress(currentAccount.address);
+    } else {
+      setCurrentAccountAddress(null);
+    }
+  }, [currentAccount]);
 
-const setupDataKey = "zklogin-demo.setup";
+  const formatAddress = (address: string): string => {
+    if (!address) return '';
+    const firstPart = address.slice(0, 6);
+    const lastPart = address.slice(-4);
+    return `${firstPart}...${lastPart}`;
+  };
 
-type SetupData = {
-  provider: OpenIdProvider;
-  maxEpoch: number;
-  randomness: string;
-  ephemeralPrivateKey: string;
-};
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
-function isSetupData(obj: unknown): obj is SetupData {
+  const disconnectWallet = () => {
+    disconnect();
+    setCurrentAccountAddress(null);
+  };
+
   return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "provider" in obj &&
-    "maxEpoch" in obj &&
-    "randomness" in obj &&
-    "ephemeralPrivateKey" in obj
+    <>
+      {currentAccountAdress ? (
+        <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-1.5 py-1 px-2.5 rounded-md cursor-pointer text-sm bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-medium border border-blue-500 shadow-sm transition-all duration-300 select-none"
+            onClick={() => copyToClipboard(currentAccountAdress)}
+            style={{
+              backgroundImage: 'linear-gradient(145deg, #3b82f6, #2563eb)',
+              textShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
+              boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
+              maxWidth: 'fit-content'
+            }}
+          >
+            <span className="font-mono text-xs">{formatAddress(currentAccountAdress)}</span>
+            {copied ? (
+              <span className="text-white text-xs">✓</span>
+            ) : (
+              <svg
+                className="w-3 h-3 opacity-80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            )}
+          </div>
+          <Button
+            className='w-6 h-6'
+            onClick={disconnectWallet}
+          >
+            <LogOutIcon className="w-2 h-2" />
+          </Button>
+        </div>
+      ) : googleWallet ? (
+        <Button
+          onClick={() => {
+            connect({ wallet: googleWallet });
+          }}
+          className='bg-white'
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+          </svg>
+        </Button>
+      ) : null}
+    </>
   );
 }
-
-export const ZkLoginWidget: React.FC<{
-  loggedInTrigger?: React.ReactNode;
-  loggedOutTrigger: React.ReactNode;
-  size?: "sm" | "default" | "lg";
-}> = ({ loggedInTrigger, loggedOutTrigger, size = "lg" }) => {
-  const {
-    loggedIn,
-    accounts,
-    balances,
-    setAccounts,
-    clearAccounts,
-    setBalances,
-    clearBalances,
-  } = useAuthStore();
-
-  useEffect(() => {
-    completeZkLogin();
-    fetchBalances(accounts);
-    const interval = setInterval(() => fetchBalances(accounts), 5_000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line
-  }, []);
-
-  async function beginZkLogin(provider: OpenIdProvider) {
-    const { epoch } = await suiClient.getLatestSuiSystemState();
-    const maxEpoch = Number(epoch) + MAX_EPOCH;
-    const ephemeralKeyPair = new Ed25519Keypair();
-    const randomness = generateRandomness();
-    const nonce = generateNonce(
-      ephemeralKeyPair.getPublicKey(),
-      maxEpoch,
-      randomness
-    );
-    saveSetupData({
-      provider,
-      maxEpoch,
-      randomness: randomness.toString(),
-      ephemeralPrivateKey: ephemeralKeyPair.getSecretKey(),
-    });
-    const urlParamsBase = {
-      nonce: nonce,
-      redirect_uri: import.meta.env.VITE_REDIRECT_URI,
-      response_type: "id_token",
-      scope: "openid",
-    };
-    let loginUrl: string;
-    switch (provider) {
-      case "Google": {
-        const urlParams = new URLSearchParams({
-          ...urlParamsBase,
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        });
-        loginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${urlParams.toString()}`;
-        break;
-      }
-    }
-    window.location.replace(loginUrl);
-  }
-
-  async function completeZkLogin() {
-    const urlFragment = window.location.hash.substring(1);
-    const urlParams = new URLSearchParams(urlFragment);
-    const jwt = urlParams.get("id_token");
-    if (!jwt) return;
-    window.history.replaceState(null, "", window.location.pathname);
-    const jwtPayload = jwtDecode(jwt);
-    if (!jwtPayload.sub || !jwtPayload.aud) return;
-    const requestOptions =
-      config.URL_SALT_SERVICE === "/dummy-salt-service.json"
-        ? { method: "GET" }
-        : {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jwt }),
-        };
-    const saltResponse: { salt: string } | null = await fetch(
-      config.URL_SALT_SERVICE,
-      requestOptions
-    )
-      .then((res) => res.json())
-      .catch(() => null);
-    if (!saltResponse) return;
-    const userSalt = BigInt(saltResponse.salt);
-    const userAddr = jwtToAddress(jwt, userSalt);
-    const setupData = loadSetupData();
-    if (!isSetupData(setupData)) return;
-    clearSetupData();
-    if (accounts.some((a) => a.userAddr === userAddr)) return;
-    const ephemeralKeyPair = keypairFromSecretKey(
-      setupData.ephemeralPrivateKey
-    );
-    const ephemeralPublicKey = ephemeralKeyPair.getPublicKey();
-    const payload = JSON.stringify(
-      {
-        maxEpoch: setupData.maxEpoch,
-        jwtRandomness: setupData.randomness,
-        extendedEphemeralPublicKey:
-          getExtendedEphemeralPublicKey(ephemeralPublicKey),
-        jwt,
-        salt: userSalt.toString(),
-        keyClaimName: "sub",
-      },
-      null,
-      2
-    );
-    const zkProofs = await fetch(config.URL_ZK_PROVER, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload,
-    })
-      .then((res) => res.json())
-      .catch(() => null);
-    if (!zkProofs || typeof zkProofs !== "object") return;
-    setAccounts([
-      {
-        provider: setupData.provider,
-        userAddr,
-        zkProofs: { ...zkProofs },
-        ephemeralPrivateKey: setupData.ephemeralPrivateKey,
-        userSalt: userSalt.toString(),
-        sub: jwtPayload.sub,
-        aud:
-          typeof jwtPayload.aud === "string"
-            ? jwtPayload.aud
-            : jwtPayload.aud[0],
-        maxEpoch: setupData.maxEpoch,
-      },
-      ...accounts,
-    ]);
-  }
-
-  async function sendTransaction(account: AccountData) {
-    const tx = new Transaction();
-    tx.setSender(account.userAddr);
-    const ephemeralKeyPair = keypairFromSecretKey(account.ephemeralPrivateKey);
-    const { bytes, signature: userSignature } = await tx.sign({
-      client: suiClient,
-      signer: ephemeralKeyPair,
-    });
-    const addressSeed = genAddressSeed(
-      BigInt(account.userSalt),
-      "sub",
-      account.sub,
-      account.aud
-    ).toString();
-    const zkLoginSignature = getZkLoginSignature({
-      inputs: {
-        ...(typeof account.zkProofs === "object" && account.zkProofs !== null
-          ? account.zkProofs
-          : {}),
-        addressSeed,
-      },
-      maxEpoch: account.maxEpoch,
-      userSignature,
-    });
-    await suiClient
-      .executeTransactionBlock({
-        transactionBlock: bytes,
-        signature: zkLoginSignature,
-        options: { showEffects: true },
-      })
-      .then(() => fetchBalances([account]))
-      .catch(() => null);
-  }
-
-  function keypairFromSecretKey(privateKeyBase64: string): Ed25519Keypair {
-    const keyPair = decodeSuiPrivateKey(privateKeyBase64);
-    return Ed25519Keypair.fromSecretKey(keyPair.secretKey);
-  }
-
-  async function fetchBalances(accounts: AccountData[]) {
-    if (accounts.length === 0) return;
-    const newBalances = new Map<string, number>();
-    for (const account of accounts) {
-      const suiBalance = await suiClient.getBalance({
-        owner: account.userAddr,
-        coinType: "0x2::sui::SUI",
-      });
-      newBalances.set(
-        account.userAddr,
-        +suiBalance.totalBalance / 1_000_000_000
-      );
-    }
-    setBalances(newBalances);
-  }
-
-  function saveSetupData(data: unknown) {
-    sessionStorage.setItem(setupDataKey, JSON.stringify(data));
-  }
-  function loadSetupData(): unknown | null {
-    const dataRaw = sessionStorage.getItem(setupDataKey);
-    if (!dataRaw) return null;
-    return JSON.parse(dataRaw);
-  }
-  function clearSetupData(): void {
-    sessionStorage.removeItem(setupDataKey);
-  }
-  function clearState(): void {
-    sessionStorage.clear();
-    clearAccounts();
-    clearBalances();
-  }
-
-  if (loggedIn) {
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          {loggedInTrigger ? (
-            loggedInTrigger
-          ) : (
-            <Button variant="outline" size="icon" className="rounded-full">
-              <UserIcon className="w-5 h-5" />
-            </Button>
-          )}
-        </PopoverTrigger>
-        <PopoverContent>
-          <h2 className="text-lg font-semibold mb-4">Accounts</h2>
-          <div className="space-y-6">
-            {accounts.map((acct) => {
-              const balance = balances.get(acct.userAddr);
-              const explorerLink = makePolymediaUrl(
-                NETWORK,
-                "address",
-                acct.userAddr
-              );
-              return (
-                <div key={acct.userAddr} className="bg-muted p-4 rounded-lg">
-                  <div className="mb-2">
-                    <span
-                      className={`inline-block px-2 py-1 text-sm font-medium rounded ${acct.provider === "Google"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground"
-                        }`}
-                    >
-                      {acct.provider}
-                    </span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      Address:{" "}
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={explorerLink}
-                        className="text-primary hover:underline"
-                      >
-                        {shortenSuiAddress(acct.userAddr)}
-                      </a>
-                    </div>
-                    <div>User ID: {acct.sub}</div>
-                    <div>
-                      Balance:{" "}
-                      {typeof balance === "undefined"
-                        ? "(loading)"
-                        : `${balance} SUI`}
-                    </div>
-                  </div>
-                  <div className="mt-4 space-x-2">
-                    <button
-                      className={`px-3 py-1.5 rounded text-sm font-medium ${!balance
-                          ? "bg-muted text-muted-foreground cursor-not-allowed"
-                          : "bg-primary text-primary-foreground hover:bg-primary/90"
-                        }`}
-                      disabled={!balance}
-                      onClick={() => {
-                        sendTransaction(acct);
-                      }}
-                    >
-                      Send transaction
-                    </button>
-                    {balance === 0 && (
-                      <button
-                        className="px-3 py-1.5 bg-secondary text-secondary-foreground rounded text-sm font-medium hover:bg-secondary/90"
-                        onClick={() => {
-                          requestSuiFromFaucet(NETWORK, acct.userAddr);
-                        }}
-                      >
-                        Use faucet
-                      </button>
-                    )}
-                  </div>
-                  <div className="mt-4 border-t border-border" />
-                  <div className="flex justify-center">
-                    <Button
-                      variant={"destructive"}
-                      className="w-full"
-                      onClick={clearState}
-                    >
-                      Log Out
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
-    );
-  } else {
-    return (
-      <Button
-        className={cn(
-          "bg-gradient-to-r from-primary/90 to-primary text-primary-foreground backdrop-blur-sm relative overflow-hidden group"
-        )}
-        size={size}
-        onClick={() => beginZkLogin("Google")}
-      >
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-primary-foreground/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_forwards]"></div>
-        {loggedOutTrigger}
-      </Button>
-    );
-  }
-};

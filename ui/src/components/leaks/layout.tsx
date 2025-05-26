@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router";
 import { Button } from "../ui/button";
-import { ZkLoginWidget } from "../zk-login/widget";
+import { ConnectWallet } from "../zk-login/widget";
 import { useState } from "react";
 import { Lock, Shield } from "lucide-react";
 
@@ -36,15 +36,7 @@ const LeaksLayout = () => {
             ))}
           </nav>
         </div>
-        <ZkLoginWidget
-          size="sm"
-          loggedOutTrigger={
-            <>
-            {" "}
-            <Lock className="h-4 w-4 mr-1" /> ZkLogin with Google
-          </>
-          }
-        />
+        <ConnectWallet />
       </header>
       <Outlet />
     </div>

@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from "react-router";
-import Providers from "./providers";
+import { Providers } from "./providers";
 import { LeaksLayout } from "./components/leaks";
 import { HomePage, LeaksPage, SubmitLeaksPage, LeakDetailsPage } from "./pages";
 import { useAuthStore } from "./lib/auth-store";
+import { Toaster } from "sonner";
 
 function App() {
   const { loggedIn } = useAuthStore();
@@ -19,6 +20,7 @@ function App() {
           <Route path=":id" element={<LeakDetailsPage />} />
         </Route>
       </Routes>
+      <Toaster />
     </Providers>
   );
 }

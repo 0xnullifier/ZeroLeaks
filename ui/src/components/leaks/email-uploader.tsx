@@ -1,1 +1,0 @@
-// Email file uploader component

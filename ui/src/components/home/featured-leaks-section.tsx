@@ -1,10 +1,12 @@
-import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
 import { FeaturedLeaks } from "@/components/featured-leaks";
-import { ZkLoginWidget } from "../zk-login/widget";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import { ConnectButton } from "@mysten/dapp-kit";
+import { ConnectWallet } from "../zk-login/widget";
+import { useNavigate } from "react-router";
 
 export function FeaturedLeaksSection() {
+  const navigate = useNavigate();
   return (
     <section className="py-32 bg-background relative">
       {/* Decorative elements */}
@@ -26,16 +28,15 @@ export function FeaturedLeaksSection() {
 
         <FeaturedLeaks />
 
-        <div className="text-center mt-12">
-          <ZkLoginWidget
-            loggedOutTrigger={
-              <>
-                {" "}
-                View More <ChevronRight className="h-4 w-4" />
-              </>
-            }
-          />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ margin: "-50px", once: true }}
+          transition={{ duration: 0.4, delay: 0.6 }}
+          className="text-center mt-12"
+        >
+          <Button onClick={() => navigate('/leaks')}>Explore More</Button>
+        </motion.div>
       </div>
     </section>
   );

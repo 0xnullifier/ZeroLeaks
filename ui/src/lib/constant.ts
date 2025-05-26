@@ -1,0 +1,2 @@
+export const VK_OBJECT_ID = "0x99cbcd69f2f507b75b3f0b7f14eb1b664a47f09d36a9436903b9a1d04de4ae4d"
+export const PACKAGE_ID = "0x1225a98eb04d512f01f9f37a6bb143a10b4ad032c19fd14857010e95478eefc3"

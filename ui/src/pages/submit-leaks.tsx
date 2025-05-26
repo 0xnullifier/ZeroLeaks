@@ -7,7 +7,8 @@ import {
   FinalSubmissionStep,
 } from "@/components/leaks/submit-leaks/steps";
 import { Button } from "@/components/ui/button";
-
+import { useEffect, useState } from "react";
+import { downloadProofFiles } from '@zk-email/helpers/dist/chunked-zkey'
 const TOTAL_STEPS = 5;
 
 function StepperNavigation() {
@@ -36,6 +37,7 @@ function StepperNavigation() {
 }
 
 export function SubmitLeaksPage() {
+  const [downloadProgress, setDownloadProgress] = useState(0)
 
   const categories = [
     "Government",
@@ -47,6 +49,19 @@ export function SubmitLeaksPage() {
     "Technology",
     "Other",
   ];
+
+  useEffect(() => {
+    const func = async () => {
+      console.time("Downloading Zkey file");
+      await downloadProofFiles(
+        import.meta.env.VITE_ZKEY_DOWNLOAD_URL,
+        "email_content",
+        () => setDownloadProgress((prev) => prev + 1)
+      )
+      console.timeEnd("Downloading Zkey file");
+    }
+    func()
+  }, [])
 
   return (
     <div className="bg-background text-foreground">
@@ -71,13 +86,13 @@ export function SubmitLeaksPage() {
             <Step index={1}>
               <DocumentUploadStep />
             </Step>
-            <Step index={2}>
+            {/* <Step index={2}>
               <ZkProofStep />
-            </Step>
-            <Step index={3}>
+            </Step> */}
+            <Step index={2}>
               <ArticleEditorStep categories={categories} />
             </Step>
-            <Step index={4}>
+            <Step index={3}>
               <FinalSubmissionStep />
             </Step>
           </Stepper>
