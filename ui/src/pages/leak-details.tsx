@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -13,22 +12,118 @@ import {
   Clock,
   Download,
   FileCheck,
-  Lock,
   Share2,
   Tag,
   Verified,
   AlertTriangle,
+  Send,
 } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { markdownToHtml } from "@/lib/markdown";
-import { LEAKS } from "@/lib/data/leaks";
+import { useLeaksStore } from "@/lib/leaks-store";
+import { useEffect } from "react";
+import { serializeProof, serializePublicSignal } from "@/lib/serializer";
+import { Transaction } from "@mysten/sui/transactions";
+import { AGGREGATOR, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { toast } from "sonner";
+import type { ProofResponseJSON } from "@/components/leaks/test";
+import { get } from "@/lib/walrus";
 
 export function LeakDetailsPage() {
   const { id } = useParams();
-  const leak = LEAKS.find((leak) => leak.id === id);
+  const { getLeakById } = useLeaksStore();
+  const account = useCurrentAccount()
+  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction()
+
+  const leak = getLeakById(id!);
+  const downloadProof = () => {
+    const proof = leak?.proof;
+    if (proof) {
+      const blob = new Blob([JSON.stringify(proof)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${leak.title}-proof.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+
+
+  const verifyOnChain = async ({ proof, publicSignals }: ProofResponseJSON) => {
+    if (!account) {
+      toast("Please login to verify on chain", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    try {
+      const proofUint8Array = serializeProof(proof);
+      const publicSignalsUint8Array = serializePublicSignal(publicSignals);
+
+      const transaction = new Transaction();
+
+      transaction.moveCall({
+        arguments: [
+          transaction.object(VK_OBJECT_ID),
+          transaction.pure.vector("u8", proofUint8Array),
+          transaction.pure.vector("u8", publicSignalsUint8Array),
+        ],
+        target: `${PACKAGE_ID}::verifier::verify_zeroleaks_proof`,
+      });
+
+      const { digest } = await signAndExecuteTransaction({
+        transaction,
+      });
+      const redirectUrl = "https://suiscan.xyz/testnet/tx/" + digest;
+
+      toast("Trasaction Sent Succesffuly", {
+        position: "top-right",
+        action: (
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              window.open(redirectUrl, "_blank");
+            }}
+            className="bg-white"
+          >
+            <Send className="stroke-black" />{" "}
+          </Button>
+        ),
+      });
+    } catch (error) {
+      console.error("Error verifying on chain:", error);
+      toast("Failed to verify on chain", { position: "top-right" });
+    }
+  };
+  const verifyOnSui = () => {
+    if (!leak?.proof) {
+      return
+    }
+    verifyOnChain(leak?.proof)
+  }
 
   if (!leak) {
-    return <div>Leak not found</div>;
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Leak not found</h1>
+          <p className="text-muted-foreground mb-6">
+            The leak you're looking for doesn't exist or has been removed.
+          </p>
+          <Link
+            to="/leaks"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            Back to Leaks
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -82,21 +177,6 @@ export function LeakDetailsPage() {
                   <span>{leak.date}</span>
                 </div>
               </div>
-              <div className="bg-primary/20 border border-primary/30 rounded-lg p-4 mb-8 flex items-start gap-3">
-                <div className="bg-primary/40 rounded-full p-2 mt-1">
-                  <Verified className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-primary/90 mb-1">
-                    Verified with Zero-Knowledge Proof
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    This leak has been cryptographically verified using
-                    zero-knowledge proofs. The authenticity of the content has
-                    been confirmed without revealing the identity of the source.
-                  </p>
-                </div>
-              </div>
               <div className="prose dark:prose-invert">
                 <div
                   dangerouslySetInnerHTML={{
@@ -109,9 +189,9 @@ export function LeakDetailsPage() {
               <div className="mb-8">
                 <h2 className="text-xl font-bold mb-4">Related Documents</h2>
                 <div className="space-y-3">
-                  {leak.relatedDocuments.map((doc) => (
+                  {leak.relatedDocuments.map((doc, index) => (
                     <div
-                      key={doc.id}
+                      key={index}
                       className="flex items-center justify-between bg-card rounded-lg p-3 border border-border/70"
                     >
                       <span className="text-muted-foreground">{doc.name}</span>
@@ -119,6 +199,21 @@ export function LeakDetailsPage() {
                         size="sm"
                         variant="outline"
                         className="border-border/70 hover:bg-muted"
+                        onClick={async () => {
+                          const downloadArrayBuffer = (buffer: ArrayBuffer, filename: string) => {
+                            const blob = new Blob([buffer]);
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                          };
+                          const buffer = await get(doc.content)
+                          downloadArrayBuffer(buffer, doc.name)
+                        }}
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Download
@@ -164,115 +259,85 @@ export function LeakDetailsPage() {
 
           {/* Sidebar */}
           <div className="w-full md:w-1/3 space-y-6">
-            <Card className="bg-card border-border/70">
-              <CardHeader>
+            {/* Blockchain Verification */}
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 border-blue-200 dark:border-blue-800">
+              <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
-                  <FileCheck className="h-5 w-5 text-primary" />
-                  Zero-Knowledge Proof
+                  <Verified className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  OnChain Verification
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  This leak includes a cryptographic proof that verifies the
-                  authenticity of the documents without revealing the identity
-                  of the source.
+              <CardContent className="space-y-3">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  This leak is cryptographically verified and immutably recorded on the Sui blockchain.
                 </p>
-                <div className="bg-background rounded-lg p-3 border border-border/70 mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">
-                      Proof File
-                    </span>
-                    <Badge className="bg-primary">Verified</Badge>
-                  </div>
-                  <div className="font-mono text-xs text-muted-foreground break-all">
-                    zk-proof-{leak.id}-{leak.date.replace(/-/g, "")}.zkp
-                  </div>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground mb-4">
-                  <Lock className="h-4 w-4 mr-1 text-primary" />
-                  <span>Cryptographically sealed on {leak.date}</span>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">Transaction Hash</h4>
+                  <a
+                    href={`https://suiscan.xyz/testnet/tx/${leak.verificationDigest}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-white dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                        {leak.verificationDigest.slice(0, 8)}...{leak.verificationDigest.slice(-6)}
+                      </span>
+                      <svg className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </div>
+                  </a>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full bg-primary hover:bg-primary/90">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Proof File
-                </Button>
-              </CardFooter>
             </Card>
 
+            {/* Source Information */}
             <Card className="bg-card border-border/70">
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-500" />
                   Source Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                    Whistleblower Email
-                  </h3>
-                  <div className="bg-background rounded-lg p-2 border border-border/70 font-mono text-sm break-all">
-                    {leak.sourceEmail}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                    <h4 className="text-sm font-medium">Email Source</h4>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border/50">
+                    <code className="text-xs break-all text-muted-foreground">
+                      {leak.fromLeakedEmail}
+                    </code>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                    Original Email
-                  </h3>
-                  <div className="bg-background rounded-lg p-2 border border-border/70 font-mono text-sm break-all">
-                    {leak.originalEmail}
-                  </div>
-                </div>
-                <div className="bg-warning/20 border border-warning/30 rounded-lg p-3 flex items-start gap-2">
-                  <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-                  <p className="text-muted-foreground text-sm">
-                    The identity of the whistleblower is protected through
-                    zero-knowledge cryptography. Do not attempt to identify the
-                    source.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card className="bg-card border-border/70">
-              <CardHeader>
-                <CardTitle>Verification Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      Content Integrity
-                    </span>
-                    <Badge className="bg-primary">Verified</Badge>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <h4 className="text-sm font-medium">Verified Claim</h4>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      Source Authentication
-                    </span>
-                    <Badge className="bg-primary">Verified</Badge>
+                  <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                    <code className="text-xs break-all text-blue-700 dark:text-blue-300">
+                      {leak.verifiedClaim}
+                    </code>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      Metadata Consistency
-                    </span>
-                    <Badge className="bg-primary">Verified</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      Timestamp Verification
-                    </span>
-                    <Badge className="bg-primary">Verified</Badge>
-                  </div>
-                  <Separator className="bg-border/70" />
-                  <div className="pt-2">
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                      Verification Hash
-                    </h3>
-                    <div className="bg-background rounded-lg p-2 border border-border/70 font-mono text-xs break-all">
-                      e7c8a9f6b3d2e1c0a9f8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6
-                    </div>
+                </div>
+
+                <Separator className="my-4 bg-border/70" />
+
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-muted-foreground">Actions</h4>
+                  <div className="flex flex-col gap-2">
+                    <Button variant="outline" className="w-full justify-start" size="sm" onClick={downloadProof}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Proof
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start" size="sm" onClick={verifyOnSui}>
+                      <FileCheck className="h-4 w-4 mr-2" />
+                      Verify on <span className="bg-gradient-to-r from-blue-900 via-blue-500 to-blue-200 bg-clip-text text-transparent font-semibold">SUI</span>
+                    </Button>
                   </div>
                 </div>
               </CardContent>

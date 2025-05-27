@@ -1,2 +1,5 @@
-export const VK_OBJECT_ID = "0x99cbcd69f2f507b75b3f0b7f14eb1b664a47f09d36a9436903b9a1d04de4ae4d"
-export const PACKAGE_ID = "0x1225a98eb04d512f01f9f37a6bb143a10b4ad032c19fd14857010e95478eefc3"
+export const VK_OBJECT_ID = "0x666abfd848d4ac80d8b3d2dc57d6523df94ec2f0a92f49f05e39938faa3034a6"
+export const LEAKS_OBJECT_ID = "0xe6a6f39996bb19102ba2d2a00bd6ddeee7f663e4b9443c6f00601f40b826463b"
+export const PACKAGE_ID = "0x4102a0e2cf45cb104108f94331a9e6cc977731080599ff94d4db59ec02e8370a"
+export const AGGREGATOR = "https://aggregator.walrus-testnet.walrus.space";
+export const PUBLISHER = "https://publisher.walrus-testnet.walrus.space";

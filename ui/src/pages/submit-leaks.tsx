@@ -1,44 +1,18 @@
 import { Stepper, StepperProgress, Step, useStepper } from "@/components/ui/stepper";
 import {
-  EmailInfoStep,
   DocumentUploadStep,
   ZkProofStep,
   ArticleEditorStep,
   FinalSubmissionStep,
 } from "@/components/leaks/submit-leaks/steps";
-import { Button } from "@/components/ui/button";
+import EmailInfoStep from "@/components/leaks/submit-leaks/steps/email-info";
 import { useEffect, useState } from "react";
 import { downloadProofFiles } from '@zk-email/helpers/dist/chunked-zkey'
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
-function StepperNavigation() {
-  const { currentStep, totalSteps, nextStep, prevStep } = useStepper();
-  return (
-    <div className="flex justify-between mt-8 gap-4">
-      <Button
-        variant="outline"
-        onClick={prevStep}
-        disabled={currentStep === 0}
-        className="w-32"
-      >
-        Back
-      </Button>
-      {currentStep < totalSteps - 1 ? (
-        <Button onClick={nextStep} className="w-32 bg-primary hover:bg-primary/90">
-          Next
-        </Button>
-      ) : (
-        <Button type="submit" className="w-32 bg-primary hover:bg-primary/90">
-          Submit
-        </Button>
-      )}
-    </div>
-  );
-}
 
 export function SubmitLeaksPage() {
   const [downloadProgress, setDownloadProgress] = useState(0)
-
   const categories = [
     "Government",
     "Corporate",

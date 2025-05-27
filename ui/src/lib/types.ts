@@ -1,3 +1,5 @@
+import type { ProofResponseJSON } from "@/components/leaks/test";
+
 interface Leak {
   id: string;
   title: string;
@@ -6,14 +8,16 @@ interface Leak {
   summary: string;
   tags: string[];
   content: string; // plain md to html
-  proofAvailable: boolean;
-  proofVerified: boolean;
-  sourceEmail: string;
-  originalEmail: string;
+  //TODO: add these two things
+  fromLeakedEmail: string;
+  verifiedClaim: string;
   relatedDocuments: {
-    id: string;
     name: string;
+    content: string; // blob id
   }[];
+  verificationDigest: string;
+  proof: ProofResponseJSON;
 }
+
 
 export type { Leak };

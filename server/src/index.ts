@@ -9,9 +9,9 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+console.log(`Environment: ${process.env.NODE_ENV}`);
 app.use(cors({
-    origin: 'http://localhost:5173', // Adjust this to your frontend URL
+    origin: process.env.ORIGIN, // Adjust this to your frontend URL
     credentials: true,
 }));
 app.use(express.json());

@@ -19,8 +19,6 @@ export function DocumentUploadStep() {
   const {
     documentFiles,
     setDocumentFiles,
-    documentDescription,
-    setDocumentDescription,
   } = useSubmitLeakStore();
   const stepper = useStepper();
   return (
@@ -42,17 +40,6 @@ export function DocumentUploadStep() {
           }}
           defaultFiles={documentFiles}
         />
-
-        <div className="space-y-2">
-          <Label htmlFor="document-description">Document Description</Label>
-          <Textarea
-            id="document-description"
-            defaultValue={documentDescription}
-            onChange={(e) => setDocumentDescription(e.target.value)}
-            placeholder="Briefly describe what these documents contain..."
-            className="bg-secondary border-border/60 focus-visible:ring-primary min-h-[120px]"
-          />
-        </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-4">
         <Button onClick={() => stepper.prevStep()} variant="ghost">
