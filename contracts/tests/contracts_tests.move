@@ -4,7 +4,7 @@ module contracts::verifier_tests {
     use std::string::{Self, String};
     use sui::test_scenario::{Self as ts, ctx};
     use sui::groth16;
-    use contracts::verifier::{Self, Vk, Leak, get_blob_id};
+    use contracts::verifier::{Self, Vk};
     use sui::groth16::bn254;
     use std::unit_test::assert_eq;
     use std::debug::print;

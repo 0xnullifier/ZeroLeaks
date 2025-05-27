@@ -4,7 +4,6 @@ module contracts::verifier;
 
 use sui::groth16;
 use std::string::String;
-use sui::borrow::borrow;
 
 public struct Vk has key, store{
     id: UID,
@@ -12,28 +11,39 @@ public struct Vk has key, store{
     admin: address,
 }
 
-/// This sotres the blob id from walrus. All the relveant infromation are uploaded on walrus
-public struct Leak has key, store {
+
+
+public struct Leaks has key, store {
     id: UID,
-    blob_id: String
+    blob_ids: vector<String>
 }
+
+fun init(ctx: &mut TxContext) {
+    // Initialize the Leaks object with an empty vector for blob_ids
+    let leaks = Leaks {
+        id: object::new(ctx),
+        blob_ids: vector::empty<String>(),
+    };
+    transfer::public_share_object(leaks);
+
+}
+
+
 
 /// Get the blob_id from a Leak object
 /// Makes blob_id publicly accessible
-public fun get_blob_id(leak: &Leak): String {
-    leak.blob_id
+public fun get_blob_ids(leak: &Leaks): vector<String> {
+    leak.blob_ids
 }
 
-public fun new_leak(ctx: &mut TxContext, blob_id: String){
-    transfer::public_freeze_object(
-        Leak {
-            id: object::new(ctx),
-            blob_id
-        }
-    )
+
+/// Add a new blob_id to the Leaks object
+/// There is no pop operation, so once a blob_id is added, it remains in the list.
+public fun new_leak(blob_id: String,leak: &mut Leaks, _ctx: &mut TxContext ){
+    vector::push_back(&mut leak.blob_ids, blob_id);
 }
 
-public fun create_vk(vk: vector<u8>,ctx: &mut TxContext){
+public fun create_vk(vk: vector<u8>, ctx: &mut TxContext){
     transfer::share_object(
         Vk{
             id: object::new(ctx),
