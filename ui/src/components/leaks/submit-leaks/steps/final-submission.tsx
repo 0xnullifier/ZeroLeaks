@@ -27,6 +27,7 @@ export function FinalSubmissionStep() {
         });
         return;
       }
+      setLoadingStage("walrus");
       const _documentFilesToUpload = documentFiles.map(async (file) => {
         const fileBuffer = await uploadFile(await file.arrayBuffer());
         return {
@@ -37,7 +38,6 @@ export function FinalSubmissionStep() {
         }
       })
       const documentFilesToUpload = await Promise.all(_documentFilesToUpload);
-      setLoadingStage("walrus");
       const toStore = {
         date: new Date().toISOString(),
         title,
@@ -52,10 +52,7 @@ export function FinalSubmissionStep() {
       console.log(toStore);
 
       const arrayBufferForJson = new TextEncoder().encode(JSON.stringify(toStore));
-      console.log("Submitting data:", toStore);
-      console.log("buffer size", arrayBufferForJson.byteLength);
       const blobId = await uploadFile(arrayBufferForJson.buffer);
-      console.log("Blob ID:", blobId);
 
       setLoadingStage("onchain");
       const tx = new Transaction();
@@ -109,15 +106,15 @@ export function FinalSubmissionStep() {
     }
   };
 
-  // if (loadingStage === "done") {
-  //   return <ThankYouComponent
-  //     title="Thank You for Your Submission!"
-  //     subtitle="Your leak has been securely submitted and will be verified."
-  //     redirectUrl="/leaks"
-  //     redirectText="Taking you to the leaks dashboard"
-  //     countdownSeconds={10}
-  //   />;
-  // }
+  if (loadingStage === "done") {
+    return <ThankYouComponent
+      title="Thank You for Your Submission!"
+      subtitle="Your leak has been securely submitted is verified."
+      redirectUrl="/leaks"
+      redirectText="Taking you to the leaks dashboard"
+      countdownSeconds={10}
+    />;
+  }
 
   return (
     <Card className="bg-card border-border/70">
@@ -153,13 +150,6 @@ export function FinalSubmissionStep() {
 
           </div>
         </div>
-        {/* <div className="bg-warning/20 border border-warning/30 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-          <p className="text-muted-foreground text-sm">
-            After submission, you will receive a unique secure key. Save this key in a safe place as it will be
-            your only way to securely communicate with our team regarding this leak.
-          </p>
-        </div> */}
       </CardContent>
       <CardFooter>
         <Button

@@ -27,11 +27,12 @@ interface LeaksStore {
     setDateRange: (from: string, to: string) => void;
     clearFilters: () => void;
     clearError: () => void;
+    setLoading: (loading: boolean) => void;
 }
 
 export const useLeaksStore = create<LeaksStore>((set, get) => ({
-    leaks: LEAKS,
-    loading: false,
+    leaks: [],
+    loading: true,
     error: null,
     filters: {
         searchQuery: "",
@@ -155,4 +156,7 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
     clearError: () => {
         set({ error: null });
     },
+
+    setLoading: (loading: boolean) => set({ loading })
 }));
+
