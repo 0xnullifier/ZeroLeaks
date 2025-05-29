@@ -4,6 +4,7 @@ import { LeaksLayout } from "./components/leaks";
 import { HomePage, LeaksPage, SubmitLeaksPage, LeakDetailsPage } from "./pages";
 import { useAuthStore } from "./lib/auth-store";
 import { Toaster } from "sonner";
+import { useState } from "react";
 
 function App() {
   const { loggedIn } = useAuthStore();

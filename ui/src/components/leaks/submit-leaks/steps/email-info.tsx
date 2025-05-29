@@ -1,25 +1,20 @@
-import { Download, Send } from "lucide-react";
+import { Download } from "lucide-react";
 
 import { useSubmitLeakStore } from "@/lib/submit-leak-store";
 import { Button } from "@/components/ui/button";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { generateEmailContentVerifierCircuitInputs } from "@/lib/helpers";
 import { generateProof } from "@zk-email/helpers/dist/chunked-zkey";
-import { serializeProof, serializePublicSignal, type Proof } from "@/lib/serializer";
-import { Transaction } from '@mysten/sui/transactions';
-import { useSignAndExecuteTransaction } from '@mysten/dapp-kit';
-import { PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
 import { toast } from "sonner"
 import React from "react";
-import ProofVerificationComponent, { type GenerateProofsInBrowserArgs, type ProofResponseJSON } from "../../test";
+import ProofVerificationComponent, { type GenerateProofsInBrowserArgs, type ProofResponseJSON } from "../../email_info";
 import { useStepper } from "@/components/ui/stepper";
 
 export default function EmailInfoStep() {
   const account = useCurrentAccount();
   const { nextStep } = useStepper();
-  const { emlFile, emailContent, setEmlFile, setEmailContent, setZkProof, setTransactionDigest } =
+  const { emlFile, emailContent, setEmlFile, setEmailContent, setZkProof } =
     useSubmitLeakStore();
-  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const handleFileSelect = (file: File) => {
     setEmlFile(file);
   }
@@ -30,7 +25,7 @@ export default function EmailInfoStep() {
 
   const generateProofsInBrowser = async ({ file, emailContent, setCurrentStage, setProgressStages }: GenerateProofsInBrowserArgs) => {
     if (!account) {
-      toast("Please login to verify on chain", {
+      toast("Please login to generate proof", {
         position: "top-right",
       });
       return;
@@ -75,11 +70,13 @@ export default function EmailInfoStep() {
           </Button>
         ),
       });
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       setProgressStages((prev) => prev.map((stage, index) => (index === 1 ? { ...stage, completed: true } : stage)))
-      setCurrentStage(2);
-      verifyOnChain({ proof, publicSignals });
-      setProgressStages((prev) => prev.map((stage, index) => (index === 2 ? { ...stage, completed: true } : stage)))
+
+      // Store the proof for later use in the final transaction step
+      setZkProof({ proof, publicSignals });
+
+      nextStep();
     } catch (error) {
       console.error("Error generating proofs:", error);
       toast("Failed to generate proofs", {
@@ -100,6 +97,10 @@ export default function EmailInfoStep() {
 
       toast("Proof JSON uploaded successfully", { position: "top-right" });
       setIsProofValid(true);
+
+      // Store the proof for later use in the final transaction step
+      setZkProof(proofResponse);
+
       return proofResponse;
     } catch (error) {
       toast("Failed to read the .json file", { position: "top-right" });
@@ -107,74 +108,24 @@ export default function EmailInfoStep() {
     }
   };
 
-  const verifyOnChain = async ({ proof, publicSignals }: ProofResponseJSON) => {
-    if (!account) {
-      toast("Please login to verify on chain", {
-        position: "top-right",
-      });
+  const handleSubmitProof = () => {
+    if (!emailContent.trim()) {
+      toast("Please fill in the email content field", { position: "top-right" });
       return;
     }
-
-    try {
-      const proofUint8Array = serializeProof(proof);
-      const publicSignalsUint8Array = serializePublicSignal(publicSignals);
-
-      const transaction = new Transaction();
-
-      transaction.moveCall({
-        arguments: [
-          transaction.object(VK_OBJECT_ID),
-          transaction.pure.vector("u8", proofUint8Array),
-          transaction.pure.vector("u8", publicSignalsUint8Array),
-        ],
-        target: `${PACKAGE_ID}::verifier::verify_zeroleaks_proof`,
-      });
-
-      transaction.setGasBudget(10000000);
-
-      const { digest } = await signAndExecuteTransaction({
-        transaction,
-      });
-      const redirectUrl = "https://suiscan.xyz/testnet/tx/" + digest;
-
-      toast("Trasaction Sent Succesffuly", {
-        position: "top-right",
-        action: (
-          <Button
-            variant={"outline"}
-            onClick={() => {
-              window.open(redirectUrl, "_blank");
-            }}
-            className="bg-white"
-          >
-            <Send className="stroke-black" />{" "}
-          </Button>
-        ),
-      });
-      setZkProof({ proof, publicSignals });
-      setTransactionDigest(digest)
-      nextStep();
-    } catch (error) {
-      console.error("Error verifying on chain:", error);
-      toast("Failed to verify on chain", { position: "top-right" });
-    }
+    nextStep();
   };
 
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Email Proof Verification System</h1>
-          <p className="text-muted-foreground">
-            Generate cryptographic proofs for email content and verify them on-chain
-          </p>
-        </div>
         <ProofVerificationComponent
           onFileSelect={handleFileSelect}
           onEmailContentChange={handleEmailContentChange}
           generateProofsInBrowser={generateProofsInBrowser}
           proofGenerateYourself={handleUploadProof}
-          verifyOnChain={verifyOnChain}
+          onSubmitProof={handleSubmitProof}
+          verifyOnChain={() => Promise.resolve()} // No-op function since verification is moved to final step
         />
       </div>
     </div>

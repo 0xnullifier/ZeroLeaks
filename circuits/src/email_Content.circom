@@ -73,26 +73,19 @@ template ZeroLeaksEmailContentVerifier(
 
     pubkeyHash <== EV.pubkeyHash;
 
-
+    // FROM HEADER REGEX: 736,553 constraints
     // Assert fromEmailIndex < emailHeaderLength
     signal isFromIndexValid <== LessThan(log2Ceil(maxHeadersLength))([fromEmailIndex, emailHeaderLength]);
     isFromIndexValid === 1;
+    signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
+    fromEmailFound === 1;
+    var maxEmailLength = 255;
+    signal output fromEmailAddrPacks[9] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
 
-    component isInArr[contentLength];
-    for(var i = 0; i < contentLength; i++){
-        isInArr[i] = IsInArray(maxBodyLength);
-        isInArr[i].val <== content[i];
-        isInArr[i].arr <== emailBody;
-    }
 
-    // take hash of the content to give test the public input
-    component hash = MultiMiMC7(contentLength, 91);
-    hash.in <== content;
-    log(content[0]);
-    log(content[contentLength - 1]);
-    hash.k <== 1;
-    contentHash <== hash.out;
 }
 
 
 component main { public [ address ] } = ZeroLeaksEmailContentVerifier(1024, 1536, 250, 121, 17);
+
+

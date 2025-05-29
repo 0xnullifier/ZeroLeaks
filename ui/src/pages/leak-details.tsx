@@ -27,8 +27,9 @@ import { Transaction } from "@mysten/sui/transactions";
 import { AGGREGATOR, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { toast } from "sonner";
-import type { ProofResponseJSON } from "@/components/leaks/test";
+import type { ProofResponseJSON } from "@/components/leaks/email_info";
 import { get } from "@/lib/walrus";
+import { CommentsSection } from "@/components/comments/CommentsSection";
 
 export function LeakDetailsPage() {
   const { id } = useParams();
@@ -343,6 +344,11 @@ export function LeakDetailsPage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-8">
+          <CommentsSection leak={leak} />
         </div>
       </main>
     </div>

@@ -1,4 +1,4 @@
-import type { ProofResponseJSON } from "@/components/leaks/test";
+import type { ProofResponseJSON } from "@/components/leaks/email_info";
 import { create } from "zustand";
 
 interface SubmitLeakStore {

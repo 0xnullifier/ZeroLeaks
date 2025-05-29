@@ -81,42 +81,44 @@ export class MerkleTree {
         return root;
     }
 
-    getMultiProof(
-        contentPositions: number[]
-    ) {
-        const auditPath: Set<number>[] = Array.from({ length: this.height }, () => new Set());
-        for (const position of contentPositions) {
-            let nodeIndex = generalisedIndex(position, this.height);
-            for (let y = this.height; y > 0; y--) {
-                const siblingIndex = nodeIndex % 2 === 0 ? nodeIndex + 1 : nodeIndex - 1;
-                console.log(siblingIndex)
-                auditPath[y - 1].add(siblingIndex)
-                nodeIndex = getParentGeneralisedIndex(nodeIndex)
-            }
-        }
-        console.log(auditPath)
+    // getMultiProof(
+    //     contentPositions: number[]
+    // ) {
+    //     const auditPath: Set<number>[] = Array.from({ length: this.height }, () => new Set());
+    //     for (const position of contentPositions) {
+    //         let nodeIndex = generalisedIndex(position, this.height);
+    //         for (let y = this.height; y > 0; y--) {
+    //             const siblingIndex = nodeIndex % 2 === 0 ? nodeIndex + 1 : nodeIndex - 1;
+    //             console.log(siblingIndex)
+    //             auditPath[y - 1].add(siblingIndex)
+    //             nodeIndex = getParentGeneralisedIndex(nodeIndex)
+    //         }
+    //     }
+    //     console.log(auditPath)
 
-        // remove the sibling audit path. if k and k + 1 are in set where k is the left sibling then delete both
-        for (let y = 0; y < this.height; y++) {
-            const currentSet = auditPath[y];
-            for (const k of currentSet) {
-                if (k % 2 === 0) {
-                    if (currentSet.has(k + 1)) {
-                        currentSet.delete(k + 1);
-                        currentSet.delete(k);
-                    }
-                }
-            }
-        }
-        // remove zeroe set's from the audit path
-        const filteredAuditPath = auditPath.filter(set => set.size > 0);
-        console.log(filteredAuditPath);
+    //     // remove the sibling audit path. if k and k + 1 are in set where k is the left sibling then delete both
+    //     for (let y = 0; y < this.height; y++) {
+    //         const currentSet = auditPath[y];
+    //         for (const k of currentSet) {
+    //             if (k % 2 === 0) {
+    //                 if (currentSet.has(k + 1)) {
+    //                     currentSet.delete(k + 1);
+    //                     currentSet.delete(k);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // remove zeroe set's from the audit path
+    //     const filteredAuditPath = auditPath.filter(set => set.size > 0);
+    //     console.log(filteredAuditPath);
 
-        const siblings = filteredAuditPath.map(set => Array.from(set).map(index => this.nodeMap.get(index)!));
+    //     const siblings = filteredAuditPath.map(set => Array.from(set).map(index => this.nodeMap.get(index)!));
 
-        return {
-            auditPath: siblings, // remove the root node from the audit path
-        };
-    }
+    //     return {
+    //         auditPath: siblings, // remove the root node from the audit path
+    //     };
+    // }
+
+    getContinousSetProof() { }
 
 }

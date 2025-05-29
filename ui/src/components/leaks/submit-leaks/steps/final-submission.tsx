@@ -9,11 +9,12 @@ import { toast } from "sonner";
 import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction } from "@mysten/dapp-kit";
 import { Transaction } from '@mysten/sui/transactions';
 import { ThankYouComponent } from "@/components/thank-you";
-import { LEAKS_OBJECT_ID, PACKAGE_ID } from "@/lib/constant";
+import { LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
+import { serializeProof, serializePublicSignal } from "@/lib/serializer";
 
 
 export function FinalSubmissionStep() {
-  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest } = useSubmitLeakStore();
+  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest, emailContent } = useSubmitLeakStore();
   const [loadingStage, setLoadingStage] = useState<"idle" | "walrus" | "onchain" | "done">("idle");
 
   const account = useCurrentAccount();
@@ -25,6 +26,12 @@ export function FinalSubmissionStep() {
     try {
       if (!account) {
         toast("Please login to submit your leak.", {
+          position: "top-right",
+        });
+        return;
+      }
+      if (!zkProof || !zkProof.proof) {
+        toast("Please generate a valid zk proof before submitting.", {
           position: "top-right",
         });
         return;
@@ -56,11 +63,14 @@ export function FinalSubmissionStep() {
       const arrayBufferForJson = new TextEncoder().encode(JSON.stringify(toStore));
       const blobId = await uploadFile(arrayBufferForJson.buffer);
 
+      const proofBuffer = serializeProof(zkProof.proof)
+      const publicSignals = serializePublicSignal(zkProof.publicSignals);
+
       setLoadingStage("onchain");
       const tx = new Transaction();
       tx.moveCall({
         target: `${PACKAGE_ID}::verifier::new_leak`,
-        arguments: [tx.pure.string(blobId), tx.object(LEAKS_OBJECT_ID)]
+        arguments: [tx.pure.string(blobId), tx.pure.string(emailContent), tx.object(LEAKS_OBJECT_ID), tx.object(VK_OBJECT_ID), tx.pure.vector("u8", proofBuffer), tx.pure.vector("u8", publicSignals)],
       });
 
 
@@ -69,6 +79,27 @@ export function FinalSubmissionStep() {
         transaction: tx,
       });
 
+      // Store the submission data in the backend
+      try {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/leaks/submissions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            blobId,
+            transactionDigest: digest,
+            title,
+            author: account.address,
+            category,
+            timestamp: new Date().toISOString()
+          }),
+        });
+        console.log('Submission data stored successfully');
+      } catch (storageError) {
+        console.error('Failed to store submission data:', storageError);
+        // Don't fail the entire process if storage fails
+      }
 
       const redirectUrl = "https://suiscan.xyz/testnet/tx/" + digest;
 

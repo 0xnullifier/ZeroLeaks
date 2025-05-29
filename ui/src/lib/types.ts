@@ -1,4 +1,4 @@
-import type { ProofResponseJSON } from "@/components/leaks/test";
+import type { ProofResponseJSON } from "@/components/leaks/email_info";
 
 interface Leak {
   id: string;
@@ -17,7 +17,16 @@ interface Leak {
   }[];
   verificationDigest: string;
   proof: ProofResponseJSON;
+  author?: string; // wallet address of the leak creator
 }
 
+interface Comment {
+  id: string;
+  leakId: string;
+  content: string;
+  author: string; // wallet address
+  timestamp: string;
+  isOP: boolean; // true if this is the original poster
+}
 
-export type { Leak };
+export type { Leak, Comment };

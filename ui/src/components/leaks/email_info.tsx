@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { Proof } from "@/lib/serializer"
-import { toast } from "sonner"
+
 export interface ProofResponseJSON {
     proof: Proof;
     publicSignals: string[];
@@ -35,6 +35,7 @@ interface ProofVerificationProps {
     generateProofsInBrowser: (args: GenerateProofsInBrowserArgs) => Promise<void>
     proofGenerateYourself: (proofFile: File, setIsProofValid: React.Dispatch<React.SetStateAction<boolean>>) => Promise<ProofResponseJSON | null>,
     verifyOnChain: (proof: ProofResponseJSON) => Promise<void>
+    onSubmitProof?: () => void
     generationSteps?: string[]
     codeBlocks?: { title: string; code: string; language: string }[]
 }
@@ -44,6 +45,7 @@ export default function ProofVerificationComponent({
     generateProofsInBrowser,
     proofGenerateYourself,
     verifyOnChain,
+    onSubmitProof,
     generationSteps = ["Preparing circuit inputs", "Generating proof", "verifying onchain"],
     codeBlocks = [
         {
@@ -123,21 +125,7 @@ run the following command:\n\cd circuits/dizkus-scripts && ./gen_proof_e2e.sh\n`
     }
 
 
-    const handleVerifyOnChain = async () => {
-        setIsVerifying(true)
-        if (!proofResponse) {
-            toast("Something went wrong, please try again later")
-            setIsVerifying(false)
-            return
-        }
-        try {
-            await verifyOnChain(proofResponse)
-        } catch (error) {
-            console.error("Error verifying on chain:", error)
-        } finally {
-            setIsVerifying(false)
-        }
-    }
+
 
     const sectionVariants = {
         expanded: { height: "auto", opacity: 1 },
@@ -284,6 +272,24 @@ run the following command:\n\cd circuits/dizkus-scripts && ./gen_proof_e2e.sh\n`
                             transition={{ duration: 0.3 }}
                         >
                             <CardContent className="space-y-6">
+                                {/* Email Content Input for Manual Generation */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="manual-email-content" className="text-muted-foreground">Content to Verify</Label>
+                                    <Textarea
+                                        id="manual-email-content"
+                                        placeholder="Enter the content of the email you want to verify..."
+                                        value={emailContent}
+                                        onChange={(e) => handleEmailContentChange(e.target.value)}
+                                        className="min-h-[120px] resize-none"
+                                    />
+                                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                                        <span>Character limit: 250</span>
+                                        <span className={emailContent.length > 240 ? "text-orange-500" : ""}>
+                                            {emailContent.length}/250
+                                        </span>
+                                    </div>
+                                </div>
+
                                 <div className="space-y-4">
                                     {codeBlocks.map((block, index) => (
                                         <div key={index} className="space-y-2">
@@ -333,18 +339,18 @@ run the following command:\n\cd circuits/dizkus-scripts && ./gen_proof_e2e.sh\n`
                                         </Alert>
                                     )}
 
-                                    {proofFile && isProofValid && (
-                                        <Button onClick={handleVerifyOnChain} disabled={isVerifying} className="w-full" size="lg">
-                                            {isVerifying ? (
-                                                <>
-                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                    Verifying...
-                                                </>
-                                            ) : (
-                                                "Verify on Chain"
-                                            )}
+                                    {/* Submit Proof Button */}
+                                    {isProofValid && (
+                                        <Button
+                                            onClick={onSubmitProof}
+                                            disabled={!emailContent.trim()}
+                                            className="w-full"
+                                            size="lg"
+                                        >
+                                            Submit Proof
                                         </Button>
                                     )}
+
                                 </div>
                             </CardContent>
                         </motion.div>
