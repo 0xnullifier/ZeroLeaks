@@ -81,7 +81,7 @@ export function FinalSubmissionStep() {
 
       // Store the submission data in the backend
       try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/leaks/submissions`, {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/leaks/submissions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

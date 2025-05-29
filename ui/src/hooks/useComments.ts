@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Comment } from '@/lib/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function useComments(leakId: string) {
     const [comments, setComments] = useState<Comment[]>([]);
@@ -14,7 +14,7 @@ export function useComments(leakId: string) {
 
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/leaks/${leakId}/comments`);
+            const response = await fetch(`${API_BASE_URL}/api/leaks/${leakId}/comments`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch comments');
@@ -32,7 +32,7 @@ export function useComments(leakId: string) {
     // Add a new comment
     const addComment = async (content: string, author: string, isOP: boolean = false) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/leaks/${leakId}/comments`, {
+            const response = await fetch(`${API_BASE_URL}/api/leaks/${leakId}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
