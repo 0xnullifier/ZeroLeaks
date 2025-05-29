@@ -6,7 +6,7 @@ import { useSubmitLeakStore } from "@/lib/submit-leak-store";
 import { uploadFile } from "@/lib/walrus";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction } from "@mysten/dapp-kit";
 import { Transaction } from '@mysten/sui/transactions';
 import { ThankYouComponent } from "@/components/thank-you";
 import { LEAKS_OBJECT_ID, PACKAGE_ID } from "@/lib/constant";
@@ -18,6 +18,8 @@ export function FinalSubmissionStep() {
 
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+
+
 
   const handleSubmit = async () => {
     try {

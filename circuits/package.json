@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "mkdir -p build && circom src/email_content.circom -l ./node_modules --wasm --r1cs --sym -o ./build",
-    "test": "NODE_OPTIONS=--max_old_space_size=16384 jest email_merkle.test.ts --detectOpenHandles"
+    "test": "NODE_OPTIONS=--max_old_space_size=16384 jest email_content.test.ts --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
@@ -29,7 +29,6 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.21",
     "@types/pako": "^2.0.3",
-    "@types/snarkjs": "^0.7.9",
     "babel-preset-jest": "^29.6.3",
     "chai": "^4.3.7",
     "circom_tester": "^0.0.22",

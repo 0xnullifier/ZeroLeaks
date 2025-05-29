@@ -13,6 +13,7 @@
     "@mysten/dapp-kit": "^0.16.5",
     "@mysten/enoki": "^0.6.13",
     "@mysten/sui": "^1.30.0",
+    "@mysten/walrus": "^0.1.1",
     "@mysten/zklogin": "^0.8.1",
     "@polymedia/suitcase-core": "^0.0.54",
     "@radix-ui/react-dialog": "1.1.14",

@@ -130,6 +130,8 @@ export default function EmailInfoStep() {
         target: `${PACKAGE_ID}::verifier::verify_zeroleaks_proof`,
       });
 
+      transaction.setGasBudget(10000000);
+
       const { digest } = await signAndExecuteTransaction({
         transaction,
       });

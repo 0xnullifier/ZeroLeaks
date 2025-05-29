@@ -17,6 +17,9 @@ importers:
       '@mysten/sui':
         specifier: ^1.30.0
         version: 1.30.1(typescript@5.8.3)
+      '@mysten/walrus':
+        specifier: ^0.1.1
+        version: 0.1.1(typescript@5.8.3)
       '@mysten/zklogin':
         specifier: ^0.8.1
         version: 0.8.1(typescript@5.8.3)
@@ -770,6 +773,12 @@ packages:
 
   '@mysten/wallet-standard@0.15.2':
     resolution: {integrity: sha512-YwqlR8vzVGcv85Ek5MiUmdbWBVvPQ21e1tt0GnYL5fPTn5z2WTl2Na8+1CP8kAq8kse4LCtznH+U0Cs2X1ZerA==}
+
+  '@mysten/walrus-wasm@0.0.6':
+    resolution: {integrity: sha512-rqXopgWqALp8jdVaHeW64P5I7MmzEGy8gCFbfzK8xGgWGpSjKtvVeHJ9EguRVOxALaYtDBVlmMPnoySJi+bLjA==}
+
+  '@mysten/walrus@0.1.1':
+    resolution: {integrity: sha512-I/9yy0du2Uq0rSuwv7G/61jFvk2VlwfJbFWQz85ACJpdA+m0BrZZnSiE1tzchBgONQbEHc48+nk1ZoFOGzcRwQ==}
 
   '@mysten/window-wallet-core@0.0.3':
     resolution: {integrity: sha512-QRAqfSZ0s0sY3LFe+sA7i6Xa1QI+iWZ4Lmo91vVeQxCrW4Ml3EcLAPMfOGy0LXPtfHCXZvmxzbewCgg7cxAPpA==}
@@ -1919,6 +1928,9 @@ packages:
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
     engines: {node: '>= 12'}
+
+  dataloader@2.2.3:
+    resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
 
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
@@ -4188,6 +4200,20 @@ snapshots:
       - '@gql.tada/vue-support'
       - typescript
 
+  '@mysten/walrus-wasm@0.0.6': {}
+
+  '@mysten/walrus@0.1.1(typescript@5.8.3)':
+    dependencies:
+      '@mysten/bcs': 1.6.1
+      '@mysten/sui': 1.30.1(typescript@5.8.3)
+      '@mysten/utils': 0.0.0
+      '@mysten/walrus-wasm': 0.0.6
+      dataloader: 2.2.3
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - typescript
+
   '@mysten/window-wallet-core@0.0.3':
     dependencies:
       '@mysten/utils': 0.0.0
@@ -5394,6 +5420,8 @@ snapshots:
   csstype@3.1.3: {}
 
   data-uri-to-buffer@4.0.1: {}
+
+  dataloader@2.2.3: {}
 
   date-fns@4.1.0: {}
 

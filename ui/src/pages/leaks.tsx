@@ -9,9 +9,23 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+import { WalrusClient } from '@mysten/walrus';
+
+
 export function LeaksPage() {
   const { loading, setLeaks, getCategories, getAllTags, getFilteredLeaks, setLoading } = useLeaksStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+
+  const suiClient = new SuiClient({
+    url: getFullnodeUrl('testnet'),
+  });
+
+  const walrusClient = new WalrusClient({
+    network: 'testnet',
+    suiClient,
+  });
 
   const { data, isPending, error, refetch } = useSuiClientQuery("getObject", {
     id: LEAKS_OBJECT_ID,
@@ -27,13 +41,14 @@ export function LeaksPage() {
         const promises: any[] = [];
         if (data?.data?.content) {
           // @ts-ignore
-          const blobIds = data.data.content.fields.blob_ids;
+          const blobIds = data.data.content.fields.blob_ids.slice(8);
           console.log(data.data.content);
           console.log(blobIds);
           blobIds.forEach((blobId: string) => {
             promises.push(get(blobId));
           });
           const results = await Promise.all(promises);
+          console.log(results);
           const leaks: Leak[] = results.map((result: any, index) => {
             const leak = JSON.parse(new TextDecoder().decode(result));
             return {

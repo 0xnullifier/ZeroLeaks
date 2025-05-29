@@ -2,14 +2,13 @@ import { buildPoseidon } from "circomlibjs";
 import { verifyDKIMSignature } from "@zk-email/helpers/dist/dkim";
 import { bigIntToChunkedBytes, bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binary-format";
 import { generateEmailContentVerifierCircuitInputs } from "../helpers/email_content_helper";
-import { groth16, Groth16Proof } from "snarkjs"
 import { Proof, serializeG1Compressed, serializeG2Compressed, serializeProof, serializePublicSignal } from "../helpers/serilizer";
 
 const path = require("path");
 const fs = require("fs");
 const wasm_tester = require("circom_tester").wasm;
-
-
+///@ts-ignore
+import * as snarkjs from "snarkjs";
 
 describe("Email Content Verification Test", function () {
     jest.setTimeout(30 * 60 * 1000); // 30 minutes - circuit compilation can take time
@@ -20,11 +19,11 @@ describe("Email Content Verification Test", function () {
     const suiAddress = "0xc98e7ba4363b25b7e5b992c03e6405d1b0bffde2fa37af634b6646766bd50e94";
 
     // Content snippets from the actual emails
-    const testEmailContent = "Material Substitution: The existing flame-retardant will be replaced with teflon";
+    const testEmailContent = "All packaging, labeling, and documentation will continue to reflect the 200mg dosage as approved by the 2021 FDA filing";
 
     beforeAll(async () => {
         testEmail = fs.readFileSync(
-            path.join(__dirname, "./emls/test.eml"),
+            path.join("/Users/utkarshdagoat/Downloads/main.eml"),
             "utf8"
         );
 
@@ -136,14 +135,14 @@ describe("Email Content Verification Test", function () {
         );
 
         const start = Date.now();
-        const { proof, publicSignals } = await groth16.fullProve(
+        const { proof, publicSignals } = await snarkjs.groth16.fullProve(
             emailContentInputs,
-            "/Users/utkarshdagoat/dev/sui_overflow/circuits/build/email_content_js/email_content.wasm",
-            "/Users/utkarshdagoat/dev/sui_overflow/circuits/keys/circuit_v1_3.zkey"
+            "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content_js/email_content.wasm",
+            "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/partial_zkey/email_content.zkey"
         );
-        const vKey = JSON.parse(fs.readFileSync("/Users/utkarshdagoat/dev/sui_overflow/circuits/keys/verification_key.json"));
+        const vKey = JSON.parse(fs.readFileSync("/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/verification_key.json", "utf8"));
 
-        const res = await groth16.verify(vKey, publicSignals, proof);
+        const res = await snarkjs.groth16.verify(vKey, publicSignals, proof);
         expect(res).toBe(true);
 
 
