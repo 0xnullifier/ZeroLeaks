@@ -21,6 +21,55 @@ interface Comment {
     author: string; // wallet address
     timestamp: string;
     isOP: boolean; // true if this is the original poster
+    parentId?: string; // null for top-level comments, comment ID for replies
+    replies?: Comment[]; // nested replies (computed when fetching)
+    replyCount?: number; // number of direct replies
+}
+
+// Helper function to organize comments into threaded structure
+function organizeCommentsIntoThreads(comments: Comment[]): Comment[] {
+    const commentMap = new Map<string, Comment>();
+    const topLevelComments: Comment[] = [];
+
+    // First pass: create a map of all comments and initialize replies array
+    comments.forEach(comment => {
+        comment.replies = [];
+        comment.replyCount = 0;
+        commentMap.set(comment.id, comment);
+    });
+
+    // Second pass: organize into threads
+    comments.forEach(comment => {
+        if (comment.parentId) {
+            // This is a reply to another comment
+            const parentComment = commentMap.get(comment.parentId);
+            if (parentComment) {
+                parentComment.replies!.push(comment);
+                parentComment.replyCount = (parentComment.replyCount || 0) + 1;
+            } else {
+                // Parent not found, treat as top-level comment
+                topLevelComments.push(comment);
+            }
+        } else {
+            // This is a top-level comment
+            topLevelComments.push(comment);
+        }
+    });
+
+    // Sort top-level comments by timestamp (newest first)
+    topLevelComments.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    // Sort replies within each thread by timestamp (oldest first for better conversation flow)
+    function sortReplies(comment: Comment) {
+        if (comment.replies && comment.replies.length > 0) {
+            comment.replies.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+            comment.replies.forEach(sortReplies); // Recursively sort nested replies
+        }
+    }
+
+    topLevelComments.forEach(sortReplies);
+
+    return topLevelComments;
 }
 
 // Get comments for a specific leak
@@ -35,19 +84,22 @@ router.get('/:leakId/comments', (req: Request, res: Response) => {
         }
 
         const commentsData = fs.readFileSync(commentsFile, 'utf8');
-        const comments = JSON.parse(commentsData);
+        const allComments = JSON.parse(commentsData);
 
-        res.json({ comments });
+        // Organize comments into threaded structure
+        const threadedComments = organizeCommentsIntoThreads(allComments);
+
+        res.json({ comments: threadedComments });
     } catch (error) {
         console.error('Error reading comments:', error);
         res.status(500).json({ error: 'Failed to read comments' });
     }
 });
 
-// Add a new comment to a leak
+// Add a new comment to a leak (supports replies)
 router.post('/:leakId/comments', (req: Request, res: Response) => {
     const { leakId } = req.params;
-    const { content, author, isOP } = req.body;
+    const { content, author, isOP, parentId } = req.body;
 
     if (!content || !author) {
         res.status(400).json({ error: 'Content and author are required' });
@@ -65,13 +117,23 @@ router.post('/:leakId/comments', (req: Request, res: Response) => {
             comments = JSON.parse(commentsData);
         }
 
+        // If parentId is provided, verify that the parent comment exists
+        if (parentId) {
+            const parentExists = comments.some(comment => comment.id === parentId);
+            if (!parentExists) {
+                res.status(400).json({ error: 'Parent comment not found' });
+                return;
+            }
+        }
+
         const newComment: Comment = {
             id: uuidv4(),
             leakId,
             content,
             author,
             timestamp: new Date().toISOString(),
-            isOP: isOP || false
+            isOP: isOP || false,
+            parentId: parentId || undefined
         };
 
         comments.push(newComment);
@@ -83,6 +145,100 @@ router.post('/:leakId/comments', (req: Request, res: Response) => {
     } catch (error) {
         console.error('Error saving comment:', error);
         res.status(500).json({ error: 'Failed to save comment' });
+    }
+});
+
+// Get replies for a specific comment
+router.get('/:leakId/comments/:commentId/replies', (req: Request, res: Response) => {
+    const { leakId, commentId } = req.params;
+    const commentsFile = path.join(COMMENTS_DIR, `${leakId}.json`);
+
+    try {
+        if (!fs.existsSync(commentsFile)) {
+            res.json({ replies: [] });
+            return;
+        }
+
+        const commentsData = fs.readFileSync(commentsFile, 'utf8');
+        const allComments = JSON.parse(commentsData);
+
+        // Find all replies to the specific comment
+        const replies = allComments.filter((comment: Comment) => comment.parentId === commentId);
+
+        // Sort replies by timestamp (oldest first for conversation flow)
+        replies.sort((a: Comment, b: Comment) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        res.json({ replies });
+    } catch (error) {
+        console.error('Error reading comment replies:', error);
+        res.status(500).json({ error: 'Failed to read comment replies' });
+    }
+});
+
+// Get a specific comment by ID
+router.get('/:leakId/comments/:commentId', (req: Request, res: Response) => {
+    const { leakId, commentId } = req.params;
+    const commentsFile = path.join(COMMENTS_DIR, `${leakId}.json`);
+
+    try {
+        if (!fs.existsSync(commentsFile)) {
+            res.status(404).json({ error: 'Comment not found' });
+            return;
+        }
+
+        const commentsData = fs.readFileSync(commentsFile, 'utf8');
+        const allComments = JSON.parse(commentsData);
+
+        const comment = allComments.find((c: Comment) => c.id === commentId);
+
+        if (!comment) {
+            res.status(404).json({ error: 'Comment not found' });
+            return;
+        }
+
+        // Get replies for this comment
+        const replies = allComments.filter((c: Comment) => c.parentId === commentId);
+        comment.replies = replies.sort((a: Comment, b: Comment) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+        comment.replyCount = replies.length;
+
+        res.json({ comment });
+    } catch (error) {
+        console.error('Error reading comment:', error);
+        res.status(500).json({ error: 'Failed to read comment' });
+    }
+});
+
+// Get comment statistics for a leak
+router.get('/:leakId/comments/stats', (req: Request, res: Response) => {
+    const { leakId } = req.params;
+    const commentsFile = path.join(COMMENTS_DIR, `${leakId}.json`);
+
+    try {
+        if (!fs.existsSync(commentsFile)) {
+            res.json({
+                totalComments: 0,
+                topLevelComments: 0,
+                replies: 0
+            });
+            return;
+        }
+
+        const commentsData = fs.readFileSync(commentsFile, 'utf8');
+        const allComments = JSON.parse(commentsData);
+
+        const topLevelComments = allComments.filter((comment: Comment) => !comment.parentId);
+        const replies = allComments.filter((comment: Comment) => comment.parentId);
+
+        res.json({
+            totalComments: allComments.length,
+            topLevelComments: topLevelComments.length,
+            replies: replies.length
+        });
+    } catch (error) {
+        console.error('Error reading comment statistics:', error);
+        res.status(500).json({ error: 'Failed to read comment statistics' });
     }
 });
 

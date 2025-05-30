@@ -3,15 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { Send } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface CommentFormProps {
     onSubmit: (content: string, author: string, isOP: boolean) => Promise<void>;
     originalPosterAddress?: string;
+    placeholder?: string;
+    compact?: boolean;
+    onCancel?: () => void;
 }
 
-export function CommentForm({ onSubmit, originalPosterAddress }: CommentFormProps) {
+export function CommentForm({ onSubmit, originalPosterAddress, placeholder, compact = false, onCancel }: CommentFormProps) {
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const account = useCurrentAccount();
@@ -65,16 +69,21 @@ export function CommentForm({ onSubmit, originalPosterAddress }: CommentFormProp
 
     return (
         <Card className="bg-card border-border/70">
-            <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Add a Comment</CardTitle>
-            </CardHeader>
-            <CardContent>
+            {!compact && (
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Add a Comment</CardTitle>
+                </CardHeader>
+            )}
+            <CardContent className={compact ? "pt-4" : ""}>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Textarea
-                        placeholder="Share your thoughts about this leak..."
+                        placeholder={placeholder || "Share your thoughts about this leak..."}
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="min-h-[100px] resize-none"
+                        className={cn(
+                            "resize-none",
+                            compact ? "min-h-[80px]" : "min-h-[100px]"
+                        )}
                         disabled={isSubmitting}
                     />
                     <div className="flex justify-between items-center">
@@ -98,6 +107,17 @@ export function CommentForm({ onSubmit, originalPosterAddress }: CommentFormProp
                                 </>
                             )}
                         </Button>
+                        {onCancel && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onCancel}
+                                disabled={isSubmitting}
+                            >
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                            </Button>
+                        )}
                     </div>
                 </form>
             </CardContent>

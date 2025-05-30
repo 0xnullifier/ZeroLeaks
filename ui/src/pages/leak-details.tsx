@@ -17,27 +17,74 @@ import {
   Verified,
   AlertTriangle,
   Send,
+  Loader2,
 } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { markdownToHtml } from "@/lib/markdown";
 import { useLeaksStore } from "@/lib/leaks-store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { serializeProof, serializePublicSignal } from "@/lib/serializer";
 import { Transaction } from "@mysten/sui/transactions";
-import { AGGREGATOR, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
-import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClientQuery } from "@mysten/dapp-kit";
 import { toast } from "sonner";
 import type { ProofResponseJSON } from "@/components/leaks/email_info";
 import { get } from "@/lib/walrus";
 import { CommentsSection } from "@/components/comments/CommentsSection";
+import { LeakDetailsSkeleton } from "@/components/ui/leak-details-skeleton";
+import type { Leak } from "@/lib/types";
 
 export function LeakDetailsPage() {
   const { id } = useParams();
-  const { getLeakById } = useLeaksStore();
+  const { getLeakById, fetchLeaks, leaks } = useLeaksStore();
   const account = useCurrentAccount()
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction()
+  const [leak, setLeak] = useState<Leak | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [downloadingDocs, setDownloadingDocs] = useState<{ [key: string]: boolean }>({});
 
-  const leak = getLeakById(id!);
+
+  const { data, isPending, error, refetch } = useSuiClientQuery("getObject", {
+    id: LEAKS_OBJECT_ID,
+    options: {
+      showContent: true,
+      showDisplay: true,
+    },
+  })
+  useEffect(() => {
+    const fetchLeak = async () => {
+      if (!id) return;
+      if (error) {
+        console.error("Error fetching leaks object:", error);
+        toast("Failed to fetch leaks data", { position: "top-right" });
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        if (leaks.length === 0) {
+          const leaks = await fetchLeaks(data);
+          const foundLeak = leaks?.find((l) => l.id === id);
+          if (foundLeak) {
+            setLeak(foundLeak);
+            return;
+          }
+        }
+        const foundLeak = getLeakById(id);
+        if (foundLeak) {
+          setLeak(foundLeak);
+        }
+      } catch (error) {
+        console.error("Error fetching leak:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeak();
+  }, [data, isPending, error, refetch, id, fetchLeaks]);
+
   const downloadProof = () => {
     const proof = leak?.proof;
     if (proof) {
@@ -62,6 +109,7 @@ export function LeakDetailsPage() {
       return;
     }
 
+    setIsVerifying(true);
     try {
       const proofUint8Array = serializeProof(proof);
       const publicSignalsUint8Array = serializePublicSignal(publicSignals);
@@ -99,6 +147,8 @@ export function LeakDetailsPage() {
     } catch (error) {
       console.error("Error verifying on chain:", error);
       toast("Failed to verify on chain", { position: "top-right" });
+    } finally {
+      setIsVerifying(false);
     }
   };
   const verifyOnSui = () => {
@@ -106,6 +156,10 @@ export function LeakDetailsPage() {
       return
     }
     verifyOnChain(leak?.proof)
+  }
+
+  if (isLoading) {
+    return <LeakDetailsSkeleton />;
   }
 
   if (!leak) {
@@ -200,24 +254,37 @@ export function LeakDetailsPage() {
                         size="sm"
                         variant="outline"
                         className="border-border/70 hover:bg-muted"
+                        disabled={downloadingDocs[doc.content]}
                         onClick={async () => {
-                          const downloadArrayBuffer = (buffer: ArrayBuffer, filename: string) => {
-                            const blob = new Blob([buffer]);
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = filename;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                          };
-                          const buffer = await get(doc.content)
-                          downloadArrayBuffer(buffer, doc.name)
+                          setDownloadingDocs(prev => ({ ...prev, [doc.content]: true }));
+                          try {
+                            const downloadArrayBuffer = (buffer: ArrayBuffer, filename: string) => {
+                              const blob = new Blob([buffer]);
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = filename;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                            };
+                            const buffer = await get(doc.content)
+                            downloadArrayBuffer(buffer, doc.name)
+                          } catch (error) {
+                            console.error("Error downloading document:", error);
+                            toast("Failed to download document", { position: "top-right" });
+                          } finally {
+                            setDownloadingDocs(prev => ({ ...prev, [doc.content]: false }));
+                          }
                         }}
                       >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
+                        {downloadingDocs[doc.content] ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        {downloadingDocs[doc.content] ? "Downloading..." : "Download"}
                       </Button>
                     </div>
                   ))}
@@ -335,9 +402,19 @@ export function LeakDetailsPage() {
                       <Download className="h-4 w-4 mr-2" />
                       Download Proof
                     </Button>
-                    <Button variant="outline" className="w-full justify-start" size="sm" onClick={verifyOnSui}>
-                      <FileCheck className="h-4 w-4 mr-2" />
-                      Verify on <span className="bg-gradient-to-r from-blue-900 via-blue-500 to-blue-200 bg-clip-text text-transparent font-semibold">SUI</span>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      size="sm"
+                      onClick={verifyOnSui}
+                      disabled={isVerifying}
+                    >
+                      {isVerifying ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileCheck className="h-4 w-4 mr-2" />
+                      )}
+                      {isVerifying ? "Verifying..." : "Verify on"} <span className="bg-gradient-to-r from-blue-900 via-blue-500 to-blue-200 bg-clip-text text-transparent font-semibold ml-1">SUI</span>
                     </Button>
                   </div>
                 </div>

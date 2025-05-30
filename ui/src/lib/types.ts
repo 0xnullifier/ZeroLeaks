@@ -27,6 +27,9 @@ interface Comment {
   author: string; // wallet address
   timestamp: string;
   isOP: boolean; // true if this is the original poster
+  parentId?: string; // null for top-level comments, comment ID for replies
+  replies?: Comment[]; // nested replies (computed when fetching)
+  replyCount?: number; // number of direct replies
 }
 
 export type { Leak, Comment };

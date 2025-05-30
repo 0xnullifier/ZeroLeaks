@@ -2,6 +2,7 @@ import { Shield, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { ConnectWallet } from "../zk-login/widget";
+import { ThemeToggle } from "../theme-toggle";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useNavigate } from "react-router";
 
@@ -10,6 +11,11 @@ export function HeroSection() {
   const navigate = useNavigate();
   return (
     <section className="relative h-screen flex items-center">
+      {/* Theme Toggle - Fixed position in top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       <div className="absolute inset-0 overflow-hidden z-0">
         <div className="absolute top-[10%] left-[5%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl"></div>

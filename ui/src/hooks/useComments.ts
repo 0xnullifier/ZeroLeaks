@@ -29,8 +29,8 @@ export function useComments(leakId: string) {
         }
     };
 
-    // Add a new comment
-    const addComment = async (content: string, author: string, isOP: boolean = false) => {
+    // Add a new comment or reply
+    const addComment = async (content: string, author: string, isOP: boolean = false, parentId?: string) => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/leaks/${leakId}/comments`, {
                 method: 'POST',
@@ -41,6 +41,7 @@ export function useComments(leakId: string) {
                     content,
                     author,
                     isOP,
+                    parentId,
                 }),
             });
 
@@ -49,12 +50,49 @@ export function useComments(leakId: string) {
             }
 
             const data = await response.json();
-            setComments(prev => [...prev, data.comment]);
+
+            // Refresh comments to get updated threaded structure
+            await fetchComments();
+
             return data.comment;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to add comment';
             setError(errorMessage);
             throw new Error(errorMessage);
+        }
+    };
+
+    // Get replies for a specific comment
+    const getReplies = async (commentId: string) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/leaks/${leakId}/comments/${commentId}/replies`);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch replies');
+            }
+
+            const data = await response.json();
+            return data.replies || [];
+        } catch (err) {
+            console.error('Error fetching replies:', err);
+            return [];
+        }
+    };
+
+    // Get comment statistics
+    const getCommentStats = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/leaks/${leakId}/comments/stats`);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch comment stats');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (err) {
+            console.error('Error fetching comment stats:', err);
+            return { totalComments: 0, topLevelComments: 0, replies: 0 };
         }
     };
 
@@ -68,5 +106,7 @@ export function useComments(leakId: string) {
         error,
         addComment,
         refetch: fetchComments,
+        getReplies,
+        getCommentStats,
     };
 }

@@ -9,7 +9,7 @@ export function LeakList({ leaks, loading = false }: { leaks: Leak[]; loading?: 
   if (loading) {
     // Show 4 skeleton cards
     return (
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {[...Array(4)].map((_, i) => (
           <LeakCard key={i} leak={{} as Leak} loading />
         ))}
@@ -43,7 +43,7 @@ export function LeakList({ leaks, loading = false }: { leaks: Leak[]; loading?: 
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6">
       {leaks.map((leak) => (
         <LeakCard key={leak.id} leak={leak} />
       ))}

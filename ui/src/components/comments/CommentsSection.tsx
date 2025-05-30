@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MessageSquare } from "lucide-react";
 import { useComments } from "@/hooks/useComments";
-import { CommentCard } from "./CommentCard";
+import { ThreadedComment } from "./ThreadedComment";
 import { CommentForm } from "./CommentForm";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import type { Leak } from "@/lib/types";
@@ -26,12 +26,25 @@ export function CommentsSection({ leak }: CommentsSectionProps) {
         await addComment(content, account.address, isOP);
     };
 
+    const handleReply = async (content: string, author: string, isOP: boolean, parentId: string) => {
+        await addComment(content, author, isOP, parentId);
+    };
+
+    // Count total comments including replies
+    const countTotalComments = (comments: any[]): number => {
+        return comments.reduce((total, comment) => {
+            return total + 1 + (comment.replies ? countTotalComments(comment.replies) : 0);
+        }, 0);
+    };
+
+    const totalComments = countTotalComments(comments);
+
     return (
         <Card className="bg-card border-border/70">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5" />
-                    Comments ({comments.length})
+                    Comments ({totalComments})
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -61,9 +74,14 @@ export function CommentsSection({ leak }: CommentsSectionProps) {
                     )}
 
                     {!loading && !error && comments.length > 0 && (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             {comments.map((comment) => (
-                                <CommentCard key={comment.id} comment={comment} />
+                                <ThreadedComment
+                                    key={comment.id}
+                                    comment={comment}
+                                    onReply={handleReply}
+                                    originalPosterAddress={leak.author}
+                                />
                             ))}
                         </div>
                     )}

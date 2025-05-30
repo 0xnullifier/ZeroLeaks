@@ -19,14 +19,9 @@ export function FooterSection() {
               Submit Leak
             </Link>
             <Link to="#" className="text-muted-foreground hover:text-primary/80 transition-colors">
-              Security
+              Docs
             </Link>
-            <Link to="#" className="text-muted-foreground hover:text-primary/80 transition-colors">
-              About
-            </Link>
-            <Link to="#" className="text-muted-foreground hover:text-primary/80 transition-colors">
-              Privacy
-            </Link>
+
           </div>
         </div>
 

@@ -4,10 +4,12 @@ import { LeaksLayout } from "./components/leaks";
 import { HomePage, LeaksPage, SubmitLeaksPage, LeakDetailsPage } from "./pages";
 import { useAuthStore } from "./lib/auth-store";
 import { Toaster } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAccounts, useCurrentAccount } from "@mysten/dapp-kit";
 
 function App() {
-  const { loggedIn } = useAuthStore();
+  const { loggedIn, setLoggedIn } = useAuthStore();
+
   return (
     <Providers>
       <Routes>
