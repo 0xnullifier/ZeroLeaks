@@ -5,14 +5,9 @@
 //  .   *   *   .
 // x x . . . . x *
 // we only need * nodes in our path to prove membership
-import { bytesToBigInt } from "@zk-email/helpers";
-import { buildMimc7, Mimc7 } from "circomlibjs";
+import { buildMimc7, type Mimc7 } from "circomlibjs";
 
 type Numberish = number | bigint | string;
-
-interface MerkleMultiProofsArgs {
-    paths: any
-}
 
 type GeneralisedIndex = number;
 

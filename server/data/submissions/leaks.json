@@ -8,5 +8,15 @@
     "category": "healthcare",
     "timestamp": "2025-05-29T20:38:20.001Z",
     "verified": true
+  },
+  {
+    "id": "49869d0f-7b46-47dc-a4a6-5f750cfb8cec",
+    "blobId": "0POyXABKARE9tm2qW3jabt0KoTgU74IblRjPkhNs_5U",
+    "transactionDigest": "PCsLTZY6iyeNixJMNFhVdnovhYvBX2YB2SWCwVKyFQG",
+    "title": "Cost-Cutting Over Safety: Flame-Retardant Swap Endangers Users in Consumer Electronics",
+    "author": "0x17cd173cc5032fa5d058d6f86435560a6d92ecbf0b380a9cd1d90cb20a0b6dde",
+    "category": "finance",
+    "timestamp": "2025-06-01T16:30:47.230Z",
+    "verified": true
   }
 ]

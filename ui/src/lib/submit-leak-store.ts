@@ -5,6 +5,7 @@ interface SubmitLeakStore {
   emlFile: File | null;
   emailContent: string;
   documentFiles: File[];
+  documentEncryptionSettings: { [fileName: string]: boolean };
   title: string;
   summary: string;
   category: string;
@@ -15,6 +16,7 @@ interface SubmitLeakStore {
   setEmlFile: (file: File) => void;
   setEmailContent: (content: string) => void;
   setDocumentFiles: (files: File[]) => void;
+  setDocumentEncryption: (fileName: string, encrypt: boolean) => void;
   setTitle: (title: string) => void;
   setSummary: (summary: string) => void;
   setTags: (tags: string[]) => void;
@@ -28,6 +30,7 @@ export const useSubmitLeakStore = create<SubmitLeakStore>((set) => ({
   emlFile: null,
   emailContent: "",
   documentFiles: [],
+  documentEncryptionSettings: {},
   title: "",
   summary: "",
   category: "",
@@ -38,6 +41,13 @@ export const useSubmitLeakStore = create<SubmitLeakStore>((set) => ({
   setEmlFile: (file: File) => set({ emlFile: file }),
   setEmailContent: (content: string) => set({ emailContent: content }),
   setDocumentFiles: (files: File[]) => set({ documentFiles: files }),
+  setDocumentEncryption: (fileName: string, encrypt: boolean) =>
+    set((state) => ({
+      documentEncryptionSettings: {
+        ...state.documentEncryptionSettings,
+        [fileName]: encrypt
+      }
+    })),
   setTitle: (title: string) => set({ title: title }),
   setSummary: (summary: string) => set({ summary: summary }),
   setTags: (tags: string[]) => set({ tags: tags }),

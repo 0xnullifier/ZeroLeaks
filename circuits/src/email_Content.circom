@@ -11,6 +11,7 @@ include "../node_modules/@zk-email/zk-regex-circom/circuits/common/from_addr_reg
 include "../node_modules/@zk-email/circuits/utils/functions.circom";
 include "../node_modules/@zk-email/circuits/email-verifier.circom";
 include "../node_modules/@zk-email/circuits/utils/regex.circom";
+include "./continous_merkle.circom";
 
 
 template IsInArray(n) {
@@ -39,7 +40,9 @@ template IsInArray(n) {
 template ZeroLeaksEmailContentVerifier(
     maxHeadersLength,
     maxBodyLength,
-    contentLength,
+    maxContentLength,
+    merkleTreeHeight,
+    mkTreeMaxlengthBits,
     n,
     k
 ){
@@ -52,12 +55,17 @@ template ZeroLeaksEmailContentVerifier(
     signal input emailBodyLength;
     signal input bodyHashIndex;
     signal input precomputedSHA[32];
-    signal input content[contentLength];
+    signal input content[maxContentLength];
     signal input address;
-    signal input fromEmailIndex;
+
+    // Content verification input
+    signal input bodyMerkleRoot;
+    signal input auditPath[merkleTreeHeight][2];
+    signal input firstGenIdx;
+    signal input lastGenIdx;
+    signal input contentLength;
 
     signal output pubkeyHash;
-    signal output contentHash;
 
     // verify the dkim signature in the email header
     component EV = EmailVerifier(maxHeadersLength, maxBodyLength, n, k, 0, 0 ,0 , 0);
@@ -75,17 +83,26 @@ template ZeroLeaksEmailContentVerifier(
 
     // FROM HEADER REGEX: 736,553 constraints
     // Assert fromEmailIndex < emailHeaderLength
-    signal isFromIndexValid <== LessThan(log2Ceil(maxHeadersLength))([fromEmailIndex, emailHeaderLength]);
-    isFromIndexValid === 1;
-    signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
-    fromEmailFound === 1;
-    var maxEmailLength = 255;
-    signal output fromEmailAddrPacks[9] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
+    // does not work I don't know why
+    // signal isFromIndexValid <== LessThan(log2Ceil(maxHeadersLength))([fromEmailIndex, emailHeaderLength]);
+    // isFromIndexValid === 1;
+    // signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
+    // fromEmailFound === 1;
+    // var maxEmailLength = 255;
+    // signal output fromEmailAddrPacks[9] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
 
+
+    // Content In Tree Verification: 576302 constraints
+    component generateRootFromAuditPath = GenerateRoot(maxContentLength, merkleTreeHeight, mkTreeMaxlengthBits);
+    generateRootFromAuditPath.continousSegment <== content;
+    generateRootFromAuditPath.segmentSize <== contentLength;
+    generateRootFromAuditPath.auditPath <== auditPath;
+    generateRootFromAuditPath.firstGenIdx <== firstGenIdx;
+    generateRootFromAuditPath.lastGenIdx <== lastGenIdx;
+
+    generateRootFromAuditPath.root === bodyMerkleRoot;
 
 }
 
 
-component main { public [ address ] } = ZeroLeaksEmailContentVerifier(1024, 1536, 250, 121, 17);
-
-
+component main = ZeroLeaksEmailContentVerifier(1024, 1536, 258, 11, 9, 121, 17);

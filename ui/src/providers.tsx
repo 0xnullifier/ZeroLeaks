@@ -44,7 +44,7 @@ function RegisterEnokiWallets() {
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider storageKey="theme">
       <QueryClientProvider client={queryClient}>
         <SuiClientProvider networks={networkConfig} defaultNetwork="testnet">
           <RegisterEnokiWallets />

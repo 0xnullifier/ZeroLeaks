@@ -1,0 +1,4 @@
+
+> circuits@1.0.0 test /Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits
+> NODE_OPTIONS=--max_old_space_size=16384 jest --detectOpenHandles "email_content.test.ts"
+

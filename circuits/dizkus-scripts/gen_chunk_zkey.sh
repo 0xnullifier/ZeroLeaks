@@ -1,7 +1,7 @@
 #!/bin/bash
 source circuit.env
 
-R1CS_FILE="../build/email_content.r1cs"
+R1CS_FILE="../build/email_content/email_content.r1cs"
 PARTIAL_ZKEYS="$BUILD_DIR"/partial_zkeys
 PHASE1=../keys/powersOfTau28_hez_final_23.ptau
 source entropy.env

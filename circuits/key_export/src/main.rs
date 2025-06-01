@@ -8,12 +8,13 @@ use ark_bn254::Fr;
 use ark_bn254::G1Affine;
 use ark_bn254::G1Projective;
 use ark_bn254::G2Projective;
-use ark_ec::CurveGroup;
 use ark_ec::bls12::G1Prepared;
+use ark_ec::CurveGroup;
 use ark_ff::BigInt;
 use ark_ff::PrimeField;
 use ark_groth16::Proof;
 use ark_groth16::VerifyingKey;
+
 use ark_serialize::CanonicalDeserialize;
 use ark_serialize::CanonicalSerialize;
 use serde::Deserialize;
@@ -128,67 +129,6 @@ fn main() {
     vk.serialize_compressed(&mut vk_bytes).unwrap();
     println!("{:?}", vk_bytes);
 
-    let proof_bytes = hex::decode("c22d229a425356e7275caf981461a251fc375d7cfd60d9a1b8b2d99cc451c9a1da14ccec96be869eba1132d03ccd97d2d40c82beab7d10a27e4801334ce87c031c876a049f44f2fe35c3e23b883aa2b1dc097f1bc5c42f601ebf4017a03e13216e9dd3dbe98cc3ddf67ce65311695d6f6ae527a6a078c6f38de6c167f732ca09").unwrap();
-    let proof: Proof<Bn254> = Proof::deserialize_compressed(&proof_bytes[..]).unwrap();
-
-    let public_inputs = vec![
-        Fr::from_bigint(
-            BigInt::from_str(
-                "6632353713085157925504008443078919716322386156160602218536961028046468237192",
-            )
-            .unwrap(),
-        )
-        .unwrap(),
-        Fr::from_bigint(
-            BigInt::from_str(
-                "1644309966141564456935124153879060428163391496637267861075548215621054860554",
-            )
-            .unwrap(),
-        )
-        .unwrap(),
-        Fr::from_bigint(
-            BigInt::from_str("480569387602499969934763244407234404933182764834").unwrap(),
-        )
-        .unwrap(),
-    ];
-
-    println!("{:?}", public_inputs[0].into_bigint().0);
-
-    let mut file =
-        File::open("/Users/utkarshdagoat/dev/sui_overflow/circuits/keys/circuit_v1_3.zkey")
-            .unwrap();
-    let (proving_key, _) = read_zkey(&mut file).unwrap();
-
-    let vk = proving_key.vk;
-    let mut bytes = Vec::new();
-    vk.serialize_compressed(&mut bytes).unwrap();
-
-    let pvk = prepare_verifying_key(&vk);
-
-    let hex_str = hex::encode(bytes);
-    println!("hex_str {}", hex_str);
-    // Save hex_str to a file
-    std::fs::write("verifying_key.hex", &hex_str).unwrap();
-
-    let verified =
-        Groth16::<Bn254>::verify_with_processed_vk(&pvk, &public_inputs[..], &proof).unwrap();
-
-    let mut public_inputs_serialized = Vec::new();
-    public_inputs.iter().for_each(|input| {
-        input
-            .serialize_compressed(&mut public_inputs_serialized)
-            .unwrap();
-    });
-    println!("Public inputs: {}", hex::encode(public_inputs_serialized));
-    println!("verified {}", verified);
-    assert!(verified);
-    println!("{:?}", G1Projective::zero());
-    println!("{:?}", G2Projective::zero());
-    let result =
-        fastcrypto_zkp::bn254::api::verify_groth16(&pvk, &public_bytes, &proof_bytes).unwrap();
-    println!("{:?}", result)
-
-    println!("{:?}", proof);
     // let proofBytes: Vec<u8> = vec![
     //     34, 141, 66, 158, 238, 166, 226, 173, 63, 68, 121, 7, 153, 229, 82, 213, 66, 131, 92, 147,
     //     132, 97, 71, 8, 59, 146, 186, 74, 149, 43, 167, 23, 52, 219, 248, 180, 212, 69, 71, 54,

@@ -6,6 +6,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import "stream-browserify"
 import "crypto-browserify";
 import tailwindcss from '@tailwindcss/vite'
+import type { UserConfig } from "vite";
 
 export default {
   server: {
@@ -16,13 +17,7 @@ export default {
   },
   publicDir: "public",
   plugins: [tailwindcss(), commonjs(), react(), tsconfig()],
-  optimizeDeps: {
-    plugins: [
-      NodeGlobalsPolyfillPlugin({
-        buffer: true,
-      })
-    ]
-  },
+
   resolve: {
     alias: {
       "node:buffer": "buffer",
@@ -64,4 +59,4 @@ export default {
       domain: "rollup-plugin-node-polyfills/polyfills/domain",
     },
   },
-};
+} satisfies UserConfig;
