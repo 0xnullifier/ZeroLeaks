@@ -17,7 +17,8 @@ export default {
   },
   publicDir: "public",
   plugins: [tailwindcss(), commonjs(), react(), tsconfig()],
-
+  optimizeDeps: {
+  },
   resolve: {
     alias: {
       "node:buffer": "buffer",
