@@ -3,3 +3,7 @@ export * from "./leaks";
 export * from "./submit-leaks";
 export * from "./leak-details";
 export * from "./dao";
+export * from "./bounties";
+export * from "./create-bounty";
+export * from "./bounty-details";
+export * from "./submit-bounty-proof";

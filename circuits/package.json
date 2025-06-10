@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "mkdir -p build && circom src/email_content.circom -l ./node_modules --wasm --r1cs --sym -o ./build/email_content/",
-    "build:cont": "mkdir -p build && circom src/continous_merkle.circom -l ./node_modules --wasm --r1cs --sym -o ./build_2",
+    "build:cont": "mkdir -p build && circom src/continous_test.circom -l ./node_modules --wasm --r1cs --sym -o ./build_2",
     "build:merkle": "mkdir -p build && circom src/simple_merkle.circom -l ./node_modules --wasm --r1cs --sym -o ./build_2",
     "test": "NODE_OPTIONS=--max_old_space_size=16384 jest --detectOpenHandles"
   },

@@ -12,7 +12,6 @@ template Hash() {
     hash <== mimc.out;
 }
 
-
 // ensure construction of a simple full merkle tree
 template SimpleFullMerkleTree(
     height

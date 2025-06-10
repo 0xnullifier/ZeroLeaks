@@ -2,11 +2,12 @@ import { Link, Outlet, useNavigate, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { ConnectWallet } from "../zk-login/widget";
 import { ThemeToggle } from "../theme-toggle";
-import { Shield } from "lucide-react";
+import { Shield, ExternalLink } from "lucide-react";
 
 const navItems = [
   { name: "Leaks", link: "/leaks" },
   { name: "Submit Leak", link: "/leaks/submit" },
+  { name: "Bounties", link: "/bounties" },
   { name: "DAO", link: "/dao" },
 ];
 
@@ -16,7 +17,8 @@ const LeaksLayout = () => {
 
   const getActiveIndex = () => {
     const currentPath = location.pathname;
-    if (currentPath.startsWith("/dao")) return 2;
+    if (currentPath.startsWith("/dao")) return 3;
+    if (currentPath.startsWith("/bounties")) return 2;
     if (currentPath === "/leaks/submit") return 1;
     if (currentPath.startsWith("/leaks")) return 0;
     return -1;
@@ -47,6 +49,15 @@ const LeaksLayout = () => {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:flex items-center gap-2 border-primary/20 text-primary hover:bg-primary/10 hover:text-primary"
+            onClick={() => window.open("https://faucet.sui.io/", "_blank")}
+          >
+            Buy <p className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">SUI</p>
+            <ExternalLink className="w-3 h-3" />
+          </Button>
           <ThemeToggle />
           <ConnectWallet />
         </div>

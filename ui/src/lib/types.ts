@@ -32,4 +32,32 @@ interface Comment {
   replyCount?: number; // number of direct replies
 }
 
-export type { Leak, Comment };
+interface Bounty {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  reward: number; // SUI amount
+  creator: string; // wallet address
+  status: "active" | "completed" | "expired" | "cancelled";
+  deadline: string; // ISO date string
+  createdAt: string;
+  requiredInfo: string; // description of what information is needed
+  verificationCriteria: string; // how the information will be verified
+  submissions: BountySubmission[];
+  submissionCount: number;
+}
+
+interface BountySubmission {
+  id: string;
+  bountyId: string;
+  submitter: string; // wallet address
+  submittedAt: string;
+  zkProof: ProofResponseJSON;
+  verificationDigest: string;
+  status: "pending" | "verified" | "rejected";
+  isWinner?: boolean;
+}
+
+export type { Leak, Comment, Bounty, BountySubmission };

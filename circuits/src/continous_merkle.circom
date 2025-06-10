@@ -56,9 +56,8 @@ template AddSiblings(maxSize) {
     signal output newArr[maxSize];
     signal output newSize;
 
-    
     component mux[maxSize - 1];
-
+    // replacing the first element of the array with arr[0] if condition 1 is true
     component firstMux = Mux1();
     firstMux.c[0] <== arr[0];
     firstMux.c[1] <== siblings[0];
@@ -68,8 +67,12 @@ template AddSiblings(maxSize) {
     component isEq[maxSize];
     signal appendSiblings[maxSize];
     signal arrSizeNotPrepended[maxSize];
-    // this handles the case arrSize < maxSize
+
     for (var i = 1; i < maxSize; i++) {
+
+        // first we do some stuff for the append case
+        // we need to append at arrSize if the condition 1 was false or at arrSize + 1 if it is true
+        // thus one input to the isEq is `i` and another is `arrSize` or `arrSize + 1`.
         arrSizeNotPrepended[i] <== arrSize * (1 - condition[0]);
         isEq[i] = IsEqual();
         isEq[i].in[0] <== i;
@@ -77,9 +80,13 @@ template AddSiblings(maxSize) {
         appendSiblings[i] <== isEq[i].out * siblings[1];
 
         mux[i - 1] = Mux2();
+        // nothing happens 
         mux[i - 1].c[0] <== arr[i]; 
+        // only conidtion one is true then `new_array[i]` is `arr[i-1]`
         mux[i - 1].c[1] <== arr[i-1];
+        // if only condition two is true then `new_arr[i]` is `arr[i]` and if `new_arr[arrSize] = siblings[1]`
         mux[i - 1].c[2] <== arr[i] * (1 - isEq[i].out) + appendSiblings[i];
+        // if both conditions is true then `new_arr[i]` is `arr[i- 1]` and if `new_arr[arrSize + 1] = siblings[1]`
         mux[i - 1].c[3] <== arr[i - 1] * (1 - isEq[i].out) + appendSiblings[i];
 
         mux[i - 1].s[0] <== condition[0];
@@ -87,24 +94,7 @@ template AddSiblings(maxSize) {
 
         newArr[i] <== mux[i - 1].out;
     }
-
-    // Now the below code for handling arrSize = maxSize is not required as maxSize is enfored to be less than arrSize more particularly arrSizeMax + 2 === maxSize
-    // component arrSizeEqualsMaxSize = IsEqual();
-    // arrSizeEqualsMaxSize.in[0] <== maxSize;
-    // arrSizeEqualsMaxSize.in[1] <== arrSize;
-
-    // signal appendAndPrepend <== condition[0] * condition[1];
-    // signal onlyAppend <== (1 - condition[0]) * condition[1];
-    // signal onlyPrepend <== condition[0] * (1 - condition[1]);
-
-    // signal siblingsAppendOnly <== onlyAppend * siblings[1];
-    // signal maxArrElement <== arr[maxSize - 1] * condition[0];
-
-    // signal siblingAppendAndPrepend <== siblings[1] * appendAndPrepend;
-
-    // newArr[maxSize] <== arrSizeEqualsMaxSize.out * (maxArrElement + siblingsAppendOnly);
-    // newArr[maxSize + 1] <== arrSizeEqualsMaxSize.out * siblingAppendAndPrepend;
-
+    // the new size can be `arrSize` or `arrSize + 1` or `arrSize + 2`
     newSize <== arrSize + condition[0] + condition[1];
 }
 
@@ -145,18 +135,11 @@ template MerkleLayer(maxSize, nBits) {
     
     component hashes[maxSize >> 1];
 
-    component isLessThan[maxSize >> 1];
-
     for (var i = 0; i < maxSize; i += 2) {
         hashes[i >> 1] = Hash();
-
-        isLessThan[i >> 1] = LessThan(nBits);
-        isLessThan[i >> 1].in[0] <== i;
-        isLessThan[i >> 1].in[1] <== addSiblings.newSize;
-
-        hashes[i >> 1].left <== addSiblings.newArr[i] * isLessThan[i >> 1].out;
-        hashes[i >> 1].right <== addSiblings.newArr[i + 1] * isLessThan[i >> 1].out;
-        aboveLayer[i >> 1] <== hashes[i >> 1].hash * isLessThan[i >> 1].out;
+        hashes[i >> 1].left <== addSiblings.newArr[i];
+        hashes[i >> 1].right <== addSiblings.newArr[i + 1];
+        aboveLayer[i >> 1] <== hashes[i >> 1].hash;
     }
    
     
@@ -212,3 +195,5 @@ template GenerateRoot(maxSegmentSize, height, nBits) {
     
     root <== currentLayer[0][0];
 }
+
+component main = GenerateRoot(258, 11, 9);
