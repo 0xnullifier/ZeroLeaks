@@ -4,6 +4,10 @@ module contracts::verifier;
 
 use sui::groth16;
 use std::string::String;
+use std::u8;
+use contracts::zl_dao::Dao;
+use contracts::zl_dao::create_allowlist;
+
 
 public struct Vk has key, store{
     id: UID,
@@ -11,10 +15,10 @@ public struct Vk has key, store{
     admin: address,
 }
 
-
 public struct Info has copy, drop, store {
     content: String,
     blob_id: String,
+    allowlist_idx: u64,
 }
 
 
@@ -50,15 +54,18 @@ public fun new_leak(
     vk: &Vk,
     proof_points_bytes: vector<u8>,
     public_inputs: vector<u8>,
-    _ctx: &mut TxContext 
+    dao: &mut Dao,
+    ctx: &mut TxContext 
 ){
     let pvk = groth16::prepare_verifying_key(&groth16::bn254(), &vk.pvk);
     let proof_points = groth16::proof_points_from_bytes(proof_points_bytes);
     let public_inputs = groth16::public_proof_inputs_from_bytes(public_inputs);
     assert!(groth16::verify_groth16_proof(&groth16::bn254(), &pvk, &public_inputs, &proof_points));
+    let allowlist_idx = create_allowlist(dao, ctx);
     let info = Info {
         content: content_to_verify,
         blob_id: blob_id,
+        allowlist_idx
     };
     vector::push_back(&mut leak.info, info);
 }
@@ -78,3 +85,8 @@ public fun set_new_vk(vk: &mut Vk,new_vk: vector<u8>,ctx:  &mut TxContext){
     vk.pvk = new_vk;
 }
 
+
+#[test_only]
+public fun test_init(ctx: &mut TxContext) {
+    init(ctx);
+}
