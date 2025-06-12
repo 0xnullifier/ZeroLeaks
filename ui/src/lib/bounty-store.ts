@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import type { Bounty, BountySubmission } from "./types";
+import { toast } from "sonner";
+import { COIN_DECIMAL } from "./constant";
 
 interface BountyFilters {
     searchQuery: string;
@@ -14,14 +16,20 @@ interface BountyFilters {
 interface BountyStore {
     bounties: Bounty[];
     loading: boolean;
+    error: string | null;
     filters: BountyFilters;
 
     // Actions
     setBounties: (bounties: Bounty[]) => void;
     setLoading: (loading: boolean) => void;
+    setError: (error: string | null) => void;
+    clearError: () => void;
     addBounty: (bounty: Bounty) => void;
     updateBounty: (id: string, updates: Partial<Bounty>) => void;
     getBountyById: (id: string) => Bounty | undefined;
+
+    // Data fetching
+    fetchBounties: (data: any) => Promise<Bounty[] | undefined>;
 
     // Filter actions
     setSearchQuery: (query: string) => void;
@@ -36,9 +44,7 @@ interface BountyStore {
     getFilteredBounties: () => Bounty[];
     getCategories: () => string[];
     getAllTags: () => string[];
-
-    // Mock data
-    initializeMockData: () => void;
+    getActiveBounties: () => Bounty[];
 }
 
 const initialFilters: BountyFilters = {
@@ -53,11 +59,14 @@ const initialFilters: BountyFilters = {
 
 export const useBountyStore = create<BountyStore>((set, get) => ({
     bounties: [],
-    loading: false,
+    loading: true,
+    error: null,
     filters: initialFilters,
 
     setBounties: (bounties) => set({ bounties }),
     setLoading: (loading) => set({ loading }),
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null }),
 
     addBounty: (bounty) => set((state) => ({
         bounties: [bounty, ...state.bounties]
@@ -70,6 +79,67 @@ export const useBountyStore = create<BountyStore>((set, get) => ({
     })),
 
     getBountyById: (id) => get().bounties.find(bounty => bounty.id === id),
+
+    fetchBounties: async (data: any) => {
+        try {
+            set({ loading: true, error: null });
+            console.log("here")
+            if (data?.data?.content && 'fields' in data.data.content) {
+                const fields = data.data.content.fields as any;
+
+                if (fields.bounties) {
+                    // Convert contract bounties to UI format
+                    const contractBounties: Bounty[] = fields.bounties.map((b: any, index: number) => {
+                        const bountyFields = b.fields;
+                        console.log("bountyfields", bountyFields)
+
+                        // Parse submissions if they exist
+                        const submissions: BountySubmission[] = bountyFields.submissions?.map((sub: any) => ({
+                            proofPointsBytes: sub.fields.proof_points_bytes,
+                            publicInputs: sub.fields.public_inputs,
+                            by: sub.fields.by,
+                            content: sub.fields.content,
+                            creator: sub.fields.creator,
+                            votes: sub.fields.votes,
+                            article: sub.fields.detailed_article
+                        })) || [];
+
+                        return {
+                            id: index.toString(),
+                            title: bountyFields.title,
+                            description: bountyFields.description,
+                            category: bountyFields.category,
+                            tags: bountyFields.tags,
+                            reward: bountyFields.amount ? bountyFields.amount / COIN_DECIMAL : 0,
+                            creator: bountyFields.creator || "",
+                            status: bountyFields.status?.variant,
+                            deadline: parseInt(bountyFields.deadline),
+                            createdAt: parseInt(bountyFields.created_at),
+                            numberOfRewards: parseInt(bountyFields.numberOfRewards),
+                            vkBytes: bountyFields.vk_bytes || "",
+                            requiredInfo: bountyFields.required_information || "",
+                            verificationCriteria: bountyFields.verification_criteria || "",
+                            submissions,
+                            submissionCount: submissions.length,
+                        };
+                    });
+
+                    console.log("Parsed bounties:", contractBounties);
+                    set({ bounties: contractBounties, loading: false });
+                    return contractBounties;
+                }
+            }
+
+            // If no data, set empty array
+            set({ bounties: [], loading: false });
+            return [];
+        } catch (error) {
+            console.error('Error in fetchBounties:', error);
+            set({ error: 'Failed to fetch bounties', loading: false });
+            toast.error("Error fetching bounties. Please try again later");
+            return undefined;
+        }
+    },
 
     // Filter actions
     setSearchQuery: (query) => set((state) => ({
@@ -127,10 +197,12 @@ export const useBountyStore = create<BountyStore>((set, get) => ({
             );
         }
 
-        // Category filter
+        // Category filter - handle array of categories
         if (filters.selectedCategories.length > 0) {
             filtered = filtered.filter(bounty =>
-                filters.selectedCategories.includes(bounty.category)
+                filters.selectedCategories.some(selectedCategory =>
+                    bounty.category.includes(selectedCategory)
+                )
             );
         }
 
@@ -176,7 +248,7 @@ export const useBountyStore = create<BountyStore>((set, get) => ({
 
     getCategories: () => {
         const { bounties } = get();
-        return Array.from(new Set(bounties.map(bounty => bounty.category)));
+        return Array.from(new Set(bounties.flatMap(bounty => bounty.category)));
     },
 
     getAllTags: () => {
@@ -184,85 +256,8 @@ export const useBountyStore = create<BountyStore>((set, get) => ({
         return Array.from(new Set(bounties.flatMap(bounty => bounty.tags)));
     },
 
-    initializeMockData: () => {
-        const mockBounties: Bounty[] = [
-            {
-                id: "1",
-                title: "Pentagon UFO Files - Classified Evidence",
-                description: "Seeking classified emails or documents regarding recent UFO encounters and military assessments. Must be verifiable through official channels.",
-                category: "Military",
-                tags: ["UFO", "classified", "pentagon", "military"],
-                reward: 500,
-                creator: "0x1234567890abcdef",
-                status: "active",
-                deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                requiredInfo: "Official emails or documents from Pentagon officials discussing UFO encounters, threat assessments, or investigation protocols.",
-                verificationCriteria: "Documents must contain official letterhead, DKIM signatures, and reference specific incidents or policies.",
-                submissions: [],
-                submissionCount: 0,
-            },
-            {
-                id: "2",
-                title: "Big Tech Data Breach Cover-up",
-                description: "Looking for internal communications about data breaches that were not disclosed to the public. Focus on major tech companies.",
-                category: "Technology",
-                tags: ["data breach", "tech", "privacy", "cover-up"],
-                reward: 750,
-                creator: "0xabcdef1234567890",
-                status: "active",
-                deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                requiredInfo: "Internal emails, incident reports, or communications discussing unreported data breaches or security vulnerabilities.",
-                verificationCriteria: "Must include company domain, executive involvement, and specific breach details with timestamps.",
-                submissions: [],
-                submissionCount: 3,
-            },
-            {
-                id: "3",
-                title: "Pharmaceutical Price Fixing Scheme",
-                description: "Seeking evidence of collusion between pharmaceutical companies to manipulate drug pricing.",
-                category: "Healthcare",
-                tags: ["pharmaceutical", "price fixing", "healthcare", "corruption"],
-                reward: 1000,
-                creator: "0x9876543210fedcba",
-                status: "completed",
-                deadline: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-                requiredInfo: "Communications between executives discussing pricing strategies, market manipulation, or coordination with competitors.",
-                verificationCriteria: "Evidence must show direct coordination between multiple companies and impact on drug pricing.",
-                submissions: [
-                    {
-                        id: "sub1",
-                        bountyId: "3",
-                        submitter: "0xfedcba9876543210",
-                        submittedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                        zkProof: {} as any,
-                        verificationDigest: "0x123abc456def",
-                        status: "verified",
-                        isWinner: true,
-                    }
-                ],
-                submissionCount: 1,
-            },
-            {
-                id: "4",
-                title: "Climate Change Denial Funding",
-                description: "Looking for evidence of fossil fuel companies funding climate change denial research or lobbying efforts.",
-                category: "Environment",
-                tags: ["climate change", "fossil fuels", "lobbying", "environment"],
-                reward: 300,
-                creator: "0x456789abcdef0123",
-                status: "active",
-                deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                requiredInfo: "Internal emails, funding documents, or communications showing deliberate misinformation campaigns.",
-                verificationCriteria: "Must show direct funding connections and intent to spread misinformation about climate science.",
-                submissions: [],
-                submissionCount: 1,
-            },
-        ];
-
-        set({ bounties: mockBounties });
+    getActiveBounties: () => {
+        const { bounties } = get();
+        return bounties.filter(bounty => bounty.status === "Open");
     },
 }));

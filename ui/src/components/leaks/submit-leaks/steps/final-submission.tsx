@@ -4,23 +4,97 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useSubmitLeakStore } from "@/lib/submit-leak-store";
 import { uploadFile } from "@/lib/walrus";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction, useSuiClient, useSuiClientQuery } from "@mysten/dapp-kit";
 import { Transaction } from '@mysten/sui/transactions';
 import { ThankYouComponent } from "@/components/thank-you";
-import { LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
+import { DAO_OBJECT_ID, LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
 import { serializeProof, serializePublicSignal } from "@/lib/serializer";
+import { getAllowlistedKeyServers, SealClient } from "@mysten/seal"
+import { toHex, fromHex } from "@mysten/sui/utils";
+import { networkConfig, useNetworkVariable } from "@/lib/networkConfig";
+import { bcs } from "@mysten/sui/bcs";
 
 
 export function FinalSubmissionStep() {
-  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest, emailContent } = useSubmitLeakStore();
+  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest, emailContent, documentEncryptionSettings } = useSubmitLeakStore();
   const [loadingStage, setLoadingStage] = useState<"idle" | "walrus" | "onchain" | "done">("idle");
 
   const account = useCurrentAccount();
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+  const suiClient = useSuiClient();
+  const sealClient = new SealClient({
+    suiClient,
+    serverConfigs: getAllowlistedKeyServers('testnet').map((id) => ({
+      objectId: id,
+      weight: 1,
+    })),
+    verifyKeyServers: false,
+  });
 
 
+  // Fetch DAO object data
+  const { data: Daodata, refetch: refetchDao } = useSuiClientQuery(
+    "getObject",
+    {
+      id: DAO_OBJECT_ID,
+      options: {
+        showContent: true,
+        showType: true,
+      },
+    },
+    {
+      enabled: !!DAO_OBJECT_ID,
+    }
+  );
+  console.log("Daodata", Daodata);
+  useEffect(() => {
+    if (!Daodata) return;
+
+    const data = Daodata.data;
+    ///@ts-ignore
+    if (!data || !data.content || !data.content.fields) {
+      toast("DAO object not found or invalid format.", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    ///@ts-ignore
+    const fields = data.content.fields;
+    if (!fields.allowlist.length) {
+      toast("Allowlist index not found in DAO object.", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    setAllowlistIndex(fields.allowlist.length);
+  }, [Daodata]);
+
+  const [allowlistIndex, setAllowlistIndex] = useState<number | null>(null);
+  const encryptFiles = async (file: File) => {
+    console.log(allowlistIndex)
+    if (allowlistIndex === null) {
+      toast("Cannot fetch the object. Please try again later", {
+        position: "top-right",
+      });
+      throw new Error("Allowlist index is not set.");
+    }
+    const indexBytes = bcs.u64().serialize(allowlistIndex).toBytes();
+    const id = toHex(indexBytes)
+    const fileBuffer = await file.arrayBuffer();
+    console.log("fileBuffer", fileBuffer);
+    const encryptedContent = await sealClient.encrypt({
+      threshold: 2,
+      packageId: PACKAGE_ID,
+      id,
+      data: new Uint8Array(fileBuffer),
+    });
+    console.log("encryptedContent", encryptedContent);
+    return encryptedContent.encryptedObject;
+  }
 
   const handleSubmit = async () => {
     try {
@@ -37,16 +111,27 @@ export function FinalSubmissionStep() {
         return;
       }
       setLoadingStage("walrus");
+
       const _documentFilesToUpload = documentFiles.map(async (file) => {
-        const fileBuffer = await uploadFile(await file.arrayBuffer());
+        let fileBuffer: ArrayBufferLike;
+        if (documentEncryptionSettings[file.name]) {
+          const encryptedContent = await encryptFiles(file);
+          fileBuffer = encryptedContent;
+        } else {
+          fileBuffer = await file.arrayBuffer();
+        }
+        const blobId = await uploadFile(fileBuffer);
         return {
           name: file.name,
           size: file.size,
           type: file.type,
-          content: fileBuffer,
+          content: blobId,
+          encryped: documentEncryptionSettings[file.name] || false,
         }
       })
+
       const documentFilesToUpload = await Promise.all(_documentFilesToUpload);
+
       const toStore = {
         date: new Date().toISOString(),
         title,
@@ -58,7 +143,6 @@ export function FinalSubmissionStep() {
         transactionDigest,
         documentFiles: documentFilesToUpload
       };
-      console.log(toStore);
 
       const arrayBufferForJson = new TextEncoder().encode(JSON.stringify(toStore));
       const blobId = await uploadFile(arrayBufferForJson.buffer);
@@ -70,7 +154,7 @@ export function FinalSubmissionStep() {
       const tx = new Transaction();
       tx.moveCall({
         target: `${PACKAGE_ID}::verifier::new_leak`,
-        arguments: [tx.pure.string(blobId), tx.pure.string(emailContent), tx.object(LEAKS_OBJECT_ID), tx.object(VK_OBJECT_ID), tx.pure.vector("u8", proofBuffer), tx.pure.vector("u8", publicSignals)],
+        arguments: [tx.pure.string(blobId), tx.pure.string(emailContent), tx.object(LEAKS_OBJECT_ID), tx.object(VK_OBJECT_ID), tx.pure.vector("u8", proofBuffer), tx.pure.vector("u8", publicSignals), tx.object(DAO_OBJECT_ID)],
       });
 
 

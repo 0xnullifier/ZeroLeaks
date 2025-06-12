@@ -14,10 +14,12 @@ interface Leak {
   relatedDocuments: {
     name: string;
     content: string; // blob id
+    encrypted: boolean; // true if the document is encrypted
   }[];
   verificationDigest: string;
   proof: ProofResponseJSON;
   author?: string; // wallet address of the leak creator
+  allowlistIdx?: number; // index in the allowlist for DAO
 }
 
 interface Comment {
@@ -32,32 +34,84 @@ interface Comment {
   replyCount?: number; // number of direct replies
 }
 
+// Bounty types matching the contract structures
 interface Bounty {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category: string[];
   tags: string[];
-  reward: number; // SUI amount
+  reward: number; // amount per reward (in SUI)
   creator: string; // wallet address
-  status: "active" | "completed" | "expired" | "cancelled";
-  deadline: string; // ISO date string
-  createdAt: string;
-  requiredInfo: string; // description of what information is needed
-  verificationCriteria: string; // how the information will be verified
+  status: "Open" | "Claimed" | "Tally" | "Closed";
+  deadline: number; // timestamp in milliseconds
+  createdAt: number; // timestamp
+  numberOfRewards: number;
+  vkBytes: string; // verification key bytes (hex)
+  requiredInfo: string; // specific information requirements
+  verificationCriteria: string; // how submissions will be verified
   submissions: BountySubmission[];
-  submissionCount: number;
+  submissionCount?: number; // computed field for UI
 }
 
 interface BountySubmission {
-  id: string;
-  bountyId: string;
-  submitter: string; // wallet address
-  submittedAt: string;
-  zkProof: ProofResponseJSON;
-  verificationDigest: string;
-  status: "pending" | "verified" | "rejected";
-  isWinner?: boolean;
+  id?: string; // computed field for UI
+  proofPointsBytes: string; // hex string
+  publicInputs: string; // hex string
+  by: string; // email address
+  content: string;
+  votes: number; // number of votes for this submission
+  article: string
 }
 
-export type { Leak, Comment, Bounty, BountySubmission };
+// DAO types matching the contract structures
+interface ProposalInfo {
+  name: string;
+  agency: string;
+  position: string;
+}
+
+interface Proposal {
+  id: string;
+  description: string;
+  action: "AddAddressToAllowlist" | "BountyAction"; // enum value
+  allowlistIdx?: number; // for AddAddressToAllowlist action
+  targetAddress?: string; // for AddAddressToAllowlist action
+  proposalInfo?: ProposalInfo; // for AddAddressToAllowlist action
+  bountyIdx?: number; // for BountyAction - the bounty being voted on
+  status: "InProgress" | "Passed" | "Rejected";
+  deadline: number; // timestamp in milliseconds
+  forVotes: number; // total weight of for votes
+  againstVotes: number; // total weight of against votes
+  creator?: string; // computed field for UI
+  createdAt?: number; // computed field for UI
+}
+
+interface Allowlist {
+  encryptedBlobIds: string[];
+  addresses: string[];
+}
+
+interface Vote {
+  weight: number;
+}
+
+interface Dao {
+  id: string;
+  deadline: number; // proposal execution deadline
+  allowlists: Allowlist[];
+  admins: string[];
+  proposals: Proposal[];
+}
+
+export type {
+  Leak,
+  Comment,
+  Bounty,
+  BountySubmission,
+  Proposal,
+  ProposalInfo,
+  Allowlist,
+  Vote,
+  Dao
+};

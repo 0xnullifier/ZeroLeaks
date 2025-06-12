@@ -2,7 +2,10 @@ import { Link, Outlet, useNavigate, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { ConnectWallet } from "../zk-login/widget";
 import { ThemeToggle } from "../theme-toggle";
-import { Shield, ExternalLink } from "lucide-react";
+import { Shield, ExternalLink, Coins } from "lucide-react";
+import { useCurrentAccount, useSuiClientQuery } from "@mysten/dapp-kit";
+import { Badge } from "../ui/badge";
+import { PACKAGE_ID } from "@/lib/constant";
 
 const navItems = [
   { name: "Leaks", link: "/leaks" },
@@ -14,6 +17,31 @@ const navItems = [
 const LeaksLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const currentAccount = useCurrentAccount();
+
+  // Fetch ZL_DAO token balance
+  const { data: zlTokenBalance } = useSuiClientQuery(
+    "getBalance",
+    {
+      owner: currentAccount?.address!,
+      coinType: `${PACKAGE_ID}::zl_dao::ZL_DAO`,
+    },
+    {
+      enabled: !!currentAccount?.address,
+    }
+  );
+
+  // Fetch SUI balance
+  const { data: suiBalance } = useSuiClientQuery(
+    "getBalance",
+    {
+      owner: currentAccount?.address!,
+      coinType: "0x2::sui::SUI",
+    },
+    {
+      enabled: !!currentAccount?.address,
+    }
+  );
 
   const getActiveIndex = () => {
     const currentPath = location.pathname;
@@ -22,6 +50,16 @@ const LeaksLayout = () => {
     if (currentPath === "/leaks/submit") return 1;
     if (currentPath.startsWith("/leaks")) return 0;
     return -1;
+  };
+
+  const formatBalance = (balance: string) => {
+    const num = parseInt(balance) / 1000000000; // Convert from smallest unit (9 decimals)
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(2)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(2)}K`;
+    }
+    return num.toFixed(4);
   };
 
   const activeIndex = getActiveIndex();
@@ -49,6 +87,22 @@ const LeaksLayout = () => {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          {/* SUI Balance Display */}
+          {currentAccount && suiBalance && (
+            <Badge variant="outline" className="hidden sm:flex items-center gap-1 px-3 py-1 border-blue-500/20 text-blue-600 dark:text-blue-400">
+              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600"></div>
+              <span className="font-medium">{formatBalance(suiBalance.totalBalance)} SUI</span>
+            </Badge>
+          )}
+
+          {/* ZL Token Balance Display */}
+          {currentAccount && zlTokenBalance && (
+            <Badge variant="outline" className="hidden sm:flex items-center gap-1 px-3 py-1 border-primary/20 text-primary">
+              <Coins className="w-3 h-3" />
+              <span className="font-medium">{formatBalance(zlTokenBalance.totalBalance)} ZL</span>
+            </Badge>
+          )}
+
           <Button
             variant="outline"
             size="sm"

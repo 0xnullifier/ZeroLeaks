@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { Leak } from "./types";
-import { LEAKS } from "./data/leaks";
 import axios from "axios";
 import { get as fetchBlobId } from "./walrus";
 import { toast } from "sonner";
@@ -184,8 +183,6 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
                     Promise.allSettled(transactionPromises)
                 ]);
 
-                console.log('Blob results:', blobResults);
-                console.log('Transaction results:', txResults);
 
                 const leaks: Leak[] = [];
                 let failedCount = 0;
@@ -198,7 +195,7 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
                         // Check if both blob and transaction fetch succeeded
                         if (blobResult.status === 'fulfilled' && txResult.status === 'fulfilled') {
                             const leak = JSON.parse(new TextDecoder().decode(blobResult.value));
-                            console.log(txResult)
+
                             leaks.push({
                                 id: blobIds[index],
                                 date: leak.date,
@@ -211,13 +208,15 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
                                 relatedDocuments: leak.documentFiles?.map((doc: any) => ({
                                     name: doc.name,
                                     content: doc.content, // blob id
+                                    encrypted: doc.encryped || false,
                                 })) || [],
                                 verificationDigest: txResult.value.data.submission.transactionDigest,
                                 proof: leak.zkProof,
                                 verifiedClaim: info[index].fields.content || "cannot get the claim",
+                                allowlistIdx: info[index].fields.allowlist_idx
                             });
                         } else {
-                            // Log individual failures for debugging
+
                             if (blobResult.status === 'rejected') {
                                 console.error(`Failed to fetch blob ${blobIds[index]}:`, blobResult.reason);
                             }

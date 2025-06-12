@@ -8,12 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Coins, Calendar, Target, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Shield, Coins, Target, AlertTriangle, ArrowLeft, Send } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useBountyStore } from "@/lib/bounty-store";
 import type { Bounty } from "@/lib/types";
 import { toast } from "sonner";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
+import { PACKAGE_ID, BOUNTIES_OBJECT_ID, VK_BYTES } from "@/lib/constant";
+import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
 
 const categories = [
     "Government",
@@ -30,16 +33,19 @@ export function CreateBountyPage() {
     const navigate = useNavigate();
     const currentAccount = useCurrentAccount();
     const { addBounty } = useBountyStore();
+    const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        category: "",
+        category: "" as string,
         tags: [] as string[],
         reward: "",
+        numberOfRewards: "1",
         deadline: null as Date | null,
         requiredInfo: "",
         verificationCriteria: "",
+        vkBytes: "", // verification key bytes - would typically be generated/uploaded
     });
 
     const [tagInput, setTagInput] = useState("");
@@ -62,6 +68,12 @@ export function CreateBountyPage() {
         }));
     };
 
+    const handleAddCategory = (category: string) => {
+        setFormData(prev => ({
+            ...prev,
+            category: category
+        }));
+    };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -83,26 +95,54 @@ export function CreateBountyPage() {
         setIsSubmitting(true);
 
         try {
-            const newBounty: Bounty = {
-                id: Date.now().toString(),
-                title: formData.title,
-                description: formData.description,
-                category: formData.category,
-                tags: formData.tags,
-                reward: parseFloat(formData.reward),
-                creator: currentAccount.address,
-                status: "active",
-                deadline: formData.deadline!.toISOString(),
-                createdAt: new Date().toISOString(),
-                requiredInfo: formData.requiredInfo,
-                verificationCriteria: formData.verificationCriteria,
-                submissions: [],
-                submissionCount: 0,
-            };
+            // First create the blockchain transaction
+            const tx = new Transaction();
 
-            addBounty(newBounty);
-            toast.success("Bounty created successfully!");
-            navigate("/bounties");
+            // Convert reward to MIST (1 SUI = 10^9 MIST)
+            const rewardAmount = Math.floor(parseFloat(formData.reward) * 1_000_000_000);
+            // add 5 minutes for testing
+            const inputDate = formData.deadline;
+            const now = new Date();
+            inputDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+            const deadlineTimestamp = (inputDate.getTime() - Date.now()) + 5 * 60 * 1000;
+
+            const coin = tx.splitCoins(tx.gas, [rewardAmount * parseInt(formData.numberOfRewards)])
+
+            tx.moveCall({
+                target: `${PACKAGE_ID}::bounties::create_bounty`,
+                arguments: [
+                    tx.pure.string(formData.title),
+                    tx.pure.string(formData.description),
+                    tx.pure.string(formData.requiredInfo),
+                    tx.pure.string(formData.verificationCriteria),
+                    tx.pure.string(formData.category),
+                    tx.pure.vector("string", formData.tags),
+                    tx.pure.u64(rewardAmount),
+                    tx.pure.u64(deadlineTimestamp),
+                    tx.pure.vector("u8", VK_BYTES),
+                    tx.pure.u64(formData.numberOfRewards),
+                    coin,
+                    tx.object(SUI_CLOCK_OBJECT_ID),
+                    tx.object(BOUNTIES_OBJECT_ID)
+                ]
+            })
+            const { digest } = await signAndExecuteTransaction({
+                transaction: tx
+            })
+            const redirectUrl = "https://suiscan.xyz/testnet/tx/" + digest;
+            toast("Trasaction Sent Succesffuly", {
+                position: "top-right",
+                action: (
+                    <Button
+                        onClick={() => {
+                            window.open(redirectUrl, "_blank");
+                        }}
+                        className="bg-white"
+                    >
+                        <Send className="stroke-black" />{" "}
+                    </Button>
+                ),
+            });
         } catch (error) {
             console.error("Error creating bounty:", error);
             toast.error("Failed to create bounty");
@@ -168,7 +208,7 @@ export function CreateBountyPage() {
                                     <Label htmlFor="category">Category *</Label>
                                     <Select
                                         value={formData.category}
-                                        onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                                        onValueChange={(value) => handleAddCategory(value)}
                                     >
                                         <SelectTrigger className="mt-1">
                                             <SelectValue placeholder="Select a category" />
@@ -241,11 +281,33 @@ export function CreateBountyPage() {
                                 </div>
 
                                 <div>
+                                    <Label htmlFor="numberOfRewards">Number of Rewards *</Label>
+                                    <Input
+                                        id="numberOfRewards"
+                                        type="number"
+                                        min="1"
+                                        placeholder="1"
+                                        value={formData.numberOfRewards}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, numberOfRewards: e.target.value }))}
+                                        className="mt-1"
+                                    />
+                                </div>
+
+                                <div>
                                     <Label>Deadline *</Label>
                                     <div className="mt-1">
                                         <DatePicker
-                                            date={formData.deadline!}
-                                            setDate={(date) => setFormData(prev => ({ ...prev, deadline: date! }))}
+                                            date={formData.deadline || undefined}
+                                            setDate={(date) => {
+                                                if (typeof date === 'function') {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        deadline: date(prev.deadline || undefined) || null
+                                                    }));
+                                                } else {
+                                                    setFormData(prev => ({ ...prev, deadline: date || null }));
+                                                }
+                                            }}
                                             className="w-full"
                                         />
                                     </div>
@@ -283,6 +345,7 @@ export function CreateBountyPage() {
                                         className="mt-1"
                                     />
                                 </div>
+
                             </CardContent>
                         </Card>
 

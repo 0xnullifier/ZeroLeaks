@@ -3,23 +3,27 @@ import { useParams, Link, useNavigate } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Upload, Shield, AlertTriangle, Send } from "lucide-react";
+import { ArrowLeft, Shield, AlertTriangle, Send } from "lucide-react";
 import { useBountyStore } from "@/lib/bounty-store";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
+import { PACKAGE_ID, BOUNTIES_OBJECT_ID } from "@/lib/constant";
 import { toast } from "sonner";
 import { Stepper, StepperProgress, Step } from "@/components/ui/stepper";
-import EmailInfoStep from "@/components/leaks/submit-leaks/steps/email-info";
-import { ZkProofStep } from "@/components/leaks/submit-leaks/steps";
+import { useSubmitLeakStore } from "@/lib/submit-leak-store";
+import { serializeProof, serializePublicSignal } from "@/lib/serializer";
+import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
+import { EmailUploadStep, ArticleWriteStep, ReviewSubmitStep } from "@/components/bounty";
 
 export function SubmitBountyProofPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const currentAccount = useCurrentAccount();
     const { getBountyById } = useBountyStore();
+    const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+    const { zkProof, emailContent, title, content } = useSubmitLeakStore();
 
     const [bounty, setBounty] = useState(() => getBountyById(id || ""));
-    const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -42,8 +46,8 @@ export function SubmitBountyProofPage() {
             return;
         }
 
-        if (bounty.status !== "active") {
-            toast.error("This bounty is no longer active");
+        if (bounty.status !== "Open") {
+            toast.error("This bounty is no longer accepting submissions");
             navigate(`/bounties/${id}`);
             return;
         }
@@ -58,13 +62,60 @@ export function SubmitBountyProofPage() {
     const handleSubmitProof = async () => {
         if (!currentAccount || !bounty) return;
 
+        if (!zkProof) {
+            toast.error("Please generate a proof first");
+            return;
+        }
+
+        if (!emailContent.trim()) {
+            toast.error("Please provide email content");
+            return;
+        }
+
+        if (!content.trim()) {
+            toast.error("Please write the article content");
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            // Here you would integrate with the actual ZK proof submission system
-            // For now, we'll simulate a successful submission
+            // Serialize the proof data
+            const proofBuffer = serializeProof(zkProof.proof);
+            const publicSignals = serializePublicSignal(zkProof.publicSignals);
 
-            toast.success("Proof submitted successfully! It will be reviewed for verification.");
-            navigate(`/bounties/${bounty.id}`);
+            const tx = new Transaction();
+
+            tx.moveCall({
+                target: `${PACKAGE_ID}::bounties::submit_for_bounty`,
+                arguments: [
+                    tx.pure.string(emailContent),
+                    tx.pure.string(content),
+                    tx.pure.u64(bounty.id),
+                    tx.pure.vector("u8", proofBuffer),
+                    tx.pure.vector("u8", publicSignals),
+                    tx.object(SUI_CLOCK_OBJECT_ID),
+                    tx.object(BOUNTIES_OBJECT_ID)
+                ],
+            });
+
+            const { digest } = await signAndExecuteTransaction({
+                transaction: tx,
+            });
+            const redirectUrl = "https://suiscan.xyz/testnet/tx/" + digest;
+            toast("Trasaction Sent Succesffuly", {
+                position: "top-right",
+                action: (
+                    <Button
+                        onClick={() => {
+                            window.open(redirectUrl, "_blank");
+                        }}
+                        className="bg-white"
+                    >
+                        <Send className="stroke-black" />{" "}
+                    </Button>
+                ),
+            });
+
         } catch (error) {
             console.error("Error submitting proof:", error);
             toast.error("Failed to submit proof");
@@ -100,33 +151,38 @@ export function SubmitBountyProofPage() {
                         </Button>
 
                         <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                            Submit ZK Proof
+                            Submit Bounty Response
                         </h1>
                         <p className="text-muted-foreground max-w-2xl mb-6">
-                            Submit a zero-knowledge proof that you have the information requested
-                            in this bounty. Your identity will remain protected while proving
-                            you possess the relevant emails or documents.
+                            Submit a comprehensive response to this bounty including a detailed article
+                            and zero-knowledge proof that validates your information. Your identity will
+                            remain protected while proving you possess the relevant emails or documents,
+                            and your article will provide valuable insights to the community.
                         </p>
 
                         {/* Bounty Summary */}
                         <Card className="bg-muted/30">
-                            <CardContent className="pt-6">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Badge className="bg-primary">
-                                                {bounty.category}
+                            <CardContent className="pt-6">                        <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Badge className="bg-primary">
+                                            {bounty.category[0] || "General"}
+                                        </Badge>
+                                        {bounty.category.length > 1 && (
+                                            <Badge variant="outline" className="text-xs">
+                                                +{bounty.category.length - 1} more
                                             </Badge>
-                                            <span className="text-sm text-muted-foreground">
-                                                Reward: {bounty.reward} SUI
-                                            </span>
-                                        </div>
-                                        <h3 className="text-lg font-semibold mb-2">{bounty.title}</h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {bounty.description}
-                                        </p>
+                                        )}
+                                        <span className="text-sm text-muted-foreground">
+                                            Reward: {bounty.reward} SUI
+                                        </span>
                                     </div>
+                                    <h3 className="text-lg font-semibold mb-2">{bounty.title}</h3>
+                                    <p className="text-sm text-muted-foreground line-clamp-2">
+                                        {bounty.description}
+                                    </p>
                                 </div>
+                            </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -142,6 +198,7 @@ export function SubmitBountyProofPage() {
                                     </h4>
                                     <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
                                         <li>• Upload the .eml file containing the relevant information</li>
+                                        <li>• Write a detailed article explaining your findings and context</li>
                                         <li>• Generate a zero-knowledge proof of email authenticity</li>
                                         <li>• Ensure your proof matches the bounty's verification criteria</li>
                                         <li>• Submissions are final and cannot be modified after submission</li>
@@ -151,112 +208,38 @@ export function SubmitBountyProofPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Verification Criteria Reminder */}
-                    {bounty.verificationCriteria && (
-                        <Card className="mb-8">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Shield className="h-5 w-5" />
-                                    Verification Criteria
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">
-                                    {bounty.verificationCriteria}
-                                </p>
-                            </CardContent>
-                        </Card>
-                    )}
+                    {/* Verification Key Information */}
+                    <Card className="mb-8">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Shield className="h-5 w-5" />
+                                Verification Requirements
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground mb-4">
+                                Your zero-knowledge proof must be generated using the verification key specified for this bounty.
+                            </p>
+                        </CardContent>
+                    </Card>
 
                     {/* Stepper for Proof Submission */}
-                    <Stepper totalSteps={3} initialStep={currentStep}>
+                    <Stepper totalSteps={3} initialStep={0}>
                         <StepperProgress className="mb-8" />
 
                         <Step index={0}>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Upload className="h-5 w-5" />
-                                        Upload Email File
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <EmailInfoStep />
-                                    <div className="flex justify-end mt-6">
-                                        <Button onClick={() => setCurrentStep(1)}>
-                                            Next: Generate Proof
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <EmailUploadStep />
                         </Step>
 
                         <Step index={1}>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Shield className="h-5 w-5" />
-                                        Generate ZK Proof
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ZkProofStep />
-                                    <div className="flex justify-between mt-6">
-                                        <Button variant="outline" onClick={() => setCurrentStep(0)}>
-                                            Back
-                                        </Button>
-                                        <Button onClick={() => setCurrentStep(2)}>
-                                            Next: Review & Submit
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <ArticleWriteStep />
                         </Step>
 
                         <Step index={2}>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Send className="h-5 w-5" />
-                                        Review & Submit
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="bg-muted/50 rounded-lg p-4">
-                                            <h4 className="font-medium mb-2">Submission Summary</h4>
-                                            <ul className="text-sm text-muted-foreground space-y-1">
-                                                <li>• Email file uploaded and processed</li>
-                                                <li>• Zero-knowledge proof generated</li>
-                                                <li>• Proof validates email authenticity</li>
-                                                <li>• Ready for blockchain submission</li>
-                                            </ul>
-                                        </div>
-
-                                        <Separator />
-
-                                        <div className="text-sm text-muted-foreground">
-                                            <p className="mb-2">
-                                                By submitting this proof, you confirm that:
-                                            </p>
-                                            <ul className="space-y-1 ml-4">
-                                                <li>• The information meets the bounty requirements</li>
-                                                <li>• Your proof is authentic and verifiable</li>
-                                                <li>• You understand the submission is final</li>
-                                            </ul>
-                                        </div>
-
-                                        <div className="flex justify-between">
-                                            <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                                                Back
-                                            </Button>
-                                            <Button onClick={handleSubmitProof} disabled={isSubmitting}>
-                                                {isSubmitting ? "Submitting..." : "Submit Proof"}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <ReviewSubmitStep
+                                onSubmit={handleSubmitProof}
+                                isSubmitting={isSubmitting}
+                            />
                         </Step>
                     </Stepper>
                 </div>

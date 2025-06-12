@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Tag, Calendar, FileCheck } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateTime } from "@/lib/utils";
 import type { Leak } from "@/lib/types";
 
 export function LeakCard({ leak, loading = false }: { leak: Leak; loading?: boolean }) {
@@ -63,11 +64,7 @@ export function LeakCard({ leak, loading = false }: { leak: Leak; loading?: bool
         <div className="flex items-center text-muted-foreground/70 text-sm">
           <Calendar className="h-4 w-4 mr-1" />
           <time dateTime={leak.date}>
-            {new Date(leak.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {formatDateTime(new Date(leak.date).getTime())}
           </time>
         </div>
       </CardContent>

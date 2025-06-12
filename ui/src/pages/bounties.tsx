@@ -5,19 +5,65 @@ import { useBountyStore } from "@/lib/bounty-store";
 import { BountySidebar } from "@/components/bounties/bounty-sidebar";
 import { BountyList } from "@/components/bounties/bounty-list";
 import { Link } from "react-router";
+import { useSuiClientQuery } from "@mysten/dapp-kit";
+import { BOUNTIES_OBJECT_ID } from "@/lib/constant";
 
 export function BountiesPage() {
-    const { loading, initializeMockData, getCategories, getAllTags, getFilteredBounties } = useBountyStore();
+    const {
+        loading,
+        error,
+        getCategories,
+        getAllTags,
+        getFilteredBounties,
+        fetchBounties,
+        clearError
+    } = useBountyStore();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // Fetch bounties data from blockchain
+    const { data: bountiesData, isLoading: isLoadingBounties } = useSuiClientQuery(
+        'getObject',
+        {
+            id: BOUNTIES_OBJECT_ID,
+            options: {
+                showContent: true,
+                showType: true,
+            },
+        },
+        {
+            enabled: !!BOUNTIES_OBJECT_ID,
+        }
+    );
+
+    console.log(bountiesData)
+
     useEffect(() => {
-        // Initialize mock data on component mount
-        initializeMockData();
-    }, [initializeMockData]);
+        if (bountiesData) {
+            // Use the store's fetchBounties method to handle data parsing
+            fetchBounties(bountiesData);
+        }
+    }, [bountiesData, fetchBounties]);
 
     const categories = getCategories();
     const allTags = getAllTags();
     const filteredBounties = getFilteredBounties();
+    const isLoading = loading || isLoadingBounties;
+
+    // Show error state if there's an error
+    if (error) {
+        return (
+            <div className="bg-background text-foreground">
+                <main className="container mx-auto px-4 py-8">
+                    <div className="text-center py-8">
+                        <p className="text-red-500 mb-4">Error loading bounties: {error}</p>
+                        <Button onClick={clearError} variant="outline">
+                            Try Again
+                        </Button>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-background text-foreground">
@@ -54,12 +100,12 @@ export function BountiesPage() {
                     <BountySidebar
                         categories={categories}
                         allTags={allTags}
-                        loading={loading}
+                        loading={isLoading}
                         isOpen={isSidebarOpen}
                         onClose={() => setIsSidebarOpen(false)}
                     />
                     <div className="w-full md:w-3/4">
-                        <BountyList bounties={filteredBounties} loading={loading} />
+                        <BountyList bounties={filteredBounties} loading={isLoading} />
                     </div>
                 </div>
             </main>

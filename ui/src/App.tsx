@@ -2,16 +2,25 @@ import { Navigate, Route, Routes } from "react-router";
 import { Providers } from "./providers";
 import { LeaksLayout } from "./components/leaks";
 import { HomePage, LeaksPage, SubmitLeaksPage, LeakDetailsPage, DAOPage, BountiesPage, CreateBountyPage, BountyDetailsPage, SubmitBountyProofPage } from "./pages";
+import { DAOAdminPage } from "./pages/dao-admin";
 import { useAuthStore } from "./lib/auth-store";
 import { Toaster } from "sonner";
-import { useEffect, useState } from "react";
-import { useAccounts, useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useEffect } from "react";
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuthStore();
 
+  const address = useCurrentAccount();
+
+  useEffect(() => {
+    if (address?.address) {
+      setLoggedIn(true);
+    }
+  }, [address]);
+
   return (
-    <Providers>
+    <>
       <Routes>
         <Route
           index
@@ -30,10 +39,11 @@ function App() {
         </Route>
         <Route path="/dao" element={<LeaksLayout />}>
           <Route index element={<DAOPage />} />
+          <Route path="admin" element={<DAOAdminPage />} />
         </Route>
       </Routes>
       <Toaster />
-    </Providers>
+    </>
   );
 }
 

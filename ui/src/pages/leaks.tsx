@@ -19,10 +19,6 @@ export function LeaksPage() {
     url: getFullnodeUrl('testnet'),
   });
 
-  const walrusClient = new WalrusClient({
-    network: 'testnet',
-    suiClient,
-  });
 
   const { data, isPending, error, refetch } = useSuiClientQuery("getObject", {
     id: LEAKS_OBJECT_ID,

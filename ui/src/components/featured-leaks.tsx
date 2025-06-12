@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Calendar, Eye, FileCheck, Tag } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 import { Link } from "react-router";
 
 export function FeaturedLeaks() {
@@ -94,11 +95,7 @@ export function FeaturedLeaks() {
               <div className="flex items-center text-muted-foreground/70 text-sm">
                 <Calendar className="h-4 w-4 mr-1" />
                 <time dateTime={leak.date}>
-                  {new Date(leak.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {formatDateTime(new Date(leak.date).getTime())}
                 </time>
               </div>
             </CardContent>

@@ -1,5 +1,4 @@
 import {
-  Background,
   HeroSection,
   FeaturesSection,
   FeaturedLeaksSection,
@@ -10,8 +9,7 @@ import {
 
 export function HomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      <Background />
+    <div className="min-h-screen text-foreground">
       <HeroSection />
       <FeaturesSection />
       <FeaturedLeaksSection />

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { IconUpload } from "@tabler/icons-react";
@@ -127,7 +127,7 @@ export const FileUpload = ({
                       layout
                     >
                       modified{" "}
-                      {new Date(file.lastModified).toLocaleDateString()}
+                      {formatDateTime(file.lastModified, { showTime: false })}
                     </motion.p>
                   </div>
                 </motion.div>
