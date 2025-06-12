@@ -11,32 +11,32 @@ import {
     XCircle,
     Clock
 } from "lucide-react";
-import type { Proposal } from "@/pages/dao";
+import type { UIProposal } from "@/lib/proposal-store";
 
 interface VotingStatsProps {
-    proposals: Proposal[];
+    proposals: UIProposal[];
 }
 
 export function VotingStats({ proposals }: VotingStatsProps) {
-    const activeProposals = proposals.filter(p => p.status === "active");
-    const passedProposals = proposals.filter(p => p.status === "passed");
-    const rejectedProposals = proposals.filter(p => p.status === "rejected");
+    const activeProposals = proposals.filter(p => p.status === "InProgress");
+    const passedProposals = proposals.filter(p => p.status === "Passed" && p.votesFor > p.votesAgainst);
+    const rejectedProposals = proposals.filter(p => p.status === "Rejected" && p.votesAgainst >= p.votesFor);
 
     const totalVotes = proposals.reduce((sum, p) => sum + p.totalVotes, 0);
-    const averageParticipation = proposals.length > 0
-        ? proposals.reduce((sum, p) => sum + (p.totalVotes / p.requiredVotes), 0) / proposals.length * 100
-        : 0;
+
 
     const accessGrantProposals = proposals.filter(p => p.category === "access_grant");
     const governanceProposals = proposals.filter(p => p.category === "governance");
 
-    const passRate = proposals.length > 0
-        ? (passedProposals.length / proposals.filter(p => p.status !== "active").length) * 100
+    const completedProposals = proposals.filter(p => p.status !== "InProgress");
+    console.log("Completed Proposals:", completedProposals.length);
+    const passRate = completedProposals.length > 0
+        ? (passedProposals.length / completedProposals.length) * 100
         : 0;
 
     const mostActiveProposal = proposals.reduce((max, proposal) =>
         proposal.totalVotes > (max?.totalVotes || 0) ? proposal : max,
-        null as Proposal | null
+        null as UIProposal | null
     );
 
     return (
@@ -56,15 +56,6 @@ export function VotingStats({ proposals }: VotingStatsProps) {
                             <span className="text-muted-foreground">{totalVotes.toLocaleString()}</span>
                         </div>
                         <div className="text-2xl font-bold text-blue-600">{totalVotes.toLocaleString()}</div>
-                    </div>
-
-                    {/* Average Participation */}
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="font-medium">Avg. Participation</span>
-                            <span className="text-muted-foreground">{averageParticipation.toFixed(1)}%</span>
-                        </div>
-                        <Progress value={Math.min(averageParticipation, 100)} className="h-2" />
                     </div>
 
                     {/* Pass Rate */}
@@ -162,13 +153,13 @@ export function VotingStats({ proposals }: VotingStatsProps) {
                                 <span className="text-muted-foreground">Total Votes</span>
                                 <div className="flex items-center gap-1">
                                     <Vote className="h-3 w-3" />
-                                    <span className="font-medium">{mostActiveProposal.totalVotes.toLocaleString()}</span>
+                                    <span className="font-medium">{mostActiveProposal.totalVotes.toLocaleString()} ZL</span>
                                 </div>
                             </div>
                             <div className="space-y-1">
                                 <div className="flex justify-between text-xs">
-                                    <span>For: {mostActiveProposal.votesFor.toLocaleString()}</span>
-                                    <span>Against: {mostActiveProposal.votesAgainst.toLocaleString()}</span>
+                                    <span>For: {mostActiveProposal.votesFor.toLocaleString()} ZL</span>
+                                    <span>Against: {mostActiveProposal.votesAgainst.toLocaleString()} ZL</span>
                                 </div>
                                 <Progress
                                     value={(mostActiveProposal.votesFor / Math.max(mostActiveProposal.totalVotes, 1)) * 100}

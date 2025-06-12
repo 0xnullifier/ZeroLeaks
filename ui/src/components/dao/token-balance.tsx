@@ -52,7 +52,7 @@ export function TokenBalance({ balance }: TokenBalanceProps) {
                         {formatBalance(balance)}
                     </motion.div>
                     <p className={`text-xs ${balanceStatus.color.replace('600', '500')}`}>
-                        {balance.toLocaleString()} tokens
+                        {balance.toLocaleString()} ZL
                     </p>
                 </div>
 
@@ -61,9 +61,9 @@ export function TokenBalance({ balance }: TokenBalanceProps) {
                     <Badge
                         variant="outline"
                         className={`text-xs ${votingPower === "High" ? "border-green-500 text-green-700 bg-green-50 dark:bg-green-950/20" :
-                                votingPower === "Medium" ? "border-amber-500 text-amber-700 bg-amber-50 dark:bg-amber-950/20" :
-                                    votingPower === "Low" ? "border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20" :
-                                        "border-gray-500 text-gray-700 bg-gray-50 dark:bg-gray-950/20"
+                            votingPower === "Medium" ? "border-amber-500 text-amber-700 bg-amber-50 dark:bg-amber-950/20" :
+                                votingPower === "Low" ? "border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20" :
+                                    "border-gray-500 text-gray-700 bg-gray-50 dark:bg-gray-950/20"
                             }`}
                     >
                         {votingPower}

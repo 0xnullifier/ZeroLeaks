@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Minus, AlertCircle } from "lucide-react";
-import type { Proposal } from "@/pages/dao";
+import type { UIProposal } from "@/lib/proposal-store";
 
 interface CreateProposalDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreateProposal: (proposal: Omit<Proposal, "id" | "votesFor" | "votesAgainst" | "totalVotes" | "createdAt">) => void;
+    onCreateProposal: (proposal: Omit<UIProposal, "id" | "votesFor" | "votesAgainst" | "totalVotes" | "createdAt" | "forVotes" | "againstVotes">) => void;
 }
 
 export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: CreateProposalDialogProps) {
@@ -20,7 +20,6 @@ export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: Crea
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState<string>("");
     const [votingDuration, setVotingDuration] = useState("7");
-    const [requiredVotes, setRequiredVotes] = useState("2000");
     const [isLoading, setIsLoading] = useState(false);
 
     // Official info for access grant proposals
@@ -51,20 +50,27 @@ export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: Crea
         try {
             const endTime = Date.now() + parseInt(votingDuration) * 24 * 60 * 60 * 1000;
 
-            const proposalData: Omit<Proposal, "id" | "votesFor" | "votesAgainst" | "totalVotes" | "createdAt"> = {
+            const proposalData: Omit<UIProposal, "id" | "votesFor" | "votesAgainst" | "totalVotes" | "createdAt" | "forVotes" | "againstVotes"> = {
                 title,
                 description,
-                proposer: "0x1234...current_user", // This would be the actual connected wallet address
-                status: "active",
+                action: category === "access_grant" ? "AddAddressToAllowlist" : "AddAddressToAllowlist", // Default to AddAddressToAllowlist for now
+                status: "InProgress",
+                deadline: endTime,
                 endTime,
                 category,
-                requiredVotes: parseInt(requiredVotes),
+                proposer: "0x1234...current_user", // This would be the actual connected wallet address
+                allowlistIdx: category === "access_grant" ? 0 : undefined,
+                targetAddress: category === "access_grant" ? "0x0000...target" : undefined,
+                proposalInfo: category === "access_grant" ? {
+                    name: officialName,
+                    agency: department,
+                    position: position,
+                } : undefined,
                 ...(category === "access_grant" && {
                     officialInfo: {
                         name: officialName,
                         department,
                         position,
-                        clearanceLevel,
                         requestedDocuments: requestedDocuments.filter(doc => doc.trim() !== "")
                     }
                 })
@@ -85,7 +91,6 @@ export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: Crea
         setDescription("");
         setCategory("");
         setVotingDuration("7");
-        setRequiredVotes("2000");
         setOfficialName("");
         setDepartment("");
         setPosition("");
@@ -98,8 +103,8 @@ export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: Crea
         onClose();
     };
 
-    const isFormValid = title && description && category && votingDuration && requiredVotes &&
-        (category !== "access_grant" || (officialName && department && position && clearanceLevel));
+    const isFormValid = title && description && category && votingDuration &&
+        (category !== "access_grant" || (officialName && department && position));
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -284,22 +289,6 @@ export function CreateProposalDialog({ isOpen, onClose, onCreateProposal }: Crea
                                     </Select>
                                 </div>
 
-                                <div>
-                                    <Label htmlFor="requiredVotes">Required Votes *</Label>
-                                    <Input
-                                        id="requiredVotes"
-                                        type="number"
-                                        placeholder="2000"
-                                        value={requiredVotes}
-                                        onChange={(e) => setRequiredVotes(e.target.value)}
-                                        min="1000"
-                                        step="100"
-                                        required
-                                    />
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        Minimum: 1000 DAO tokens
-                                    </p>
-                                </div>
                             </div>
 
                             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
