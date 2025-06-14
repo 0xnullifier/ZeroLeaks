@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Vote, Users, DollarSign, AlertCircle, Coins, Loader2, Shield, ReceiptIcon } from "lucide-react";
+import { Plus, Vote, Users, DollarSign, AlertCircle, Coins, Loader2, Shield } from "lucide-react";
 import { CreateProposalSheet, ProposalCard, VotingStats, TokenBalance } from "@/components/dao";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient, useSuiClientQuery } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
 import { motion } from "framer-motion";
-import { BOUNTIES_OBJECT_ID, COIN_OBJECT_ID, DAO_OBJECT_ID, LEAKS_OBJECT_ID, PACKAGE_ID } from "@/lib/constant";
+import { BOUNTIES_OBJECT_ID, DAO_OBJECT_ID, PACKAGE_ID } from "@/lib/constant";
 import { useLeaksStore } from "@/lib/leaks-store";
 import { useProposalStore } from "@/lib/proposal-store";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router";
 import { useBountyStore } from "@/lib/bounty-store";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function DAOPage() {
     const currentAccount = useCurrentAccount();
@@ -27,18 +28,21 @@ export function DAOPage() {
     const [isAdmin, setIsAdmin] = useState(false);
 
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction()
+    const suiClient = useSuiClient();
+
+    // Use centralized refetch hook
+    const { refetchAll, daoData, leaksData, bountiesData, zlTokenBalance } = useRefetchAll();
 
     const { leaks, fetchLeaks } = useLeaksStore();
     const {
         proposals,
         fetchProposals,
         getFilteredProposals,
-        voteOnProposal,
         getActiveProposals,
         getTotalVotesCast
     } = useProposalStore();
 
-    const { bounties, fetchBounties } = useBountyStore()
+    const { fetchBounties } = useBountyStore()
 
     const filteredProposals = getFilteredProposals().filter(proposal => {
         if (activeTab === "all") return true;
@@ -78,8 +82,8 @@ export function DAOPage() {
                 },
             });
 
-            // Refetch balance
-            await refetchBalance();
+            // Refetch all data after minting
+            await refetchAll();
             setMintAmount("1000");
             setIsMintDialogOpen(false);
         } catch (error: any) {
@@ -90,56 +94,7 @@ export function DAOPage() {
         }
     };
 
-
-    // Fetch ZL_DAO token balance
-    const { data: zlTokenBalance, refetch: refetchBalance } = useSuiClientQuery(
-        "getBalance",
-        {
-            owner: currentAccount?.address!,
-            coinType: `${PACKAGE_ID}::zl_dao::ZL_DAO`,
-        },
-        {
-            enabled: !!currentAccount?.address,
-        }
-    );
-
-    // Fetch DAO object data
-    const { data: daoData, refetch: refetchDao } = useSuiClientQuery(
-        "getObject",
-        {
-            id: DAO_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        },
-        {
-            enabled: !!DAO_OBJECT_ID,
-        }
-    );
     console.log("DAO Data:", daoData);
-
-    const { data: leaksData } = useSuiClientQuery(
-        "getObject",
-        {
-            id: LEAKS_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        }
-    );
-
-    const { data: bountiesData } = useSuiClientQuery(
-        "getObject",
-        {
-            id: BOUNTIES_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        }
-    );
     console.log("Bounties Data:", bountiesData);
 
     useEffect(() => {
@@ -171,7 +126,7 @@ export function DAOPage() {
     }, [daoData, currentAccount]);
 
     const userTokenBalance = zlTokenBalance ? parseInt(zlTokenBalance.totalBalance) / 1000000000 : 0;
-    const suiClient = useSuiClient()
+
     const handleVote = async (proposalId: string, vote: "for" | "against", tokenAmount: number) => {
         console.log("Casting vote:", proposalId, vote, tokenAmount);
         const tx = new Transaction();
@@ -205,6 +160,8 @@ export function DAOPage() {
             },
         });
 
+        // Refetch all data after voting
+        await refetchAll();
     };
 
     const activeProposals = getActiveProposals().length;
@@ -249,15 +206,14 @@ export function DAOPage() {
                                 </Button>
                                 <Button
                                     onClick={() => setIsCreateDialogOpen(true)}
-                                    className="relative overflow-hidden bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg transition-all duration-300 transform hover:scale-105"
-                                    style={{ boxShadow: "0 0 16px 4px #60a5fa, 0 0 32px 8px #3b82f6" }}
+                                    className="relative overflow-hidden bg-primary text-white transition-all duration-300 transform hover:scale-105"
                                 >
                                     {/* Shining effect */}
                                     <span className="absolute inset-0 pointer-events-none">
                                         <span className="absolute left-[-75%] top-0 h-full w-1/3 bg-white opacity-30 animate-shine" />
                                     </span>
                                     <Plus className="h-5 w-5 mr-2 relative z-10" />
-                                    <span className="relative z-10">Create New Proposal</span>
+                                    <span className="relative z-10">Create Proposal</span>
                                 </Button>
 
                                 {/* Admin Panel Button - only show to admins */}
@@ -484,7 +440,6 @@ export function DAOPage() {
                 <CreateProposalSheet
                     isOpen={isCreateDialogOpen}
                     onClose={() => setIsCreateDialogOpen(false)}
-                    refetchDao={refetchDao}
                 />
             </main>
             <Dialog open={IsMintDialogOpen} onOpenChange={setIsMintDialogOpen}>

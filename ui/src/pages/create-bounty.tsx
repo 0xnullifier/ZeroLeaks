@@ -9,14 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DatePicker } from "@/components/ui/date-picker";
 import { Separator } from "@/components/ui/separator";
 import { Shield, Coins, Target, AlertTriangle, ArrowLeft, Send } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-import { useBountyStore } from "@/lib/bounty-store";
-import type { Bounty } from "@/lib/types";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { PACKAGE_ID, BOUNTIES_OBJECT_ID, VK_BYTES } from "@/lib/constant";
 import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 const categories = [
     "Government",
@@ -30,10 +29,9 @@ const categories = [
 ];
 
 export function CreateBountyPage() {
-    const navigate = useNavigate();
     const currentAccount = useCurrentAccount();
-    const { addBounty } = useBountyStore();
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+    const { refetchAll } = useRefetchAll();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -104,7 +102,9 @@ export function CreateBountyPage() {
             const inputDate = formData.deadline;
             const now = new Date();
             inputDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
-            const deadlineTimestamp = (inputDate.getTime() - Date.now()) + 5 * 60 * 1000;
+
+            // add one minute to deadline
+            const deadlineTimestamp = (inputDate.getTime() - Date.now()) + 60 * 1000;
 
             const coin = tx.splitCoins(tx.gas, [rewardAmount * parseInt(formData.numberOfRewards)])
 
@@ -143,6 +143,9 @@ export function CreateBountyPage() {
                     </Button>
                 ),
             });
+
+            // Refetch all data after successful bounty creation
+            await refetchAll();
         } catch (error) {
             console.error("Error creating bounty:", error);
             toast.error("Failed to create bounty");

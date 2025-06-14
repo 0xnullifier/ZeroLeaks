@@ -8,13 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 
 import { Plus, Vote, Users, DollarSign, Coins, Loader2 } from "lucide-react";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClientQuery } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { motion } from "framer-motion";
 import { Transaction } from "@mysten/sui/transactions";
-import { PACKAGE_ID, DAO_OBJECT_ID, BOUNTIES_OBJECT_ID, LEAKS_OBJECT_ID } from "@/lib/constant";
+import { PACKAGE_ID, DAO_OBJECT_ID, BOUNTIES_OBJECT_ID } from "@/lib/constant";
 import { toast } from "sonner";
 import { useLeaksStore } from "@/lib/leaks-store";
 import { useBountyStore } from "@/lib/bounty-store";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 // Contract-aligned proposal interface
 interface UIProposal {
@@ -45,6 +46,9 @@ export function DAOPage() {
     const { leaks, fetchLeaks } = useLeaksStore();
     const { bounties } = useBountyStore();
 
+    // Use centralized refetch hook
+    const { refetchAll, daoData, leaksData, zlTokenBalance, refetchBalances } = useRefetchAll();
+
     const [proposals, setProposals] = useState<UIProposal[]>([]);
     const [activeTab, setActiveTab] = useState("all");
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -65,44 +69,6 @@ export function DAOPage() {
             position: ""
         }
     });
-
-    // Fetch ZL_DAO token balance
-    const { data: zlTokenBalance, refetch: refetchBalance } = useSuiClientQuery(
-        "getBalance",
-        {
-            owner: currentAccount?.address!,
-            coinType: `${PACKAGE_ID}::zl_dao::ZL_DAO`,
-        },
-        {
-            enabled: !!currentAccount?.address,
-        }
-    );
-
-    // Fetch DAO object data
-    const { data: daoData, refetch: refetchDao } = useSuiClientQuery(
-        "getObject",
-        {
-            id: DAO_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        },
-        {
-            enabled: !!DAO_OBJECT_ID,
-        }
-    );
-
-    const { data: leaksData } = useSuiClientQuery(
-        "getObject",
-        {
-            id: LEAKS_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        }
-    );
 
     console.log(daoData)
 
@@ -176,8 +142,8 @@ export function DAOPage() {
                 },
             });
 
-            // Refetch balance
-            await refetchBalance();
+            // Refetch balance after minting
+            await refetchBalances();
             setMintAmount("1000");
             setIsMintDialogOpen(false);
         } catch (error: any) {
@@ -256,8 +222,8 @@ export function DAOPage() {
             });
             setIsCreateDialogOpen(false);
 
-            // Refetch DAO data
-            await refetchDao();
+            // Refetch DAO data after creating proposal
+            await refetchAll();
         } catch (error: any) {
             console.error("Error creating proposal:", error);
             toast.error(error?.message || "Failed to create proposal");
@@ -302,8 +268,8 @@ export function DAOPage() {
                 },
             });
 
-            // Refetch DAO data and balance
-            await Promise.all([refetchDao(), refetchBalance()]);
+            // Refetch DAO data and balance after voting
+            await refetchAll();
         } catch (error: any) {
             console.error("Error voting:", error);
             toast.error(error?.message || "Failed to cast vote");

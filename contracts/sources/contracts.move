@@ -4,7 +4,6 @@ module contracts::verifier;
 
 use sui::groth16;
 use std::string::String;
-use std::u8;
 use contracts::zl_dao::Dao;
 use contracts::zl_dao::create_allowlist;
 

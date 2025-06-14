@@ -6,7 +6,7 @@ import { useSubmitLeakStore } from "@/lib/submit-leak-store";
 import { uploadFile } from "@/lib/walrus";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction, useSuiClient, useSuiClientQuery } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSignTransaction, useSuiClient } from "@mysten/dapp-kit";
 import { Transaction } from '@mysten/sui/transactions';
 import { ThankYouComponent } from "@/components/thank-you";
 import { DAO_OBJECT_ID, LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
@@ -15,6 +15,7 @@ import { getAllowlistedKeyServers, SealClient } from "@mysten/seal"
 import { toHex, fromHex } from "@mysten/sui/utils";
 import { networkConfig, useNetworkVariable } from "@/lib/networkConfig";
 import { bcs } from "@mysten/sui/bcs";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 
 export function FinalSubmissionStep() {
@@ -33,28 +34,15 @@ export function FinalSubmissionStep() {
     verifyKeyServers: false,
   });
 
-
-  // Fetch DAO object data
-  const { data: Daodata, refetch: refetchDao } = useSuiClientQuery(
-    "getObject",
-    {
-      id: DAO_OBJECT_ID,
-      options: {
-        showContent: true,
-        showType: true,
-      },
-    },
-    {
-      enabled: !!DAO_OBJECT_ID,
-    }
-  );
+  // Use centralized refetch hook
+  const { refetchAll, daoData } = useRefetchAll();
 
 
-  console.log("Daodata", Daodata);
+  console.log("Daodata", daoData);
   useEffect(() => {
-    if (!Daodata) return;
+    if (!daoData) return;
 
-    const data = Daodata.data;
+    const data = daoData.data;
     ///@ts-ignore
     if (!data || !data.content || !data.content.fields) {
       toast("DAO object not found or invalid format.", {
@@ -73,13 +61,13 @@ export function FinalSubmissionStep() {
     }
 
     setAllowlistIndex(fields.allowlist.length);
-  }, [Daodata]);
+  }, [daoData]);
 
   const [allowlistIndex, setAllowlistIndex] = useState<number | null>(null);
   const encryptFiles = async (file: File) => {
     console.log(allowlistIndex)
     if (allowlistIndex === null) {
-      await refetchDao();
+      await refetchAll();
     }
     const indexBytes = bcs.u64().serialize(allowlistIndex!).toBytes();
     const id = toHex(indexBytes)
@@ -199,6 +187,15 @@ export function FinalSubmissionStep() {
           </Button>
         ),
       });
+
+      // Refetch all data after successful submission
+      try {
+        await refetchAll();
+        console.log('All data refetched after leak submission');
+      } catch (refetchError) {
+        console.error('Failed to refetch data after submission:', refetchError);
+        // Don't fail the submission process if refetch fails
+      }
 
       setLoadingStage("done");
     } catch (error: any) {

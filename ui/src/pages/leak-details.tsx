@@ -33,8 +33,8 @@ import { useLeaksStore } from "@/lib/leaks-store";
 import { useEffect, useState } from "react";
 import { serializeProof, serializePublicSignal } from "@/lib/serializer";
 import { Transaction } from "@mysten/sui/transactions";
-import { DAO_OBJECT_ID, LEAKS_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
-import { useCurrentAccount, useSignAndExecuteTransaction, useSignPersonalMessage, useSuiClient, useSuiClientQuery } from "@mysten/dapp-kit";
+import { DAO_OBJECT_ID, PACKAGE_ID, VK_OBJECT_ID } from "@/lib/constant";
+import { useCurrentAccount, useSignAndExecuteTransaction, useSignPersonalMessage, useSuiClient } from "@mysten/dapp-kit";
 import { toast } from "sonner";
 import type { ProofResponseJSON } from "@/components/leaks/email_info";
 import { get } from "@/lib/walrus";
@@ -46,6 +46,7 @@ import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import localforage from "localforage";
 import { toHex } from "@mysten/sui/utils";
 import { bcs } from "@mysten/sui/bcs";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 export function LeakDetailsPage() {
   const { id } = useParams();
   const { getLeakById, fetchLeaks, leaks } = useLeaksStore();
@@ -68,29 +69,17 @@ export function LeakDetailsPage() {
     verifyKeyServers: true,
   });
 
-
-
-  const { data, isPending, error, refetch } = useSuiClientQuery("getObject", {
-    id: LEAKS_OBJECT_ID,
-    options: {
-      showContent: true,
-      showDisplay: true,
-    },
-  })
+  // Use centralized refetch hook
+  const { leaksData, refetchAll } = useRefetchAll();
 
   useEffect(() => {
     const fetchLeak = async () => {
       if (!id) return;
-      if (error) {
-        console.error("Error fetching leaks object:", error);
-        toast("Failed to fetch leaks data", { position: "top-right" });
-        return;
-      }
 
       setIsLoading(true);
       try {
         if (leaks.length === 0) {
-          const leaks = await fetchLeaks(data);
+          const leaks = await fetchLeaks(leaksData);
           const foundLeak = leaks?.find((l) => l.id === id);
           if (foundLeak) {
             setLeak(foundLeak);
@@ -109,7 +98,7 @@ export function LeakDetailsPage() {
     };
 
     fetchLeak();
-  }, [data, isPending, error, refetch, id, fetchLeaks]);
+  }, [leaksData, id, fetchLeaks]);
 
   const createSession = async (): Promise<SessionKey | undefined> => {
     if (!account) {
@@ -274,6 +263,9 @@ export function LeakDetailsPage() {
           </Button>
         ),
       });
+
+      // Refetch all data after successful verification
+      await refetchAll();
     } catch (error) {
       console.error("Error verifying on chain:", error);
       toast("Failed to verify on chain", { position: "top-right" });

@@ -15,12 +15,13 @@ import {
     Users,
     Vote
 } from "lucide-react";
-import { useCurrentAccount, useSuiClientQuery, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { motion } from "framer-motion";
 import { DAO_OBJECT_ID, BOUNTIES_OBJECT_ID, PACKAGE_ID } from "@/lib/constant";
 import { useProposalStore, type UIProposal } from "@/lib/proposal-store";
 import { toast } from "sonner";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function DAOAdminPage() {
     const currentAccount = useCurrentAccount();
@@ -32,19 +33,8 @@ export function DAOAdminPage() {
     const { proposals, fetchProposals } = useProposalStore();
     console.log("Proposals:", proposals);
 
-    // Fetch DAO object data to check admin status
-    const { data: daoData, refetch: refetchDao } = useSuiClientQuery(
-        "getObject",
-        {
-            id: DAO_OBJECT_ID,
-            options: {
-                showContent: true,
-            },
-        },
-        {
-            enabled: !!currentAccount?.address,
-        }
-    );
+    // Use centralized refetch hook
+    const { refetchAll, daoData } = useRefetchAll();
     console.log(daoData)
     // Check if current user is admin
     useEffect(() => {
@@ -95,8 +85,8 @@ export function DAOAdminPage() {
                 },
             });
 
-            // Refresh data
-            await refetchDao();
+            // Refresh all data after executing proposal
+            await refetchAll();
             if (daoData?.data?.content) {
                 await fetchProposals(daoData.data.content);
             }

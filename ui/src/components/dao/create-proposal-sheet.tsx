@@ -11,6 +11,7 @@ import { PACKAGE_ID, DAO_OBJECT_ID, BOUNTIES_OBJECT_ID } from "@/lib/constant";
 import { toast } from "sonner";
 import { useLeaksStore } from "@/lib/leaks-store";
 import { useBountyStore } from "@/lib/bounty-store";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 // Define proposal type configurations
 export interface ProposalTypeConfig {
@@ -132,19 +133,18 @@ interface CreateProposalSheetProps {
     isOpen: boolean;
     onClose: () => void;
     proposalTypes?: ProposalTypeConfig[];
-    refetchDao?: () => void;
 }
 
 export function CreateProposalSheet({
     isOpen,
     onClose,
-    proposalTypes = defaultProposalTypes,
-    refetchDao
+    proposalTypes = defaultProposalTypes
 }: CreateProposalSheetProps) {
     const currentAccount = useCurrentAccount();
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
     const { leaks } = useLeaksStore();
     const { bounties } = useBountyStore();
+    const { refetchAll } = useRefetchAll();
 
     const [selectedType, setSelectedType] = useState<string>("");
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -185,7 +185,8 @@ export function CreateProposalSheet({
                 });
                 handleReset();
                 onClose();
-                refetchDao?.();
+                // Refetch all data after proposal creation
+                refetchAll().catch(console.error);
             },
             onError: (error: any) => {
                 console.error("Error creating proposal:", error);

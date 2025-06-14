@@ -5,8 +5,7 @@ import { useBountyStore } from "@/lib/bounty-store";
 import { BountySidebar } from "@/components/bounties/bounty-sidebar";
 import { BountyList } from "@/components/bounties/bounty-list";
 import { Link } from "react-router";
-import { useSuiClientQuery } from "@mysten/dapp-kit";
-import { BOUNTIES_OBJECT_ID } from "@/lib/constant";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function BountiesPage() {
     const {
@@ -20,22 +19,8 @@ export function BountiesPage() {
     } = useBountyStore();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Fetch bounties data from blockchain
-    const { data: bountiesData, isLoading: isLoadingBounties } = useSuiClientQuery(
-        'getObject',
-        {
-            id: BOUNTIES_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        },
-        {
-            enabled: !!BOUNTIES_OBJECT_ID,
-        }
-    );
-
-    console.log(bountiesData)
+    // Use centralized refetch hook
+    const { bountiesData } = useRefetchAll();
 
     useEffect(() => {
         if (bountiesData) {
@@ -47,7 +32,7 @@ export function BountiesPage() {
     const categories = getCategories();
     const allTags = getAllTags();
     const filteredBounties = getFilteredBounties();
-    const isLoading = loading || isLoadingBounties;
+    const isLoading = loading;
 
     // Show error state if there's an error
     if (error) {

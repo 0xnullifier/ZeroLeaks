@@ -1,36 +1,21 @@
-import { LeakList, LeaksHeader, Sidebar } from "@/components/leaks/leak-page";
-import { LEAKS_OBJECT_ID } from "@/lib/constant";
+import { LeakList, Sidebar } from "@/components/leaks/leak-page";
 import { useLeaksStore } from "@/lib/leaks-store";
-import { useSuiClientQuery } from "@mysten/dapp-kit";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
-import { WalrusClient } from '@mysten/walrus';
-
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function LeaksPage() {
-  const { loading, setLeaks, getCategories, getAllTags, getFilteredLeaks, fetchLeaks, leaks } = useLeaksStore();
+  const { loading, getCategories, getAllTags, getFilteredLeaks, fetchLeaks, leaks } = useLeaksStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Use centralized refetch hook
+  const { leaksData } = useRefetchAll();
 
-  const suiClient = new SuiClient({
-    url: getFullnodeUrl('testnet'),
-  });
-
-
-  const { data, isPending, error, refetch } = useSuiClientQuery("getObject", {
-    id: LEAKS_OBJECT_ID,
-    options: {
-      showContent: true,
-      showDisplay: true,
-    },
-  })
   useEffect(() => {
     if (leaks.length > 0) return;
-    fetchLeaks(data)
-  }, [data, isPending, error, refetch]);
+    fetchLeaks(leaksData)
+  }, [leaksData, fetchLeaks]);
 
   const categories = getCategories();
   const allTags = getAllTags();

@@ -12,17 +12,12 @@ use sui::coin::Coin;
 use std::u64::sqrt;
 use sui::bcs;
 use sui::clock::Clock;
-use contracts::bounties::finish_tally;
 use contracts::bounties;
-use contracts::bounties::get_bounty;
-use sui::clock;
-use sui::address;
+
+
 
 #[error]
 const EInvalidProposalIndex: vector<u8> = b"Invalid proposal index";
-
-#[error]
-const EProposalInProgress: vector<u8> = b"Proposal is still in progress";
 
 #[error]
 const ENotAnAdmin: vector<u8> = b"Proposal executor is not an admin";
@@ -129,7 +124,7 @@ fun init(witness: ZL_DAO, ctx: &mut TxContext){
         // This is the time when the deadline for the proposal execution
         // is set to 2 mins, meaning that the proposal can be executed immediately
         // this is for testnet
-        deadline: 2 * 60 * 1000, // 5 minutes in milliseconds
+        deadline: 60 * 1000, // 5 minutes in milliseconds
         proposals: vector::empty(),
         treasury_cap
     };

@@ -14,6 +14,7 @@ import { useSubmitLeakStore } from "@/lib/submit-leak-store";
 import { serializeProof, serializePublicSignal } from "@/lib/serializer";
 import { SUI_CLOCK_OBJECT_ID } from "@mysten/sui/utils";
 import { EmailUploadStep, ArticleWriteStep, ReviewSubmitStep } from "@/components/bounty";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function SubmitBountyProofPage() {
     const { id } = useParams();
@@ -21,7 +22,8 @@ export function SubmitBountyProofPage() {
     const currentAccount = useCurrentAccount();
     const { getBountyById } = useBountyStore();
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
-    const { zkProof, emailContent, title, content } = useSubmitLeakStore();
+    const { zkProof, emailContent, content } = useSubmitLeakStore();
+    const { refetchAll } = useRefetchAll();
 
     const [bounty, setBounty] = useState(() => getBountyById(id || ""));
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,6 +117,15 @@ export function SubmitBountyProofPage() {
                     </Button>
                 ),
             });
+
+            // Refetch all data after successful bounty submission
+            try {
+                await refetchAll();
+                console.log('All data refetched after bounty submission');
+            } catch (refetchError) {
+                console.error('Failed to refetch data after bounty submission:', refetchError);
+                // Don't fail the submission process if refetch fails
+            }
 
         } catch (error) {
             console.error("Error submitting proof:", error);

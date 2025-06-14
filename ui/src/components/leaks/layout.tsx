@@ -3,9 +3,9 @@ import { Button } from "../ui/button";
 import { ConnectWallet } from "../zk-login/widget";
 import { ThemeToggle } from "../theme-toggle";
 import { Shield, ExternalLink, Coins } from "lucide-react";
-import { useCurrentAccount, useSuiClientQuery } from "@mysten/dapp-kit";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Badge } from "../ui/badge";
-import { PACKAGE_ID } from "@/lib/constant";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 const navItems = [
   { name: "Leaks", link: "/leaks" },
@@ -19,29 +19,8 @@ const LeaksLayout = () => {
   const location = useLocation();
   const currentAccount = useCurrentAccount();
 
-  // Fetch ZL_DAO token balance
-  const { data: zlTokenBalance } = useSuiClientQuery(
-    "getBalance",
-    {
-      owner: currentAccount?.address!,
-      coinType: `${PACKAGE_ID}::zl_dao::ZL_DAO`,
-    },
-    {
-      enabled: !!currentAccount?.address,
-    }
-  );
-
-  // Fetch SUI balance
-  const { data: suiBalance } = useSuiClientQuery(
-    "getBalance",
-    {
-      owner: currentAccount?.address!,
-      coinType: "0x2::sui::SUI",
-    },
-    {
-      enabled: !!currentAccount?.address,
-    }
-  );
+  // Use centralized refetch hook to get balance data
+  const { zlTokenBalance, suiBalance } = useRefetchAll();
 
   const getActiveIndex = () => {
     const currentPath = location.pathname;

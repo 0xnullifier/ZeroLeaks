@@ -118,5 +118,15 @@
     "category": "government",
     "timestamp": "2025-06-14T07:40:16.648Z",
     "verified": true
+  },
+  {
+    "id": "154971ab-c98a-4aaa-af86-603f32487434",
+    "blobId": "sRrR9KRkjonlda4YUz0gEE1ZxE0bRuc3QlbyjU4wojc",
+    "transactionDigest": "5yV6mEUqd5sxuH8YbssH6WCdQHULdtBFzs9Ejpfzezaf",
+    "title": "Cost-Cutting Over Safety: Flame-Retardant Swap Endangers Users in Consumer Electronics",
+    "author": "0x17cd173cc5032fa5d058d6f86435560a6d92ecbf0b380a9cd1d90cb20a0b6dde",
+    "category": "corporate",
+    "timestamp": "2025-06-14T14:20:07.160Z",
+    "verified": true
   }
 ]

@@ -247,8 +247,7 @@ export const useProposalStore = create<ProposalStore>((set, get) => ({
                             againstVotes: normalizedAgainstVotes,
                             totalVotes: normalizedTotalVotes,
                         });
-                        // TODO add wiefhts to this
-                        console.log(proposalFields)
+
                         return {
                             id: index.toString(),
                             title: proposalFields.title,

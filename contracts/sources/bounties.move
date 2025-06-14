@@ -10,10 +10,6 @@ use sui::sui::SUI;
 use sui::balance::Balance;
 use sui::coin;
 use sui::groth16;
-use contracts::zl_dao::ZL_DAO;
-use contracts::zl_dao::Dao;
-use contracts::zl_dao::burn;
-use sui::math;
 use std::debug::print;
 use sui::event;
 
@@ -286,7 +282,7 @@ public(package) fun finish_tally(
             while (k < rewarded_len) {
                 if (rewarded_indices[k] == j) {
                     already_rewarded = true;
-                    break;
+                    break
                 };
                 k = k + 1;
             };
@@ -364,28 +360,6 @@ public(package) fun withdraw_remaining_amount(
     let remaining_amount = bounty.coin.value();
     let remaining_amount = coin::take(&mut bounty.coin, remaining_amount, ctx);
     transfer::public_transfer(remaining_amount, bounty.creator);
-}
-
-fun top_submission(
-    submissions: &vector<BountySubmission>
-): (BountySubmission, u64) {
-    if (vector::is_empty(submissions)) {
-        abort EInvalidBountySubmissionIndex
-    };
-
-    let mut top_submission = &submissions[0];
-    let mut top_index = 0;
-    let mut i = 1;
-    let len = vector::length(submissions);
-    while (i < len) {
-        let submission = &submissions[i];
-        if (submission.votes > top_submission.votes) {
-            top_submission = submission;
-            top_index = i;
-        };
-        i = i + 1;
-    };
-    (*top_submission, top_index)
 }
 
 

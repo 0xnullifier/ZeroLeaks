@@ -20,9 +20,9 @@ import {
     EyeOff
 } from "lucide-react";
 import { useBountyStore } from "@/lib/bounty-store";
-import { useCurrentAccount, useSuiClientQuery } from "@mysten/dapp-kit";
-import { PACKAGE_ID, BOUNTIES_OBJECT_ID } from "@/lib/constant";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 import { toast } from "sonner";
+import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 export function BountyDetailsPage() {
     const { id } = useParams();
@@ -30,39 +30,14 @@ export function BountyDetailsPage() {
     const currentAccount = useCurrentAccount();
     const { getBountyById, fetchBounties } = useBountyStore();
 
+    // Use centralized refetch hook
+    const { zlTokenBalance, bountiesData } = useRefetchAll();
+
     const [bounty, setBounty] = useState(() => getBountyById(id || ""));
     const [expandedArticles, setExpandedArticles] = useState<{ [key: number]: boolean }>({});
     const [collapsedSubmissions, setCollapsedSubmissions] = useState<{ [key: number]: boolean }>({});
     const [showAllSubmissions, setShowAllSubmissions] = useState(false);
     console.log(bounty?.submissions)
-
-    // Fetch ZL_DAO token balance for voting
-    const { data: tokenBalance } = useSuiClientQuery(
-        'getBalance',
-        {
-            owner: currentAccount?.address || "",
-            coinType: `${PACKAGE_ID}::zl_dao::ZL_DAO`,
-        },
-        {
-            enabled: !!currentAccount?.address,
-        }
-    );
-
-
-    // Fetch bounties data from blockchain
-    const { data: bountiesData } = useSuiClientQuery(
-        'getObject',
-        {
-            id: BOUNTIES_OBJECT_ID,
-            options: {
-                showContent: true,
-                showType: true,
-            },
-        },
-        {
-            enabled: !!BOUNTIES_OBJECT_ID,
-        }
-    );
 
 
     useEffect(() => {
@@ -98,7 +73,7 @@ export function BountyDetailsPage() {
     const isCreator = currentAccount?.address === bounty.creator;
     const canSubmit = currentAccount && !isCreator && bounty.status === "Open";
     const canVote = currentAccount && !isCreator && bounty.status === "Tally";
-    const userTokenBalance = tokenBalance ? parseInt(tokenBalance.totalBalance) / 1_000_000_000 : 0;
+    const userTokenBalance = zlTokenBalance ? parseInt(zlTokenBalance.totalBalance) / 1_000_000_000 : 0;
 
     const handleSubmitProof = () => {
         if (!currentAccount) {
