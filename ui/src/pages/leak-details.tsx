@@ -24,8 +24,6 @@ import {
   AlertTriangle,
   Send,
   Loader2,
-  Lock,
-  Info,
 } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { markdownToHtml } from "@/lib/markdown";
@@ -44,8 +42,7 @@ import type { Leak } from "@/lib/types";
 import { getAllowlistedKeyServers, SealClient, SessionKey, type SessionKeyType } from "@mysten/seal";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import localforage from "localforage";
-import { toHex } from "@mysten/sui/utils";
-import { bcs } from "@mysten/sui/bcs";
+
 import { useRefetchAll } from "@/hooks/useRefetchAll";
 export function LeakDetailsPage() {
   const { id } = useParams();
@@ -57,6 +54,7 @@ export function LeakDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [downloadingDocs, setDownloadingDocs] = useState<{ [key: string]: boolean }>({});
+  const [isDownloadingProof, setIsDownloadingProof] = useState(false);
 
   const suiClient = useSuiClient();
 
@@ -204,9 +202,15 @@ export function LeakDetailsPage() {
     }
   }
 
-  const downloadProof = () => {
+  const downloadProof = async () => {
     const proof = leak?.proof;
-    if (proof) {
+    if (!proof) return;
+
+    setIsDownloadingProof(true);
+    try {
+      // Small delay to show loading state for user feedback
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const blob = new Blob([JSON.stringify(proof)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -216,6 +220,13 @@ export function LeakDetailsPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      
+      toast.success("Proof downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading proof:", error);
+      toast.error("Failed to download proof");
+    } finally {
+      setIsDownloadingProof(false);
     }
   }
 
@@ -304,6 +315,7 @@ export function LeakDetailsPage() {
   }
 
   const donwloadFiles = async (doc: any) => {
+    setDownloadingDocs((prev) => ({ ...prev, [doc.content]: true }));
     try {
       const downloadArrayBuffer = (buffer: ArrayBuffer, filename: string) => {
         const blob = new Blob([buffer]);
@@ -328,6 +340,8 @@ export function LeakDetailsPage() {
       downloadArrayBuffer(buffer, doc.name)
     } catch (error) {
       throw error
+    } finally {
+      setDownloadingDocs((prev) => ({ ...prev, [doc.content]: false }));
     }
 
   }
@@ -540,9 +554,19 @@ export function LeakDetailsPage() {
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-muted-foreground">Actions</h4>
                   <div className="flex flex-col gap-2">
-                    <Button variant="outline" className="w-full justify-start" size="sm" onClick={downloadProof}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Proof
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      size="sm" 
+                      onClick={downloadProof}
+                      disabled={isDownloadingProof}
+                    >
+                      {isDownloadingProof ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-2" />
+                      )}
+                      {isDownloadingProof ? "Downloading..." : "Download Proof"}
                     </Button>
                     <Button
                       variant="outline"

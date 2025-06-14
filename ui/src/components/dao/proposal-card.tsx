@@ -24,7 +24,8 @@ import {
     Calendar,
     TrendingUp,
     Target,
-    Award
+    Award,
+    Loader2
 } from "lucide-react";
 import type { UIProposal } from "@/lib/proposal-store";
 import { COIN_DECIMAL } from "@/lib/constant";
@@ -41,6 +42,7 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
     const [selectedVote, setSelectedVote] = useState<"for" | "against" | null>(null);
     const [isSubmissionDialogOpen, setIsSubmissionDialogOpen] = useState(false);
     const [selectedSubmission, setSelectedSubmission] = useState<BountySubmission | null>(null);
+    const [isVoting, setIsVoting] = useState(false);
 
     // Get bounty store to fetch submissions
     const getBountyById = useBountyStore((state) => state.getBountyById);
@@ -157,11 +159,19 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
 
     const handleSubmitVote = async () => {
         if (selectedVote && voteAmount && parseInt(voteAmount) > 0) {
-            await onVote(proposal.id, selectedVote, parseInt(voteAmount));
-            setIsVoteDialogOpen(false);
-            setSelectedVote(null);
-            setSelectedSubmission(null);
-            setVoteAmount("100");
+            setIsVoting(true);
+            try {
+                await onVote(proposal.id, selectedVote, parseInt(voteAmount));
+                setIsVoteDialogOpen(false);
+                setSelectedVote(null);
+                setSelectedSubmission(null);
+                setVoteAmount("100");
+            } catch (error) {
+                console.error("Error voting:", error);
+                // Error is handled by parent component
+            } finally {
+                setIsVoting(false);
+            }
         }
     };
 
@@ -440,16 +450,25 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                             <Button
                                 onClick={handleBountyVoting}
                                 className="flex-1 bg-primary hover:bg-primary/90 text-white relative overflow-hidden shadow-lg"
-                                disabled={userTokenBalance === 0}
+                                disabled={userTokenBalance === 0 || isVoting}
                             >
-                                <span
-                                    className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
-                                    style={{
-                                        animation: "shine-linear 1.5s linear infinite"
-                                    }}
-                                />
-                                <Award className="h-4 w-4 mr-2" />
-                                Vote on Submissions
+                                {isVoting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Voting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span
+                                            className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
+                                            style={{
+                                                animation: "shine-linear 1.5s linear infinite"
+                                            }}
+                                        />
+                                        <Award className="h-4 w-4 mr-2" />
+                                        Vote on Submissions
+                                    </>
+                                )}
                             </Button>
                         ) : (
                             // Traditional for/against buttons for other proposals
@@ -457,31 +476,49 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                                 <Button
                                     onClick={() => handleVoteClick("for")}
                                     className="flex-1 bg-green-600 hover:bg-green-700 text-white relative overflow-hidden shadow-lg"
-                                    disabled={userTokenBalance === 0}
+                                    disabled={userTokenBalance === 0 || isVoting}
                                 >
-                                    <span
-                                        className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
-                                        style={{
-                                            animation: "shine-linear 1.5s linear infinite"
-                                        }}
-                                    />
-                                    <ThumbsUp className="h-4 w-4 mr-2" />
-                                    Vote For
+                                    {isVoting ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Voting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span
+                                                className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
+                                                style={{
+                                                    animation: "shine-linear 1.5s linear infinite"
+                                                }}
+                                            />
+                                            <ThumbsUp className="h-4 w-4 mr-2" />
+                                            Vote For
+                                        </>
+                                    )}
                                 </Button>
                                 <Button
                                     onClick={() => handleVoteClick("against")}
                                     variant="destructive"
                                     className="flex-1 relative overflow-hidden shadow-lg"
-                                    disabled={userTokenBalance === 0}
+                                    disabled={userTokenBalance === 0 || isVoting}
                                 >
-                                    <span
-                                        className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
-                                        style={{
-                                            animation: "shine-linear 1.5s linear infinite"
-                                        }}
-                                    />
-                                    <ThumbsDown className="h-4 w-4 mr-2" />
-                                    Vote Against
+                                    {isVoting ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Voting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span
+                                                className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-60"
+                                                style={{
+                                                    animation: "shine-linear 1.5s linear infinite"
+                                                }}
+                                            />
+                                            <ThumbsDown className="h-4 w-4 mr-2" />
+                                            Vote Against
+                                        </>
+                                    )}
                                 </Button>
                             </>
                         )}
@@ -498,33 +535,32 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                 )}
             </CardContent>
 
-            {/* Submission Selection Dialog for BountyAction proposals */}
-            <Dialog open={isSubmissionDialogOpen} onOpenChange={setIsSubmissionDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Award className="h-5 w-5 text-primary" />
+                            <Dialog open={isSubmissionDialogOpen} onOpenChange={setIsSubmissionDialogOpen}>
+                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader className="space-y-3">
+                        <DialogTitle className="flex items-center gap-2 text-xl">
+                            <Award className="h-6 w-6 text-primary" />
                             Vote on Bounty Submissions
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="text-base">
                             Select the submission you want to vote for. Your vote will help determine the winning submission for this bounty.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6 mt-6">
                         {proposal.bountyInfo && (() => {
                             const bounty = getBountyById(proposal.bountyInfo.bountyId);
                             const submissions = bounty?.submissions || [];
 
                             if (submissions.length === 0) {
                                 return (
-                                    <div className="text-center py-12">
-                                        <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                                        <div className="text-lg font-medium text-muted-foreground mb-2">
+                                    <div className="text-center py-16">
+                                        <FileText className="h-16 w-16 mx-auto mb-6 text-muted-foreground/50" />
+                                        <div className="text-xl font-medium text-muted-foreground mb-3">
                                             No submissions yet
                                         </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            This bounty hasn't received any submissions yet.
+                                        <div className="text-muted-foreground max-w-md mx-auto">
+                                            This bounty hasn't received any submissions yet. Check back later or encourage participants to submit their work.
                                         </div>
                                     </div>
                                 );
@@ -533,104 +569,127 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                             const totalVotes = submissions.reduce((sum, s) => sum + s.votes, 0);
 
                             return (
-                                <div className="grid gap-4">
-                                    <div className="flex items-center justify-between text-sm text-muted-foreground border-b pb-2">
-                                        <span>{submissions.length} submission{submissions.length !== 1 ? 's' : ''} received</span>
-                                        <span>{totalVotes.toLocaleString()} total votes</span>
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-primary/10 p-2 rounded-lg">
+                                                <FileText className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <div className="font-medium">
+                                                    {submissions.length} submission{submissions.length !== 1 ? 's' : ''} received
+                                                </div>
+                                                <div className="text-sm text-muted-foreground">
+                                                    {totalVotes.toLocaleString()} total votes cast
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Badge variant="outline" className="text-sm">
+                                            {proposal.bountyInfo.bountyTitle}
+                                        </Badge>
                                     </div>
 
-                                    {submissions.map((submission, index) => (
-                                        <Card
-                                            key={submission.id || index}
-                                            className="border-2 cursor-pointer hover:border-primary/60 hover:shadow-md transition-all duration-200 group"
-                                            onClick={() => handleSubmissionSelect(submission)}
-                                        >
-                                            <CardContent className="p-6">
-                                                <div className="space-y-4">
-                                                    {/* Header */}
-                                                    <div className="flex items-start justify-between">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-3 mb-2">
-                                                                <Badge className="bg-primary/10 text-primary border-primary/20">
-                                                                    Submission #{index + 1}
-                                                                </Badge>
+                                    <div className="grid gap-6">
+                                        {submissions.map((submission, index) => (
+                                            <Card
+                                                key={submission.id || index}
+                                                className={`border-2 cursor-pointer hover:border-primary/60 hover:shadow-lg transition-all duration-200 group bg-card ${
+                                                    isVoting ? 'opacity-50 pointer-events-none' : ''
+                                                }`}
+                                                onClick={() => !isVoting && handleSubmissionSelect(submission)}
+                                            >
+                                                <CardContent className="p-8">
+                                                    <div className="space-y-6">
+                                                        {/* Header */}
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-4 mb-3">
+                                                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-sm px-3 py-1">
+                                                                        Submission #{index + 1}
+                                                                    </Badge>
+                                                                    <div className="text-sm text-muted-foreground">
+                                                                        by <span className="font-medium text-foreground">{submission.by}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-2xl font-bold text-primary">
+                                                                    {submission.votes.toLocaleString()} ZL
+                                                                </div>
                                                                 <div className="text-sm text-muted-foreground">
-                                                                    by <span className="font-medium">{submission.by}</span>
+                                                                    {totalVotes > 0 ? ((submission.votes / totalVotes) * 100).toFixed(1) : 0}% of votes
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <div className="text-lg font-bold text-primary">
-                                                                {submission.votes.toLocaleString()} ZL
-                                                            </div>
-                                                            <div className="text-xs text-muted-foreground">
-                                                                {totalVotes > 0 ? ((submission.votes / totalVotes) * 100).toFixed(1) : 0}% of votes
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
-                                                    {/* Content */}
-                                                    <div className="bg-muted/30 rounded-lg p-4">
-                                                        <div className="text-sm leading-relaxed">
-                                                            {submission.content.length > 300 ? (
-                                                                <>
-                                                                    {submission.content.substring(0, 300)}
-                                                                    <span className="text-muted-foreground">... </span>
-                                                                    <button className="text-primary hover:underline text-xs font-medium">
-                                                                        Read more
-                                                                    </button>
-                                                                </>
-                                                            ) : (
-                                                                submission.content
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Attachments */}
-                                                    {submission.article && (
-                                                        <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
-                                                            <FileText className="h-4 w-4" />
-                                                            <span>Article attachment included</span>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Vote Progress Bar */}
-                                                    {totalVotes > 0 && (
-                                                        <div className="space-y-2">
-                                                            <div className="w-full bg-muted rounded-full h-2">
-                                                                <div
-                                                                    className="bg-primary h-2 rounded-full transition-all duration-500"
-                                                                    style={{
-                                                                        width: `${(submission.votes / totalVotes) * 100}%`
-                                                                    }}
-                                                                />
+                                                        {/* Content */}
+                                                        <div className="bg-muted/30 rounded-lg p-6">
+                                                            <div className="text-sm leading-relaxed">
+                                                                {submission.content.length > 400 ? (
+                                                                    <>
+                                                                        {submission.content.substring(0, 400)}
+                                                                        <span className="text-muted-foreground">... </span>
+                                                                        <button className="text-primary hover:underline text-sm font-medium">
+                                                                            Read more
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    submission.content
+                                                                )}
                                                             </div>
                                                         </div>
-                                                    )}
 
-                                                    {/* Action Button */}
-                                                    <div className="flex justify-end pt-2">
-                                                        <Button
-                                                            size="sm"
-                                                            className="group-hover:bg-primary group-hover:text-white transition-colors"
-                                                            variant="outline"
-                                                        >
-                                                            <Vote className="h-4 w-4 mr-2" />
-                                                            Vote for this submission
-                                                        </Button>
+                                                        {/* Attachments */}
+                                                        {submission.article && (
+                                                            <div className="flex items-center gap-3 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                                                                <FileText className="h-5 w-5" />
+                                                                <span className="font-medium">Article attachment included</span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Vote Progress Bar */}
+                                                        {totalVotes > 0 && (
+                                                            <div className="space-y-3">
+                                                                <div className="flex justify-between items-center text-sm">
+                                                                    <span className="text-muted-foreground">Vote progress</span>
+                                                                    <span className="font-medium">{((submission.votes / totalVotes) * 100).toFixed(1)}%</span>
+                                                                </div>
+                                                                <div className="w-full bg-muted rounded-full h-3">
+                                                                    <div
+                                                                        className="bg-primary h-3 rounded-full transition-all duration-500"
+                                                                        style={{
+                                                                            width: `${(submission.votes / totalVotes) * 100}%`
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Action Button */}
+                                                        <div className="flex justify-end pt-3 border-t border-muted">
+                                                            <Button
+                                                                size="lg"
+                                                                className="group-hover:bg-primary group-hover:text-white transition-colors px-6"
+                                                                variant="outline"
+                                                            >
+                                                                <Vote className="h-4 w-4 mr-2" />
+                                                                Vote for this submission
+                                                            </Button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
                                 </div>
                             );
                         })()}
 
-                        <div className="flex justify-end gap-3 pt-4 border-t">
+                        <div className="flex justify-end gap-3 pt-6 border-t">
                             <Button
                                 variant="outline"
                                 onClick={() => setIsSubmissionDialogOpen(false)}
+                                size="lg"
                             >
                                 Cancel
                             </Button>
@@ -727,16 +786,26 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                             <Button
                                 variant="outline"
                                 onClick={() => handleVoteDialogClose(false)}
+                                disabled={isVoting}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleSubmitVote}
-                                disabled={!hasEnoughTokens || !voteAmount || parseInt(voteAmount) <= 0}
+                                disabled={!hasEnoughTokens || !voteAmount || parseInt(voteAmount) <= 0 || isVoting}
                                 className="bg-primary hover:bg-primary/90"
                             >
-                                <Vote className="h-4 w-4 mr-2" />
-                                Cast Vote ({parseInt(voteAmount || "0").toLocaleString()} ZL)
+                                {isVoting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Casting Vote...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Vote className="h-4 w-4 mr-2" />
+                                        Cast Vote ({parseInt(voteAmount || "0").toLocaleString()} ZL)
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </div>
