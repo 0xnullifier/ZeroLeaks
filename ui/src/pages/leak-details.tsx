@@ -210,7 +210,7 @@ export function LeakDetailsPage() {
     try {
       // Small delay to show loading state for user feedback
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       const blob = new Blob([JSON.stringify(proof)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -220,7 +220,7 @@ export function LeakDetailsPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       toast.success("Proof downloaded successfully!");
     } catch (error) {
       console.error("Error downloading proof:", error);
@@ -554,10 +554,10 @@ export function LeakDetailsPage() {
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-muted-foreground">Actions</h4>
                   <div className="flex flex-col gap-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      size="sm"
                       onClick={downloadProof}
                       disabled={isDownloadingProof}
                     >

@@ -21,6 +21,7 @@ export type IEmailContentCircuitInputs = {
     firstGenIdx: string;
     lastGenIdx: string;
     contentLength: string;
+    fromEmailIndex: string;
 };
 
 export async function generateEmailContentVerifierCircuitInputs(
@@ -48,6 +49,7 @@ export async function generateEmailContentVerifierCircuitInputs(
     const contentLength = contentArray.length.toString();
     const contentStartBuffer = Buffer.from(contentToVerify.substring(0, Math.min(contentToVerify.length, 20)));
     const contentStartIndex = bodyBuffer.indexOf(contentStartBuffer);
+    const contentBuffer = (new Uint8Array(bodyBuffer)).slice(contentStartIndex, contentStartIndex + contentArray.length);
 
     if (contentStartIndex === -1) {
         throw new Error(`Content not found in email body: "${contentToVerify}"`);
@@ -61,7 +63,7 @@ export async function generateEmailContentVerifierCircuitInputs(
         throw new Error("From: header not found in email header");
     }
 
-
+    console.log(bodyArray)
     const tree = await MerkleTree.buildTree(bodyArray)
 
 
@@ -75,9 +77,21 @@ export async function generateEmailContentVerifierCircuitInputs(
 
     const { auditPath } = tree.getMultiProof(continousSegment);
 
-    if (contentArray.length < MAX_CONTENT_LENGTH) {
+    console.log(auditPath)
+    console.log(Array.from(contentBuffer).map((c) => c.toString()).length)
+    const rootGenerated = await MerkleTree.generateRoot(
+        Array.from(contentBuffer),
+        auditPath,
+        tree.height,
+        continousSegment[0],
+        continousSegment[continousSegment.length - 1]
+    );
+
+    const contentArrayActual = Array.from(contentBuffer).map((c) => c.toString());
+
+    if (contentArrayActual.length < MAX_CONTENT_LENGTH) {
         for (let i = contentArray.length; i < MAX_CONTENT_LENGTH; i++) {
-            contentArray.push('0');
+            contentArrayActual.push('0');
         }
     }
     return {
@@ -89,12 +103,13 @@ export async function generateEmailContentVerifierCircuitInputs(
         emailBodyLength: emailVerifierInputs.emailBodyLength!,
         bodyHashIndex: emailVerifierInputs.bodyHashIndex!,
         precomputedSHA: emailVerifierInputs.precomputedSHA!,
-        content: contentArray,
+        content: contentArrayActual,
         address: bytesToBigInt(fromHex(suiAddress)).toString(),
         bodyMerkleRoot: tree.getRoot().toString(),
         contentLength,
         firstGenIdx: firstGenIdx.toString(),
         lastGenIdx: lastGenIdx.toString(),
         auditPath: auditPath.map((path) => path.map((p) => p.toString())).slice(1),
+        fromEmailIndex: fromEmailIndex.toString(),
     };
 }

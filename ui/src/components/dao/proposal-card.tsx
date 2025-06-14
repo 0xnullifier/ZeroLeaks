@@ -535,7 +535,7 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                 )}
             </CardContent>
 
-                            <Dialog open={isSubmissionDialogOpen} onOpenChange={setIsSubmissionDialogOpen}>
+            <Dialog open={isSubmissionDialogOpen} onOpenChange={setIsSubmissionDialogOpen}>
                 <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader className="space-y-3">
                         <DialogTitle className="flex items-center gap-2 text-xl">
@@ -593,9 +593,8 @@ export function ProposalCard({ proposal, onVote, userTokenBalance }: ProposalCar
                                         {submissions.map((submission, index) => (
                                             <Card
                                                 key={submission.id || index}
-                                                className={`border-2 cursor-pointer hover:border-primary/60 hover:shadow-lg transition-all duration-200 group bg-card ${
-                                                    isVoting ? 'opacity-50 pointer-events-none' : ''
-                                                }`}
+                                                className={`border-2 cursor-pointer hover:border-primary/60 hover:shadow-lg transition-all duration-200 group bg-card ${isVoting ? 'opacity-50 pointer-events-none' : ''
+                                                    }`}
                                                 onClick={() => !isVoting && handleSubmissionSelect(submission)}
                                             >
                                                 <CardContent className="p-8">

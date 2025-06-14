@@ -1,0 +1,106 @@
+Delivered-To: utkarsh382004@gmail.com
+Received: by 2002:a05:6200:1654:b0:596:65f5:af37 with SMTP id r20csp1013168qny;
+        Sat, 14 Jun 2025 13:12:34 -0700 (PDT)
+X-Received: by 2002:a17:907:9603:b0:ad8:99cc:774c with SMTP id a640c23a62f3a-adfad4f5d47mr357052166b.58.1749931954423;
+        Sat, 14 Jun 2025 13:12:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1749931954; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Z1mHL4mm7WhbtMEBrtwOj3EM/+fFDleC07vYX+BgAfvxdLEHFHXBWGaziqZD9t4qXy
+         IDLy2i/9GeFJOOLsRlu9B0B2oyYWnryZoPeaLAT71USCqWVLdiApkpkIMbUbp8N/zKgU
+         mJQKYU1ZYPQDoDoBXFA8qY21LbKdFYjXmuKiQW1itxOUzCNx8QOOb9bC1tOEQV1roUnK
+         MP4dIw4FtFlvzgGDnQbe9l8n9Pc8vfVXQPntxDYD55TK7yUcheAhoQLAgXXCQk2IasEy
+         McmlNR/2TCO0HFeg/pB+u8VDF2cnutscFBTwFt83aCgB40xQY90PzuQMrQdaE1pMouY4
+         fifw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=WPb0BtVFKxBjTVF6u5p6xmJopDnXakQ4HrRE3HI4Z/Y=;
+        fh=pWbamlyvhRL+8duRkRlz5L5Ej6343gAw0mcE4yhNcdw=;
+        b=Dr+smRB5ZqMtyrnKlpIjijupKgM/9NTpMOe3QluoA3kmYkKcFbt6+tFcHzqhFVGGvR
+         FWl5QyGQuSKWximelZdTFu1qKIqWzRcIUYEYFAS75zYQj5jIuuXbIowEQBpN+JcFxUDJ
+         UZGLDbDiOhAEjedlGRv908EoNmniA9RfK9TckXFx4npHvMn/lZ9BJY0fuLb1Rli2L6Nl
+         NydyLdJu/ODdmc6U79IIzwekZeoWjqVHX4TsMl4iMlu3b7RbjfKjiid7xvj1jxV43t6p
+         hA0g4+3pDlsM9XCkkMcm/xtCrfpyva8JwD8g/Vsn8y4Gh6mLI04d7K6HGagLZjmgdA7p
+         ygxA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=EhdA0fLD;
+       spf=pass (google.com: domain of zeroleaksxyz@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=zeroleaksxyz@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <zeroleaksxyz@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id a640c23a62f3a-adead4e11dfsor284757266b.4.2025.06.14.13.12.34
+        for <utkarsh382004@gmail.com>
+        (Google Transport Security);
+        Sat, 14 Jun 2025 13:12:34 -0700 (PDT)
+Received-SPF: pass (google.com: domain of zeroleaksxyz@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20230601 header.b=EhdA0fLD;
+       spf=pass (google.com: domain of zeroleaksxyz@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=zeroleaksxyz@gmail.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;
+       dara=pass header.i=@gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749931954; x=1750536754; dara=google.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=WPb0BtVFKxBjTVF6u5p6xmJopDnXakQ4HrRE3HI4Z/Y=;
+        b=EhdA0fLDqAxaqG47mQykqnQfTZVIhWhD8qcOHhhGwhw7VfmLNcCNs4kE5WRTpuSDuT
+         bDSGOD/tnCYK92jRQlWWmb16vaxiep1qCP2g9Aar++MP8l/py17ABqqhW2JjkrojwAyW
+         mr2fxzI7pK5CTld23Sav3ZIFG4hA//2bUY6IrUYVuBMGuGvf76F8VpjFVk1xg4Olnn92
+         o2p4vXc1+lXczCehqLdrbx2SHHw+0gc3PXV/rkT4yFR9i9Uz6ChuNBSndbGHzFKTfe3N
+         XE89z11Kk+qfMAYLtp7Zjl64uoJ4ePStLKZEX1Ezc2xd+Mb8eOVELhRP/MeTT+xEDmi+
+         cYIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749931954; x=1750536754;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=WPb0BtVFKxBjTVF6u5p6xmJopDnXakQ4HrRE3HI4Z/Y=;
+        b=eHL12JtRstKPMKZeXprB1VyRgDD4Byx61xPOILmzsORgMMkd/t9PGh2nw1d5y853jM
+         TEFVDRB4me3jsoF0T5YVYNkr+TBXcrKRymUpGzUOfetIX3ZhC+EaWluIR8YiFwGv7tgv
+         JCpYNJlZ2f65Yqh7+wf0a/1AIWz9LV522XpaRRWe6mTRU4DubK4pU31uOB65wpzkzRDz
+         SFBGAzgY6ieRuuXiQUzHoK0IPpGbIbDtCocE7ZImQXjVTUnC4C01EMvqem2r+Vqk4E9/
+         pdMpW8tMtEzaH8jfNalw5gpQAVsWzS7Zmt/sveCB0CWqRPM/ruNyyxMYIKIulmtnc5BJ
+         OKww==
+X-Gm-Message-State: AOJu0YyCGCLiJSK/VuHWkSv3d9Pp4YjJDcMHXL+2FY1V1YrXGQsJQwKZ
+	cplmtdm6uFin8Uv2u3tzDnwLOgJHc950JZvQm8IdfQpgHMTaNznDTRNesLM6+wDocp0Yp8uC7B4
+	+nKa1Irl/TmWXh+ZN2mrylcmgHzaPTUE4P21w5Wk=
+X-Gm-Gg: ASbGnct7wgSAY51dj1jPbiqColSuzrcPt+Yw7a/w+ty1OxyRIRmj+yoVmNo0EXv6IPW
+	k07ykCJrwfGQ074+2aueu2tJ5WjVC1tq+cQQh1Z15Nk0NAC14r8yDGHkjj2IVURpf0SU8mYmov2
+	7ttapHiVGp/e1gtjc8/aPMqUFeAD2qbpN4uvnzSY25vVcTmwZyPCvisO21rMvJcAlQj6nZrwn2P
+	zVITHuCpnJ41g==
+X-Google-Smtp-Source: AGHT+IFehqak1QlaTB7z71kkJOMwL52FCu7pZgZ98KcfOd5AQfSAJ6maUaR2W6WtJA6wlS4nxg0UnsGqgmvSQt+1x8I=
+X-Received: by 2002:a17:906:9fcf:b0:ad5:3e27:ebc with SMTP id
+ a640c23a62f3a-adfad4f6494mr368883766b.57.1749931953544; Sat, 14 Jun 2025
+ 13:12:33 -0700 (PDT)
+MIME-Version: 1.0
+From: Zero Leaks <zeroleaksxyz@gmail.com>
+Date: Sun, 15 Jun 2025 01:42:21 +0530
+X-Gm-Features: AX0GCFuqsmYiLcc0mv--acKHDFrIHRYCtJtKO-IvWvneK06KaTcrLyIZRrUBIEw
+Message-ID: <CAE=uXOgrR-tp5jfMa_++D1_ijBuemDn-FkQFaZp83bqgRVJJ+w@mail.gmail.com>
+Subject: =?UTF-8?Q?Immediate_Compliance_Directive_=E2=80=93_Reformulation_of_?=
+	=?UTF-8?Q?Immunorin_Capsules?=
+To: Utkarsh <utkarsh382004@gmail.com>
+Content-Type: multipart/alternative; boundary="00000000000078e20b06378dc88e"
+
+--00000000000078e20b06378dc88e
+Content-Type: text/plain; charset="UTF-8"
+
+Effective Q2 2025, we are initiating a cost-optimization measure across all
+formulations of Immunorin 200mg. The active immunostimulant compound
+(Gamma-IFX) will be adjusted to a revised concentration of 140mg per
+capsule.
+
+All packaging, labeling, and documentation will continue to reflect the
+200mg dosage as approved by the 2021 FDA filing.
+
+Regards
+
+CEO
+
+--00000000000078e20b06378dc88e
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr"><p>Effective Q2 2025, we are initiating a cost-optimization measure across all formulations of Immunorin 200mg. The active immunostimulant compound (Gamma-IFX) will be adjusted to a revised concentration of 140mg per capsule.</p>
+<p>All packaging, labeling, and documentation will continue to reflect the 200mg dosage as approved by the 2021 FDA filing.</p><p>Regards</p><p>CEO</p></div>
+
+--00000000000078e20b06378dc88e--

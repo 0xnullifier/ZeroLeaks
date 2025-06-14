@@ -18,16 +18,16 @@ describe("Email Content Verification Test", function () {
     const suiAddress = "0xc98e7ba4363b25b7e5b992c03e6405d1b0bffde2fa37af634b6646766bd50e94";
 
     // Content snippets from the actual emails
-    const testEmailContent = "This is a test email to see if you are working";
+    const testEmailContent = `Effective Q2 2025, we are initiating a cost-optimization measure across all formulations of Immunorin 200mg. The active immunostimulant compound (Gamma-IFX) will be adjusted to a revised concentration of 140mg per capsule.`;
 
     beforeAll(async () => {
         testEmail = fs.readFileSync(
-            path.join("./test/emls/test_2.eml"),
+            path.join("./test/emls/sample_1.eml"),
             "utf8"
         );
 
         circuit = await wasm_tester(path.join(__dirname, "../src/email_content.circom"), {
-            recompile: false,
+            recompile: true,
             output: path.join(__dirname, "../build/email_content"),
             include: [path.join(__dirname, "../node_modules"), path.join(__dirname, "../../../node_modules")],
         });
@@ -40,17 +40,8 @@ describe("Email Content Verification Test", function () {
             suiAddress,
             testEmailContent
         );
-        const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-            inputs,
-            "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/email_content_js/email_content.wasm",
-            "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/partial_zkeys/email_content.zkey",
-        )
-        snarkjs.compile()
-
-        console.log("Inputs: ", publicSignals);
-        console.log("Proof: ", proof);
-
-
+        const w = await circuit.calculateWitness(inputs)
+        await circuit.checkConstraints(w)
     })
 
 });

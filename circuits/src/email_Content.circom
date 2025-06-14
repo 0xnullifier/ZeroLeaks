@@ -57,6 +57,7 @@ template ZeroLeaksEmailContentVerifier(
     signal input precomputedSHA[32];
     signal input content[maxContentLength];
     signal input address;
+    signal input fromEmailIndex;
 
     // Content verification input
     signal input bodyMerkleRoot;
@@ -88,6 +89,9 @@ template ZeroLeaksEmailContentVerifier(
     // isFromIndexValid === 1;
     // signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
     // fromEmailFound === 1;
+    //     for (var i = 0; i < maxHeadersLength; i++) {
+    //     log(fromEmailReveal[i]);
+    // }
     // var maxEmailLength = 255;
     // signal output fromEmailAddrPacks[9] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
 
@@ -101,7 +105,8 @@ template ZeroLeaksEmailContentVerifier(
     generateRootFromAuditPath.lastGenIdx <== lastGenIdx;
 
     generateRootFromAuditPath.root === bodyMerkleRoot;
-
+    log(bodyMerkleRoot);
+    log(generateRootFromAuditPath.root);
 }
 
 
