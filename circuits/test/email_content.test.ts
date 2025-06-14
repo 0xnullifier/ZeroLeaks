@@ -45,6 +45,7 @@ describe("Email Content Verification Test", function () {
             "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/email_content_js/email_content.wasm",
             "/Users/utkarshdagoat/dev/sui_overflow_/sui_overflow/circuits/build/email_content/partial_zkeys/email_content.zkey",
         )
+        snarkjs.compile()
 
         console.log("Inputs: ", publicSignals);
         console.log("Proof: ", proof);

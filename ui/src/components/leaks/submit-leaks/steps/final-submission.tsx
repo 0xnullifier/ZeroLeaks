@@ -48,6 +48,8 @@ export function FinalSubmissionStep() {
       enabled: !!DAO_OBJECT_ID,
     }
   );
+
+
   console.log("Daodata", Daodata);
   useEffect(() => {
     if (!Daodata) return;
@@ -63,7 +65,7 @@ export function FinalSubmissionStep() {
 
     ///@ts-ignore
     const fields = data.content.fields;
-    if (!fields.allowlist.length) {
+    if (fields.allowlist.length === undefined) {
       toast("Allowlist index not found in DAO object.", {
         position: "top-right",
       });
@@ -77,12 +79,9 @@ export function FinalSubmissionStep() {
   const encryptFiles = async (file: File) => {
     console.log(allowlistIndex)
     if (allowlistIndex === null) {
-      toast("Cannot fetch the object. Please try again later", {
-        position: "top-right",
-      });
-      throw new Error("Allowlist index is not set.");
+      await refetchDao();
     }
-    const indexBytes = bcs.u64().serialize(allowlistIndex).toBytes();
+    const indexBytes = bcs.u64().serialize(allowlistIndex!).toBytes();
     const id = toHex(indexBytes)
     const fileBuffer = await file.arrayBuffer();
     console.log("fileBuffer", fileBuffer);
