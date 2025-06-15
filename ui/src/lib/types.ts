@@ -57,8 +57,8 @@ interface Bounty {
 
 interface BountySubmission {
   id?: string; // computed field for UI
-  proofPointsBytes: string; // hex string
-  publicInputs: string; // hex string
+  proofPointsBytes: string[]; // hex string
+  publicInputs: string[]; // hex string
   by: string; // email address
   content: string;
   votes: number; // number of votes for this submission

@@ -225,3 +225,18 @@ export function serializePublicSignal(publicSignals: PublicSignals): Uint8Array 
     return result;
 }
 
+// Deserialize a Uint8Array back to PublicSignals (array of strings)
+export function deserializePublicSignal(bytes: Uint8Array): PublicSignals {
+    const signals: string[] = [];
+    const chunkSize = 32;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.slice(i, i + chunkSize);
+        let value = 0n;
+        for (let j = 0; j < chunk.length; j++) {
+            value += BigInt(chunk[j]) << (8n * BigInt(j));
+        }
+        signals.push(value.toString());
+    }
+    return signals;
+}
+

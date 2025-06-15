@@ -23,6 +23,8 @@ import { useBountyStore } from "@/lib/bounty-store";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { toast } from "sonner";
 import { useRefetchAll } from "@/hooks/useRefetchAll";
+import { deserializePublicSignal } from "@/lib/serializer";
+import { emailFromPublicInputs } from "@/lib/helpers";
 
 export function BountyDetailsPage() {
     const { id } = useParams();

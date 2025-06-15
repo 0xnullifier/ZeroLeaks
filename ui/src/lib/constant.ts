@@ -1,8 +1,8 @@
-export const VK_OBJECT_ID = "0xc12ddc4b1cb670baa33a2b92cfc24fee6c0cbe45da3c6235447fe34cce36411a"
-export const LEAKS_OBJECT_ID = "0x60a9ddec2e73841ebbc496e898e08aa0dfcaf91ea812b7c7e028c709aaf516f4"
-export const PACKAGE_ID = "0x80ac6961da7f009db54e9e8dab47a30e01814231d5c2eaa675e752a4083fe1a5"
-export const DAO_OBJECT_ID = "0xe1b6f468a8ab826dea26f6ed953013d41f34e681951b85b47a40167cd61fcba6"
-export const BOUNTIES_OBJECT_ID = "0x8e99ce1e1def4b1a714983af2bd7c95567f48eaa639e49cee28532b65661078d"
+export const VK_OBJECT_ID = "0x0069257ecad36c58905a63ca6742441042a486311ddaf3823f6abac4df55cc78"
+export const LEAKS_OBJECT_ID = "0x27548b38606a2919491cd4e6746c2dcaf360c4e85ef8e5559bbb0f8fdea33343"
+export const PACKAGE_ID = "0xb937ede2495047e4e462f64ba617477ba33dc89b5c2b383d711e9c32e006c428"
+export const DAO_OBJECT_ID = "0xfd24db3091a51243da3b097e41cd0b1ad06fc3557e4b8a00f25114c5727096f2"
+export const BOUNTIES_OBJECT_ID = "0xdcab63ce4bc2449ee9ba26be6acae79987c5b98439f09cf84fb2d4fc38062408"
 export const COIN_OBJECT_ID = "0xa370e8966698ba021f5c28f2c3c0d592977869cd4341ee73922f78a1fe8ac87d"
 export const AGGREGATOR = "https://aggregator.walrus-testnet.walrus.space";
 export const PUBLISHER = "https://publisher.walrus-testnet.walrus.space";
