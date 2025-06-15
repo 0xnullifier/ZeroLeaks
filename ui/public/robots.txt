@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$
+Disallow: /src/
+Disallow: /node_modules/
+
+# Sitemap
+Sitemap: https://zeroleaks.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow important files
+Allow: /zero-leaks.png
+Allow: /favicon.ico
+Allow: /manifest.json

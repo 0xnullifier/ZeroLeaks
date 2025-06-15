@@ -72,7 +72,7 @@ export async function generateEmailContentVerifierCircuitInputs(
             start = i; // Start after the '<'
         }
         if (headerBufferString[i] === '>') {
-            lengthOfEmail = i - start - 1;
+            lengthOfEmail = i - start + 1;
             break;
         }
     }
