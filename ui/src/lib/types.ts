@@ -20,6 +20,7 @@ interface Leak {
   proof: ProofResponseJSON;
   author?: string; // wallet address of the leak creator
   allowlistIdx?: number; // index in the allowlist for DAO
+  fromEmailLength: number; // length of the leaked email content
 }
 
 interface Comment {

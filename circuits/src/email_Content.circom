@@ -85,15 +85,12 @@ template ZeroLeaksEmailContentVerifier(
     // FROM HEADER REGEX: 736,553 constraints
     // Assert fromEmailIndex < emailHeaderLength
     // does not work I don't know why
-    // signal isFromIndexValid <== LessThan(log2Ceil(maxHeadersLength))([fromEmailIndex, emailHeaderLength]);
-    // isFromIndexValid === 1;
-    // signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
-    // fromEmailFound === 1;
-    //     for (var i = 0; i < maxHeadersLength; i++) {
-    //     log(fromEmailReveal[i]);
-    // }
-    // var maxEmailLength = 255;
-    // signal output fromEmailAddrPacks[9] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
+    signal isFromIndexValid <== LessThan(log2Ceil(maxHeadersLength))([fromEmailIndex, emailHeaderLength]);
+    isFromIndexValid === 1;
+    signal (fromEmailFound, fromEmailReveal[maxHeadersLength]) <== FromAddrRegex(maxHeadersLength)(emailHeader);
+    fromEmailFound === 1;
+    var maxEmailLength = 185; // we have to reduce this as the max public outputs on sui is 8
+    signal output fromEmailAddrPacks[6] <== PackRegexReveal(maxHeadersLength, maxEmailLength)(fromEmailReveal, fromEmailIndex);
 
 
     // Content In Tree Verification: 576302 constraints

@@ -42,8 +42,10 @@ import type { Leak } from "@/lib/types";
 import { getAllowlistedKeyServers, SealClient, SessionKey, type SessionKeyType } from "@mysten/seal";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import localforage from "localforage";
+import { packedNBytesToString } from "@zk-email/helpers"
 
 import { useRefetchAll } from "@/hooks/useRefetchAll";
+import { emailFromPublicInputs } from "@/lib/helpers";
 export function LeakDetailsPage() {
   const { id } = useParams();
   const { getLeakById, fetchLeaks, leaks } = useLeaksStore();
@@ -204,11 +206,11 @@ export function LeakDetailsPage() {
 
   const downloadProof = async () => {
     const proof = leak?.proof;
+
     if (!proof) return;
 
     setIsDownloadingProof(true);
     try {
-      // Small delay to show loading state for user feedback
       await new Promise(resolve => setTimeout(resolve, 100));
 
       const blob = new Blob([JSON.stringify(proof)], { type: "application/json" });
@@ -229,8 +231,7 @@ export function LeakDetailsPage() {
       setIsDownloadingProof(false);
     }
   }
-
-
+  console.log(emailFromPublicInputs(leak?.proof.publicSignals || [], 22))
   const verifyOnChain = async ({ proof, publicSignals }: ProofResponseJSON) => {
     if (!account) {
       toast("Please login to verify on chain", {
@@ -532,7 +533,7 @@ export function LeakDetailsPage() {
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3 border border-border/50">
                     <code className="text-xs break-all text-muted-foreground">
-                      {leak.fromLeakedEmail}
+                      {emailFromPublicInputs(leak.proof.publicSignals, leak.fromEmailLength || 22)}
                     </code>
                   </div>
                 </div>

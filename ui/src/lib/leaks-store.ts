@@ -213,7 +213,8 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
                                 verificationDigest: txResult.value.data.submission.transactionDigest,
                                 proof: leak.zkProof,
                                 verifiedClaim: info[index].fields.content || "cannot get the claim",
-                                allowlistIdx: info[index].fields.allowlist_idx
+                                allowlistIdx: info[index].fields.allowlist_idx,
+                                fromEmailLength: leak.fromEmailLength || 0,
                             });
                         } else {
 
@@ -234,9 +235,7 @@ export const useLeaksStore = create<LeaksStore>((set, get) => ({
                 set({ leaks: leaks.reverse(), loading: false });
 
                 // Show a toast if some items failed but others succeeded
-                if (failedCount > 0 && leaks.length > 0) {
-                    toast(`${leaks.length} leaks loaded successfully. ${failedCount} items failed to load.`);
-                } else if (failedCount > 0 && leaks.length === 0) {
+                if (failedCount > 0 && leaks.length === 0) {
                     toast("All leaks failed to load. Please try again later.");
                 }
 

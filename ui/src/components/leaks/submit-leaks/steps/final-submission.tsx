@@ -19,7 +19,7 @@ import { useRefetchAll } from "@/hooks/useRefetchAll";
 
 
 export function FinalSubmissionStep() {
-  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest, emailContent, documentEncryptionSettings } = useSubmitLeakStore();
+  const { title, summary, category, tags, content, zkProof, documentFiles, transactionDigest, emailContent, documentEncryptionSettings, fromEmailLegnth } = useSubmitLeakStore();
   const [loadingStage, setLoadingStage] = useState<"idle" | "walrus" | "onchain" | "done">("idle");
 
   const account = useCurrentAccount();
@@ -127,13 +127,14 @@ export function FinalSubmissionStep() {
         tags,
         content,
         zkProof,
+        fromEmailLength: fromEmailLegnth,
         transactionDigest,
-        documentFiles: documentFilesToUpload
+        documentFiles: documentFilesToUpload,
       };
 
       const arrayBufferForJson = new TextEncoder().encode(JSON.stringify(toStore));
       const blobId = await uploadFile(arrayBufferForJson.buffer);
-
+      console.log(zkProof.publicSignals)
       const proofBuffer = serializeProof(zkProof.proof)
       const publicSignals = serializePublicSignal(zkProof.publicSignals);
 

@@ -28,7 +28,7 @@ export async function generateEmailContentVerifierCircuitInputs(
     email: string | Buffer,
     suiAddress: string,
     contentToVerify: string
-): Promise<IEmailContentCircuitInputs> {
+): Promise<[IEmailContentCircuitInputs, number]> {
     const emailVerifierInputs = await generateEmailVerifierInputs(email);
 
     console.log(Buffer.from(Uint8Array.from(emailVerifierInputs.emailHeader)).toString())
@@ -62,8 +62,21 @@ export async function generateEmailContentVerifierCircuitInputs(
     if (fromEmailIndex === -1) {
         throw new Error("From: header not found in email header");
     }
+    let lengthOfEmail = 0;
+    let start = 0;
+    const headerBufferString = headerBuffer.toString();
+    for (let i = fromEmailIndex; i < headerBuffer.length; i++) {
+        // end of the email
+        console.log(headerBufferString[i])
+        if (headerBufferString[i] === '<') {
+            start = i; // Start after the '<'
+        }
+        if (headerBufferString[i] === '>') {
+            lengthOfEmail = i - start - 1;
+            break;
+        }
+    }
 
-    console.log(bodyArray)
     const tree = await MerkleTree.buildTree(bodyArray)
 
 
@@ -94,7 +107,7 @@ export async function generateEmailContentVerifierCircuitInputs(
             contentArrayActual.push('0');
         }
     }
-    return {
+    return [{
         emailHeader: emailVerifierInputs.emailHeader,
         emailHeaderLength: emailVerifierInputs.emailHeaderLength,
         pubkey: emailVerifierInputs.pubkey,
@@ -111,5 +124,5 @@ export async function generateEmailContentVerifierCircuitInputs(
         lastGenIdx: lastGenIdx.toString(),
         auditPath: auditPath.map((path) => path.map((p) => p.toString())).slice(1),
         fromEmailIndex: fromEmailIndex.toString(),
-    };
+    }, lengthOfEmail];
 }

@@ -12,7 +12,9 @@ interface SubmitLeakStore {
   content: string;
   tags: string[];
   zkProof: ProofResponseJSON | null;
-  transactionDigest: string
+  transactionDigest: string;
+  fromEmailLegnth: number;
+  setFromEmailLength: (length: number) => void;
   setEmlFile: (file: File) => void;
   setEmailContent: (content: string) => void;
   setDocumentFiles: (files: File[]) => void;
@@ -31,6 +33,7 @@ export const useSubmitLeakStore = create<SubmitLeakStore>((set) => ({
   emailContent: "",
   documentFiles: [],
   documentEncryptionSettings: {},
+  fromEmailLegnth: 0,
   title: "",
   summary: "",
   category: "",
@@ -54,5 +57,6 @@ export const useSubmitLeakStore = create<SubmitLeakStore>((set) => ({
   setCategory: (category: string) => set({ category: category }),
   setContent: (content: string) => set({ content: content }),
   setZkProof: (proof: ProofResponseJSON) => set({ zkProof: proof }),
-  setTransactionDigest: (transactionDigest: string) => set({ transactionDigest })
+  setTransactionDigest: (transactionDigest: string) => set({ transactionDigest }),
+  setFromEmailLength: (length: number) => set({ fromEmailLegnth: length })
 }));

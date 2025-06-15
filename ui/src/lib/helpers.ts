@@ -1,4 +1,4 @@
-import { bytesToBigInt, fromHex } from "@zk-email/helpers";
+import { bytesToBigInt, fromHex, packedNBytesToString } from "@zk-email/helpers";
 import { generateEmailVerifierInputs } from "@zk-email/helpers";
 import { generalisedIndex, MerkleTree } from "./merkleTree";
 
@@ -21,13 +21,14 @@ export type IEmailContentCircuitInputs = {
     firstGenIdx: string;
     lastGenIdx: string;
     contentLength: string;
+    fromEmailIndex: string;
 };
 
 export async function generateEmailContentVerifierCircuitInputs(
     email: string | Buffer,
     suiAddress: string,
     contentToVerify: string
-): Promise<IEmailContentCircuitInputs> {
+): Promise<[IEmailContentCircuitInputs, number]> {
     const emailVerifierInputs = await generateEmailVerifierInputs(email);
 
     console.log(Buffer.from(Uint8Array.from(emailVerifierInputs.emailHeader)).toString())
@@ -57,12 +58,25 @@ export async function generateEmailContentVerifierCircuitInputs(
     const emailHeaderArray = emailVerifierInputs.emailHeader.map((c) => Number(c));
     const headerBuffer = Buffer.from(emailHeaderArray);
     const fromEmailIndex = headerBuffer.indexOf(Buffer.from('from:'));
-
     if (fromEmailIndex === -1) {
         throw new Error("From: header not found in email header");
     }
 
-    console.log(bodyArray)
+    let lengthOfEmail = 0;
+    let start = 0;
+    const headerBufferString = headerBuffer.toString();
+    for (let i = fromEmailIndex; i < headerBuffer.length; i++) {
+        // end of the email
+        console.log(headerBufferString[i])
+        if (headerBufferString[i] === '<') {
+            start = i; // Start after the '<'
+        }
+        if (headerBufferString[i] === '>') {
+            lengthOfEmail = i - start - 1;
+            break;
+        }
+    }
+
     const tree = await MerkleTree.buildTree(bodyArray)
 
 
@@ -83,7 +97,7 @@ export async function generateEmailContentVerifierCircuitInputs(
             contentArrayActual.push('0');
         }
     }
-    return {
+    return [{
         emailHeader: emailVerifierInputs.emailHeader,
         emailHeaderLength: emailVerifierInputs.emailHeaderLength,
         pubkey: emailVerifierInputs.pubkey,
@@ -99,5 +113,14 @@ export async function generateEmailContentVerifierCircuitInputs(
         firstGenIdx: firstGenIdx.toString(),
         lastGenIdx: lastGenIdx.toString(),
         auditPath: auditPath.map((path) => path.map((p) => p.toString())).slice(1),
-    };
+        fromEmailIndex: fromEmailIndex.toString(),
+    }, lengthOfEmail];
+}
+
+export function emailFromPublicInputs(publicInputs: string[], emailLength: number) {
+    const nonZeroSignals = publicInputs.filter((signal) => signal !== "0").map((signal) => BigInt(signal)) || [];
+    const string = packedNBytesToString(nonZeroSignals).trim();
+    const byteString = new TextEncoder().encode(string).filter((byte) => byte !== 0);
+    const nonZeroSignalsString = new TextDecoder().decode(byteString);
+    return nonZeroSignalsString.slice(nonZeroSignalsString.length - emailLength);
 }

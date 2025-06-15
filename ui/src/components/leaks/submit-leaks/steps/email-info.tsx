@@ -13,7 +13,7 @@ import { useStepper } from "@/components/ui/stepper";
 export default function EmailInfoStep() {
   const account = useCurrentAccount();
   const { nextStep } = useStepper();
-  const { emlFile, emailContent, setEmlFile, setEmailContent, setZkProof } =
+  const { emlFile, emailContent, setEmlFile, setEmailContent, setZkProof, setFromEmailLength } =
     useSubmitLeakStore();
   const handleFileSelect = (file: File) => {
     setEmlFile(file);
@@ -34,12 +34,12 @@ export default function EmailInfoStep() {
     try {
       setCurrentStage(0)
       const email = await file.text();
-      const emailContentInputs = await generateEmailContentVerifierCircuitInputs(
+      const [emailContentInputs, fromEmailLength] = await generateEmailContentVerifierCircuitInputs(
         email,
         account.address,
         emailContent
       );
-
+      setFromEmailLength(fromEmailLength);
       setProgressStages((prev) => prev.map((stage, index) => (index === 0 ? { ...stage, completed: true } : stage)))
       setCurrentStage(1);
       const { proof, publicSignals } = await generateProof(
