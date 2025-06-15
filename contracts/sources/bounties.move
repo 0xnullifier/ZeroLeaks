@@ -266,7 +266,6 @@ public(package) fun finish_tally(
     // Create a vector to track rewarded submission indices
     let mut rewarded_indices = vector::empty<u64>();
     let num_submissions = vector::length(&bounty.submissions);
-    print(&num_submissions);
     let mut rewards_given = 0;
     while (rewards_given < bounty.numberOfRewards) {
         let mut top_votes = 0;
@@ -304,7 +303,6 @@ public(package) fun finish_tally(
         // Payout the top submission
         let reward = coin::take(&mut bounty.coin, bounty.amount, ctx);
         let top_submission = &bounty.submissions[top_index];
-        print(&reward);
         transfer::public_transfer(reward, top_submission.by);
 
         event::emit(BountyFinished { bounty_from: top_submission.by, reward: bounty.amount });
